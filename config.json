@@ -20,5 +20,5 @@
   "checksumEnabled": true,
   "logEveryRequest": true,
   "devServer": false,
-  "clusterWorkerSize": 3
+  "clusterWorkerSize": 2
 }
