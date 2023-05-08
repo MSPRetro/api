@@ -27,6 +27,6 @@ exports.validateTicket = ticket => {
 function calculateSha256(data) {
   let hash = createHash("sha256");
   
-  hash.update(data + process.env.TicketSalt);
+  hash.update(data + process.env.CUSTOMCONNSTR_TicketSalt);
   return hash.digest("base64");
 }

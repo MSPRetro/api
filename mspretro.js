@@ -106,7 +106,7 @@ if (cluster.isMaster) {
       if (config.devServer) console.log(`Loaded ${Object.keys(API).length} routes!`);
     });
 
-    await connect(process.env.URIMongoDB, {
+    await connect(process.env.CUSTOMCONNSTR_URIMongoDB, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     })
