@@ -1,0 +1,33 @@
+const { generate } = require("generate-password");
+const { pbkdf2Sync } = require("crypto");
+const { userModel, friendModel } = require("../Utils/Schemas.js");
+const { buildXML, isModerator, getActorDetails } = require("../Utils/Util.js");
+const { setValue } = require("../Utils/Globals.js");
+const { saltDB } = require("../config.json");
+
+exports.data = {
+  SOAPAction: "UndeleteUser",
+  needTicket: true,
+  levelModerator: 3
+};
+
+exports.run = async (request, ActorId) => {
+  const user = await userModel.findOne({ ActorId: request.actorId });
+  if (!user) return;
+  
+  if (await isModerator(user.ActorId, user, 1)) return;
+
+  const passwordNew = generate({ length: 8, numbers: true });
+
+  await userModel.updateOne({ ActorId: user.ActorId }, { $set: {
+    Name: user.LastName,
+    "Extra.IsExtra": 0,
+    Password: pbkdf2Sync(`MSPRETRO,${passwordNew}`, saltDB, 1000, 64, "sha512").toString("hex"),
+    BlockedIpAsInt: 0
+  }});
+
+  setValue(`${user.ActorId}-PASSWORD`, passwordNew);
+  await friendModel.updateOne({ RequesterId: 1, ReceiverId: user.ActorId }, { Status: 1 });
+  
+  return buildXML("UndeleteUser", await getActorDetails(user.ActorId, user.ActorId));
+};
