@@ -1,0 +1,52 @@
+const { userModel, transactionModel } = require("../Utils/Schemas.js");
+const { getNewId, getCurrencySymbol } = require("../Utils/Util.js");
+const stripe = require("stripe")(process.env.StripeKey);
+
+exports.data = {
+  Name: "CreateCheckoutSession",
+  Method: "POST"
+}
+
+exports.run = async (req, res) => {
+  if (!await userModel.findOne({ ActorId: req.body.ActorId })) return res.sendStatus(404);
+  
+  const currencyData = getCurrencySymbol(req.body.Currency);
+  
+  const price = process.env[`Product_${currencyData.currency === "EUR" ? "EUR" : req.body.Currency}_${req.body.Key}`];
+  if (!price) return res.sendStatus(404);
+  
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: currencyData.paymentMethods,
+    mode: "payment",
+    allow_promotion_codes: true,
+    line_items: [{
+      price: price,
+      quantity: 1
+    }],
+    success_url: `${process.env.PaymentGatewayLink}/Success`,
+    cancel_url: `${process.env.PaymentGatewayLink}/Cancel`
+  });
+  
+  let TransactionId = await getNewId("transaction_id") + 1;
+  
+  const transaction = new transactionModel({
+    TransactionId: TransactionId,
+    StripeId: session.id,
+    CheckoutDone: 0,
+    ActorId: req.body.ActorId,
+    Amount: session.amount_total / 100,
+    Currency: currencyData.symbol,
+    MobileNumber: "0",
+    Timestamp: new Date(),
+    StarCoinsBefore: 0,
+    StarCoinsAfter: 0,
+    result_code: 1,
+    content_id: req.body.Key,// `MANUAL - ${numStr(request.amount, ".")} StarCoins`,
+    CardNumber: 0
+  })
+  await transaction.save();
+  
+  // console.log(JSON.stringify(session, null, 2));
+  
+  return res.json({ url: session.url });
+}
