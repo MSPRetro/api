@@ -1,5 +1,5 @@
 {
-  "port": 9000,
+  "port": 8080,
   "saltDB": "hE-@!6;s=D#|8R?~BD5eG|t$*f@@@P]Pb~4g$$c`",
   "saltClient": "KmSqayB#ep8&dje!9k7!XzJAtCG!cFFe@Ebsy7c9",
   "ChatLogWebhook": "https://discord.com/api/webhooks/1000456872043761694/LapVILuomVF8lHXT3FF3IwOCUwdWQn2w6XLfQPQMftFjYONu2pvoyq0dAkCl2gTH2AHL",
