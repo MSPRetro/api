@@ -7,7 +7,7 @@ exports.data = {
   levelModerator: 0
 };
 
-exports.run = async (request, ActorId) => {
+exports.run = async (request, ActorId, IP, Password) => {
   if (request.updateProfileDisplayCount) {
     const user = await userModel.findOne({ ActorId: request.actorId });
     if (!user) return;
@@ -15,5 +15,5 @@ exports.run = async (request, ActorId) => {
     if (!user.Profile.ProfileDisplays.includes(ActorId)) await userModel.updateOne({ ActorId: user.ActorId }, { $push: { "Profile.ProfileDisplays": ActorId } })
   };
   
-  return buildXML("LoadActorDetails2", await getActorDetails(request.actorId, ActorId));
+  return buildXML("LoadActorDetails2", await getActorDetails(request.actorId, ActorId, Password));
 };

@@ -7,7 +7,7 @@ exports.data = {
   levelModerator: 0
 };
 
-exports.run = async (request, ActorId) => {
+exports.run = async (request, ActorId, IP, Password) => {
   const clickitem = await clickitemModel.findOne({ ClickItemId: request.clickItemId });
   if (!clickitem) return;
   
@@ -41,5 +41,5 @@ exports.run = async (request, ActorId) => {
   });
   await item.save();
   
-  return buildXML("BuyClickItem", await getActorDetails(ActorId, ActorId));
+  return buildXML("BuyClickItem", await getActorDetails(ActorId, ActorId, Password));
 };

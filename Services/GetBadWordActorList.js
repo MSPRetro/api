@@ -7,7 +7,7 @@ exports.data = {
   levelModerator: 1
 };
 
-exports.run = async (request, ActorId) => {  
+exports.run = async (request, ActorId, IP, Password) => {  
   const users = await userModel.find({ "Extra.BadWordCount": { $ne: 0 } })
   .sort({ "Extra.BadWordCount": -1 })
   .skip(request.pageindex * 10)
@@ -16,7 +16,7 @@ exports.run = async (request, ActorId) => {
   let userData = [ ];
   
   for (let user of users) {
-    userData.push(await getActorDetails(user.ActorId, ActorId));
+    userData.push(await getActorDetails(user.ActorId, ActorId, Password));
   };
 
   return buildXML("GetBadWordActorList", {

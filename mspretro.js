@@ -1,17 +1,19 @@
 require("dotenv").config();
 
 const cluster = require("cluster");
+const { hostname } = require("os");
 const express = require("express");
 const bodyParser = require("body-parser");
 require("body-parser-xml")(bodyParser);
 const cors = require("cors");
+// const { WebSocketServer } = require("ws");
 const { connect } = require("mongoose");
 const { readdir } = require("fs");
 const { deleteValue, setValue } = require("./Utils/Globals.js");
 const { setError, clearError } = require("./Utils/ErrorManager.js");
 const config = require("./config.json");
 
-if (cluster.isMaster) {
+if (cluster.isMaster) {  
   let workers = [ ];
   for (let i = 0; i < config.clusterWorkerSize; i++) workers.push(cluster.fork());
 
@@ -21,7 +23,7 @@ if (cluster.isMaster) {
     }
   }
 
-  for (const id in cluster.workers) {
+  for (const id in cluster.workers) {    
     cluster.workers[id].on("message", messageHandler);
   }
 
@@ -71,6 +73,8 @@ if (cluster.isMaster) {
     
     if (!data || data.data.Method !== method) return res.sendStatus(404);
     
+    res.set("HandledBy", `${hostname()}_${process.pid}`);
+    
     return await data.run(req, res);
   })
 
@@ -86,9 +90,9 @@ if (cluster.isMaster) {
         
         SOAPActions[action.data.SOAPAction] = action;
         
-        if (config.devServer) console.log(`${f} action loaded!`);
+        if (process.env.DevServer === "true") console.log(`${f} action loaded!`);
       });
-      if (config.devServer) console.log(`Loaded ${Object.keys(SOAPActions).length} API's!`);
+      if (process.env.DevServer === "true") console.log(`Loaded ${Object.keys(SOAPActions).length} API's!`);
     });
     
     readdir("./Routes/", (error, f) => {
@@ -101,20 +105,36 @@ if (cluster.isMaster) {
         
         API[`${action.data.Name}-${action.data.Method}`] = action;
         
-        if (config.devServer) console.log(`${f} routes loaded!`);
+        if (process.env.DevServer === "true") console.log(`${f} routes loaded!`);
       });
-      if (config.devServer) console.log(`Loaded ${Object.keys(API).length} routes!`);
+      if (process.env.DevServer === "true") console.log(`Loaded ${Object.keys(API).length} routes!`);
     });
-
+        
     await connect(process.env.CUSTOMCONNSTR_URIMongoDB, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     })
-      .then(() => console.log("Connected to MongoDB - Worker: " + process.pid))
-      .catch((e) => {
-        console.log("An error has occured with MongoDB - Worker: " + process.pid)
-        console.error(e);
-      }); 
+    .then(() => console.log("Connected to MongoDB - Worker: " + process.pid))
+    .catch(() =>
+      console.log("An error has occured with MongoDB - Worker: " + process.pid)
+    );
+    
+    /*
+    const socket = new WebSocketServer({ port: 8080 });
+
+    socket.on("connection", (ws, request) => {
+      console.log("Connection etablished");
+      
+      ws.on("message", () => {
+        console.log("New message");
+      })
+    });
+    
+    socket.on("close", () => {
+      console.log("Connection closed");
+    })
+    */
+    
     console.log("The server is online! - Worker: " + process.pid);
     setValue("fmsUpdates", { });
   });

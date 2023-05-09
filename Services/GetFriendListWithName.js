@@ -38,10 +38,10 @@ exports.run = async (request, ActorId) => {
     }},
     { $unwind: "$user" }
   ]);
-  
+
   let FriendData = [ ];
   
-  for (let friend of friends1) {    
+  for (let friend of friends1) {
     FriendData.push({
       actorId: friend.user.ActorId,
       name: friend.user.Name

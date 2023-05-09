@@ -1,8 +1,4 @@
 {
-  "saltDB": "hE-@!6;s=D#|8R?~BD5eG|t$*f@@@P]Pb~4g$$c`",
-  "saltClient": "KmSqayB#ep8&dje!9k7!XzJAtCG!cFFe@Ebsy7c9",
-  "ChatLogWebhook": "https://discord.com/api/webhooks/1000456872043761694/LapVILuomVF8lHXT3FF3IwOCUwdWQn2w6XLfQPQMftFjYONu2pvoyq0dAkCl2gTH2AHL",
-  "ModLogWebhook": "https://discord.com/api/webhooks/988181963787599922/To37jLmfnH066k1LHNOOHJprEoBIQdY3eyOrLL-c3Lw1uXWvQLEX_fJeeK0ri_AdnUIY", 
   "AppVersion" : 5,
   "discord": "https://discord.gg/bwa9aCr",
   "cloudflare": {
@@ -12,12 +8,10 @@
   },
   "maintenance": {
     "InMaintenance": false,
-    "message": "We implement new features.\nThis can take several hours.\n\nJoin our Telegram to stay informed.\n- t.me/mspretro (announcements)\n- t.me/mspretro_chat (chat)",
-    "AllowedIP": [ "176.140.85.229" ]
+    "message": "",
+    "AllowedIP": [ "92.134.118.5" ]
   },
-  "disclamer": "**FAIR USE**\n\nCopyright Disclaimer under section 107 of the Copyright Act 1976, allowance is made for “fair use” for purposes such as criticism, comment, news reporting, teaching, scholarship, education and research.\nFair use is a use permitted by copyright statute that might otherwise be infringing.\nNon-profit, educational or personal use tips the balance in favor of fair use.\n\nAll content & files belong to MovieStarPlanet ©.\nThe server part of the game was entirely coded by Polo.\nHe is the ones who manage the game.\n\nLegal contact only: contact@mspretro.com",
-  "checksumEnabled": true,
+  "disclamer": "**FAIR USE**\n\nCopyright Disclaimer under section 107 of the Copyright Act 1976, allowance is made for “fair use” for purposes such as criticism, comment, news reporting, teaching, scholarship, education and research.\nFair use is a use permitted by copyright statute that might otherwise be infringing.\nNon-profit, educational or personal use tips the balance in favor of fair use.\n\nAll content & files belong to MovieStarPlanet (c)\nThe server part of the game was entirely coded by Polo.\nHe is the ones who manage the game.\n\nContact: mspretro@gmail.com",
   "logEveryRequest": true,
-  "devServer": false,
   "clusterWorkerSize": 2
 }

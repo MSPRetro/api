@@ -1,7 +1,6 @@
 const { pbkdf2Sync } = require("crypto");
 const { userModel } = require("../Utils/Schemas.js");
 const { buildXML } = require("../Utils/Util.js");
-const { saltDB } = require("../config.json");
 const { setValue } = require("../Utils/Globals.js");
 
 exports.data = {
@@ -11,10 +10,10 @@ exports.data = {
 };
 
 exports.run = async (request, ActorId) => {
-  if (!await userModel.findOne({ ActorId: ActorId, Password: pbkdf2Sync(`MSPRETRO,${request.oldPassword}`, saltDB, 1000, 64, "sha512").toString("hex") })) return;
+  if (!await userModel.findOne({ ActorId: ActorId, Password: pbkdf2Sync(`MSPRETRO,${request.oldPassword}`, process.env.CUSTOMCONNSTR_SaltDB, 1000, 64, "sha512").toString("hex") })) return;
   
   await userModel.updateOne({ ActorId: ActorId }, {
-    Password: pbkdf2Sync(`MSPRETRO,${request.newPassword}`, saltDB, 1000, 64, "sha512").toString("hex")
+    Password: pbkdf2Sync(`MSPRETRO,${request.newPassword}`, process.env.CUSTOMCONNSTR_SaltDB, 1000, 64, "sha512").toString("hex")
   });
   
   setValue(`${ActorId}-PASSWORD`, request.newPassword);
