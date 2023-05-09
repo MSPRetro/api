@@ -1,0 +1,6 @@
+.github/
+.glitch-assets
+Logs/
+config.json
+shrinkwrap.yaml
+README.md

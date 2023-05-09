@@ -7,7 +7,7 @@ exports.data = {
   levelModerator: 0
 };
 
-exports.run = async (request, ActorId) => {
+exports.run = async (request, ActorId, IP, Password) => {
   const animation = await animationModel.findOne({ AnimationId: request.animation.AnimationId });
     
   const user = await userModel.findOne({ ActorId: ActorId });
@@ -38,5 +38,5 @@ exports.run = async (request, ActorId) => {
   });
   var resp = await item.save();
   
-  return buildXML("BuyAnimation", await getActorDetails(ActorId, ActorId));
+  return buildXML("BuyAnimation", await getActorDetails(ActorId, ActorId, Password));
 };

@@ -30,27 +30,64 @@ exports.run = async (request, ActorId) => {
       case "LEVEL":
         FriendData.sort((a, b) => b.Progression.Fame - a.Progression.Fame);
         
-        // const friends = await friendModel.aggregate([
-        //   { $match: {
-        //     or: [
-        //      {
-        //        RequesterId: ActorId,
-        //        Status: 1
-        //      },
-        //      {
-        //        ReceiverId: ActorId,
-        //        Status: 1
-        //      }
-        //     ]
-        //   }},
-        //   { $lookup: {
-        //     from: "users",
-        //     localField: "ReceiverId",
-        //     foreignField: "ActorId",
-        //     as: "user"
-        //   }},
-        //   { $unwind: "$user" }
-        // ]);
+        /* TODO: Try to make a MongoDB query to improve the performance
+        
+        console.log(ActorId)
+        
+        const a = await friendModel.aggregate([
+          {
+            $match: {
+              or: [
+               {
+                 RequesterId: ActorId,
+                 Status: 1
+               },
+               {
+                 ReceiverId: ActorId,
+                 Status: 1
+               }
+              ]
+            }
+          },
+          {
+            $set: {
+              fieldResult: {
+                $cond: {
+                  if: {
+                    $eq: [ "$ReceiverId", ActorId ]
+                  },
+                  then: "$RequesterId",
+                  else: "$ReceiverId"
+                }
+              }
+            }
+          },
+          {
+            $lookup: {
+              from: "users",
+              localField: "fieldResult",
+              foreignField: "ActorId",
+              as: "user"
+            }
+          },
+          {
+            $project: {
+              ActorId: "$user.ActorId",
+              Name: "$user.Name",
+              Fame: "$user.Progression.Fame",
+              Money: "$user.Progression.Money",
+              Fortune: "$user.Progression.Fortune",
+              IsExtra: "$user.Extra.IsExtra",
+              RoomLikes: "$user.Room.RoomActorLikes"
+            }
+          },
+          { $sort: { "Fame": -1 } },
+          { $skip: request.pageindex * 7 },
+          { $limit: 7 }
+        ]);
+        
+        console.log(a);
+        */
 
         break;
       case "FORTUNE":
@@ -115,7 +152,7 @@ exports.run = async (request, ActorId) => {
         return;
     };
     
-    for(let user of users) {
+    for (let user of users) {
       leaderboardArray.push({
         ActorId: user.ActorId,
         Name: user.Name,

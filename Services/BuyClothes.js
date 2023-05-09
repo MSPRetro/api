@@ -7,7 +7,7 @@ exports.data = {
   levelModerator: 0
 };
 
-exports.run = async (request, ActorId) => {  
+exports.run = async (request, ActorId, IP, Password) => {  
   let itemsArray = [ ];
   
   if (request.items.ActorClothesRel2.ActorClothesRelId !== undefined) {
@@ -21,7 +21,7 @@ exports.run = async (request, ActorId) => {
       items: {
         ActorClothesRel: itemsArray,
       },
-      actorDetails: await getActorDetails(ActorId, ActorId)
+      actorDetails: await getActorDetails(ActorId, ActorId, Password)
     });
   };
     
@@ -34,7 +34,7 @@ exports.run = async (request, ActorId) => {
     items: {
       ActorClothesRel: itemsArray,
     },
-    actorDetails: await getActorDetails(ActorId, ActorId)
+    actorDetails: await getActorDetails(ActorId, ActorId, Password)
   });
 }
 

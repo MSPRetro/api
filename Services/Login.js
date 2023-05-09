@@ -50,13 +50,13 @@ exports.run = async (request, undefined, IP) => {
   
   const IPDatas = await IPModel.findOne({ IP: IP });
 
-  const ticket = generateTicket(user.ActorId);
+  const ticket = generateTicket(user.ActorId, request.password, IP);
   setValue(`${user.ActorId}-LEVEL`, buildLevel(user.Progression.Fame));
   setValue(`${user.ActorId}-PASSWORD`, request.password);
   
   const saveTicket = new ticketModel({
     ActorId: user.ActorId,
-    Ticket: ticket,
+    Ticket: ticket, // this should be hashed
     Date: dateTicket,
     Disable: false,
     IPId: IPDatas.IPId
@@ -67,7 +67,7 @@ exports.run = async (request, undefined, IP) => {
   
   return buildXML("Login", {
     status: "Success",
-    actor: await getActorDetails(user.ActorId, user.ActorId),
+    actor: await getActorDetails(user.ActorId, user.ActorId, request.password),
     blockedIpAsInt: user.BlockedIpAsInt,
     actorLocale: {
       string: "en_US"

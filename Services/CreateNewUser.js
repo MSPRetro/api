@@ -220,7 +220,7 @@ exports.run = async (request, undefined, IP) => {
   dateTicket.setHours(dateTicket.getHours() + 72);
   dateTicket = dateTicket.getTime();
   
-  const ticket = generateTicket(ActorId)
+  const ticket = generateTicket(ActorId, request.password, IP);
   setValue(`${ActorId}-LEVEL`, 0);
   setValue(`${ActorId}-PASSWORD`, request.password);
   

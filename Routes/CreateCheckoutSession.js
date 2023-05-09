@@ -1,6 +1,6 @@
 const { userModel, transactionModel } = require("../Utils/Schemas.js");
 const { getNewId, getCurrencySymbol } = require("../Utils/Util.js");
-const stripe = require("stripe")(process.env.CUSTOMCONNSTR_StripeKey);
+const stripe = require("stripe")(process.env.StripeKey);
 
 exports.data = {
   Name: "CreateCheckoutSession",

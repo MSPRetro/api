@@ -9,9 +9,8 @@ exports.data = {
 };
 
 exports.run = async (request, ActorId) => {
-    
   const movie = await movieModel.findOne({ MovieId: request.movieId });
-  if (movie.ActorId !== ActorId) return buildXML("SaveMovieSnapshot", { });
+  if (movie.ActorId != ActorId) return buildXML("SaveMovieSnapshot", { });
   
   // ./Images/${request.movieId}.jpg
   

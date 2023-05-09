@@ -11,7 +11,7 @@ exports.data = {
   levelModerator: 3
 };
 
-exports.run = async (request, ActorId) => {
+exports.run = async (request, ActorId, IP, Password) => {
   const user = await userModel.findOne({ ActorId: request.actorId });
   if (!user) return;
   
@@ -29,5 +29,5 @@ exports.run = async (request, ActorId) => {
   setValue(`${user.ActorId}-PASSWORD`, passwordNew);
   await friendModel.updateOne({ RequesterId: 1, ReceiverId: user.ActorId }, { Status: 1 });
   
-  return buildXML("UndeleteUser", await getActorDetails(user.ActorId, user.ActorId));
+  return buildXML("UndeleteUser", await getActorDetails(user.ActorId, user.ActorId, Password));
 };

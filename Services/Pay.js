@@ -7,7 +7,7 @@ exports.data = {
   levelModerator: 0
 };
 
-exports.run = async (request, ActorId) => {
+exports.run = async (request, ActorId, IP, Password) => {
   if (Math.sign(request.starcoins) != 1) return;
   
   const user = await userModel.findOne({ ActorId: ActorId });
@@ -18,5 +18,5 @@ exports.run = async (request, ActorId) => {
   
   await addFame(ActorId, user, request.starcoins / 10);
     
-  return buildXML("Pay", await getActorDetails(ActorId, ActorId));
+  return buildXML("Pay", await getActorDetails(ActorId, ActorId, Password));
 }

@@ -44,6 +44,8 @@ exports.run = async (req, res) => {
 
       if (checksumClient !== checksumServer) return res.sendStatus(403);
     }
+    
+    let ticketData = { isValid: false, data: { ActorId: null, IP: "", Password: "" } };
 
     if (SOAPActions[action]) {
       let parsed = sanitize(parseRawXml(req.body));
@@ -60,9 +62,11 @@ exports.run = async (req, res) => {
           ticket = parsed.ticket;
         }
         
-        if (!validateTicket(ticket)) return res.sendStatus(403);
+        ticketData = validateTicket(ticket);
+        
+        if (!ticketData.isValid) return res.sendStatus(403);
 
-        ActorId = parseInt(ticket.split(",")[1]);
+        ActorId = ticketData.data.ActorId;
 
         if (SOAPActions[action].data.levelModerator != 0) {
           if (!await isModerator(ActorId, false, SOAPActions[action].data.levelModerator)) return res.sendStatus(403);
@@ -111,7 +115,7 @@ exports.run = async (req, res) => {
 
       if (config.logEveryRequest) log(ActorId, action, parsed, IP);
 
-      const xml = await SOAPActions[action].run(parsed, ActorId, IP);
+      const xml = await SOAPActions[action].run(parsed, ActorId, IP, ticketData.data.Password);
 
       if (typeof xml === "object" && xml !== null && xml.hasOwnProperty("statuscode")) {
         return res.sendStatus(xml.statuscode);

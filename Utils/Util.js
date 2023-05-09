@@ -268,7 +268,7 @@ let createTodo = exports.createTodo = async (ActorId, Type, Deadline = new Date(
   return await todo.save();
 };
 
-exports.getActorDetails = async (ActorId, RellActorId) => {
+exports.getActorDetails = async (ActorId, RellActorId, Password) => {
   let user = await userModel.findOne({ ActorId: ActorId });
   if (!user) return { };
   
@@ -289,22 +289,17 @@ exports.getActorDetails = async (ActorId, RellActorId) => {
     LockedText = behavior.LockedText;
   };
   
-  let password;
-  let email;
+  let password = "";
+  let email = "";
   
   if (ActorId == RellActorId) {
     if (getValue(`${RellActorId}-LEVEL`) != buildLevel(user.Progression.Fame) && buildLevel(user.Progression.Fame) == 3 && user.Extra.InvitedByActorId != 0) {
       await createTodo(RellActorId, false, 4, 0, user.Extra.InvitedByActorId, 0, 0);
     };
     
-    password = getValue(`${RellActorId}-PASSWORD`);
-    if (!password) password = "7NGeUexKyhZ36u6L";
     email = user.Email.Email;
+    password = Password;
   }
-  else {
-    password = "";
-    email = "";
-  };
   
   let config = await confModel.find({  });
   config = config[0];

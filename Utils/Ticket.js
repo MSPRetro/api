@@ -1,14 +1,20 @@
-const { createHash } = require("crypto");
+const { sign, verify } = require("jsonwebtoken");
+// const { createHash } = require("crypto");
 
-exports.generateTicket = actorId => {
+exports.generateTicket = (ActorId, password, IP) => {
+  /*
   let ticketDate = new Date();
   ticketDate.setHours(ticketDate.getHours() + 24);
   ticketDate = ticketDate.getTime();
+  */
   
-  return `RETRO,${actorId},${ticketDate},${calculateSha256(actorId + ticketDate.toString())}`;
+  return sign({ ActorId: ActorId, Password: password, IP: IP }, process.env.TicketSalt, { expiresIn: "1d" });
+  
+  // return `RETRO,${ActorId},${ticketDate},${calculateSha256(ActorId + ticketDate.toString())}`;
 };
 
 exports.validateTicket = ticket => {
+  /*
   let ticketSeparated = ticket.split(",");
   
   if (ticketSeparated.length != 4) return false;
@@ -22,11 +28,23 @@ exports.validateTicket = ticket => {
   if (Date.now() > Number(dateTime)) return false;
   
   return true;
+  */
+  
+  try { // Token is valid
+    const decoded = verify(ticket, process.env.TicketSalt);
+    
+    return { isValid: true, data: decoded }
+    
+  } catch (err) { // Token is invalid
+    return { isValid: false, data: null };
+  }
 }
 
+/*
 function calculateSha256(data) {
   let hash = createHash("sha256");
   
-  hash.update(data + process.env.CUSTOMCONNSTR_TicketSalt);
+  hash.update(data + process.env.TicketSalt);
   return hash.digest("base64");
 }
+*/
