@@ -35,7 +35,7 @@ exports.run = async (req, res) => {
     action = endpoint.replace("http://moviestarplanet.com/", "");
     action = action.replace(new RegExp('"', "gi"), "");
 
-    if (config.checksumEnabled && req.headers["referer"] != "https://cdn.mspretro.com/Il8Lv2VQ2FBd6GH1O0gzog7iV7nDtol9YNVqZIMX.swf") {
+    if (process.env.ChecksumEnabled === "true" && req.headers["referer"] != "https://cdn.mspretro.com/Il8Lv2VQ2FBd6GH1O0gzog7iV7nDtol9YNVqZIMX.swf") {
       const checksumClient = req.headers["checksum-client"];
       const checksumServer = createChecksum(
         JSON.stringify(req.body) /* + req.cookies.SessionId */,
@@ -44,6 +44,8 @@ exports.run = async (req, res) => {
 
       if (checksumClient !== checksumServer) return res.sendStatus(403);
     }
+    
+    let ticketData = { isValid: false, data: { ActorId: null, IP: "", Password: "" } };
 
     if (SOAPActions[action]) {
       let parsed = sanitize(parseRawXml(req.body));
@@ -60,9 +62,11 @@ exports.run = async (req, res) => {
           ticket = parsed.ticket;
         }
         
-        if (!validateTicket(ticket)) return res.sendStatus(403);
+        ticketData = validateTicket(ticket);
+        
+        if (!ticketData.isValid) return res.sendStatus(403);
 
-        ActorId = parseInt(ticket.split(",")[1]);
+        ActorId = ticketData.data.ActorId;
 
         if (SOAPActions[action].data.levelModerator != 0) {
           if (!await isModerator(ActorId, false, SOAPActions[action].data.levelModerator)) return res.sendStatus(403);
@@ -111,13 +115,13 @@ exports.run = async (req, res) => {
 
       if (config.logEveryRequest) log(ActorId, action, parsed, IP);
 
-      const xml = await SOAPActions[action].run(parsed, ActorId, IP);
+      const xml = await SOAPActions[action].run(parsed, ActorId, IP, ticketData.data.Password);
 
       if (typeof xml === "object" && xml !== null && xml.hasOwnProperty("statuscode")) {
         return res.sendStatus(xml.statuscode);
       }
 
-      if (config.checksumEnabled) {
+      if (process.env.ChecksumEnabled === "true") {
         /*
         let cookie = req.cookies.SessionId;
 
@@ -193,7 +197,7 @@ function log(ActorId = false, action, request, IP) {
 function createChecksum(args, action = null) {
   let sha = createHash("sha1");
 
-  sha.update(args + action + config.saltClient);
+  sha.update(args + action + process.env.CUSTOMCONNSTR_SaltClient);
   return sha.digest("hex");
 }
 

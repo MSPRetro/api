@@ -4,7 +4,6 @@ const { copyFileSync } = require("fs");
 const { userModel, idModel, clothModel, eyeModel, noseModel, mouthModel, friendModel, ticketModel, IPModel } = require("../Utils/Schemas.js");
 const { buildXML, buildLevel, formatDate, getNewId } = require("../Utils/Util.js");
 const { setValue } = require("../Utils/Globals.js");
-const { saltDB } = require("../config.json");
 const { setError } = require("../Utils/ErrorManager.js");
 const { run } = require("./LogChat.js");
 const { generateTicket } = require("../Utils/Ticket.js");
@@ -101,7 +100,7 @@ exports.run = async (request, undefined, IP) => {
   
   let ActorId = await getNewId("actor_id") + 100;
   
-  let hash = pbkdf2Sync(`MSPRETRO,${request.actor.Password}`, saltDB, 1000, 64, "sha512").toString("hex");
+  let hash = pbkdf2Sync(`MSPRETRO,${request.actor.Password}`, process.env.CUSTOMCONNSTR_SaltDB, 1000, 64, "sha512").toString("hex");
   
   if (request.clothes.ActorClothesRel2 instanceof Array) {
     for (let clothe of request.clothes.ActorClothesRel2) {
@@ -220,7 +219,7 @@ exports.run = async (request, undefined, IP) => {
   dateTicket.setHours(dateTicket.getHours() + 72);
   dateTicket = dateTicket.getTime();
   
-  const ticket = generateTicket(ActorId)
+  const ticket = generateTicket(ActorId, request.password, IP);
   setValue(`${ActorId}-LEVEL`, 0);
   setValue(`${ActorId}-PASSWORD`, request.password);
   

@@ -7,7 +7,7 @@ exports.data = {
   levelModerator: 0
 };
 
-exports.run = async (request, ActorId) => {
+exports.run = async (request, ActorId, IP, Password) => {
   const background = await backgroundModel.findOne({ BackgroundId: request.background.BackgroundId });
   if (!background) return;
       
@@ -39,5 +39,5 @@ exports.run = async (request, ActorId) => {
   });
   await item.save();
   
-  return buildXML("BuyBackground", await getActorDetails(ActorId, ActorId));
+  return buildXML("BuyBackground", await getActorDetails(ActorId, ActorId, Password));
 };

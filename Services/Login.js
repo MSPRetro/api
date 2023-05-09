@@ -4,7 +4,6 @@ const { userModel, ticketModel, IPModel } = require("../Utils/Schemas.js");
 const { buildXML, getActorDetails, formatDate, buildLevel } = require("../Utils/Util.js");
 const { generateTicket } = require("../Utils/Ticket.js");
 const { getValue, deleteValue, setValue } = require("../Utils/Globals.js");
-const { saltDB } = require("../config.json");
 const { run } = require("./LogChat.js");
 
 exports.data = {
@@ -13,8 +12,10 @@ exports.data = {
   levelModerator: 0
 };
 
-exports.run = async (request, undefined, IP) => {  
-  let hash = pbkdf2Sync(`MSPRETRO,${request.password}`, saltDB, 1000, 64, "sha512").toString("hex");
+exports.run = async (request, undefined, IP) => {
+  let hash = pbkdf2Sync(`MSPRETRO,${request.password}`, process.env.CUSTOMCONNSTR_SaltDB, 1000, 64, "sha512").toString("hex");
+  
+  console.log(hash, process.env.CUSTOMCONNSTR_SaltDB);
    
   const user = await userModel.findOne({ Name: request.username.toString().trim(), Password: hash })
   .collation({ locale: "en", strength: 2 });
@@ -50,13 +51,13 @@ exports.run = async (request, undefined, IP) => {
   
   const IPDatas = await IPModel.findOne({ IP: IP });
 
-  const ticket = generateTicket(user.ActorId);
+  const ticket = generateTicket(user.ActorId, request.password, IP);
   setValue(`${user.ActorId}-LEVEL`, buildLevel(user.Progression.Fame));
   setValue(`${user.ActorId}-PASSWORD`, request.password);
   
   const saveTicket = new ticketModel({
     ActorId: user.ActorId,
-    Ticket: ticket,
+    Ticket: ticket, // this should be hashed
     Date: dateTicket,
     Disable: false,
     IPId: IPDatas.IPId
@@ -67,7 +68,7 @@ exports.run = async (request, undefined, IP) => {
   
   return buildXML("Login", {
     status: "Success",
-    actor: await getActorDetails(user.ActorId, user.ActorId),
+    actor: await getActorDetails(user.ActorId, user.ActorId, request.password),
     blockedIpAsInt: user.BlockedIpAsInt,
     actorLocale: {
       string: "en_US"

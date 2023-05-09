@@ -7,7 +7,7 @@ exports.data = {
   levelModerator: 0
 };
 
-exports.run = async (request, ActorId) => {
+exports.run = async (request, ActorId, IP, Password) => {
   const music = await musicModel.findOne({ MusicId: request.music.MusicId });
   if (!music) return;
     
@@ -40,5 +40,5 @@ exports.run = async (request, ActorId) => {
   });
   await item.save();
   
-  return buildXML("BuyMusic", await getActorDetails(ActorId, ActorId));
+  return buildXML("BuyMusic", await getActorDetails(ActorId, ActorId, Password));
 };

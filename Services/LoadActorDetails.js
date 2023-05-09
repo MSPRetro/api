@@ -6,7 +6,7 @@ exports.data = {
   levelModerator: 0
 };
 
-exports.run = async (request, ActorId) => {
+exports.run = async (request, ActorId, IP, Password) => {
   // await userModel.updateOne({ ActorId: request.actorId }, { $set: { "Moderation.BehaviourStatus": 0 } });
-  return buildXML("LoadActorDetails", await getActorDetails(request.actorId, ActorId));
+  return buildXML("LoadActorDetails", await getActorDetails(request.actorId, ActorId, Password));
 };

@@ -1,19 +1,20 @@
 const { createTransport } = require("nodemailer");
 
-exports.sendMail = async (to, subject, content) => {
+exports.sendMail = async (to, subject, content, cci = "") => {
   if (!mailIsValid(to)) return false;
   
   const transporter = createTransport({
     service: "gmail",
     auth: {
       user: "mspretro@gmail.com",
-      pass: "chiagitrfkcplfic"
+      pass: process.env.CUSTOMCONNSTR_PasswordEmail
     }
   });
 
   transporter.sendMail({
-    from: "mspretro@gmail.com",
+    from: '"MSPRetro" <contact@mspretro.com>',
     to: to,
+    bcc: cci,
     subject: subject,
     text: content
   }, function(error, info) {

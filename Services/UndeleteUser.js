@@ -3,7 +3,6 @@ const { pbkdf2Sync } = require("crypto");
 const { userModel, friendModel } = require("../Utils/Schemas.js");
 const { buildXML, isModerator, getActorDetails } = require("../Utils/Util.js");
 const { setValue } = require("../Utils/Globals.js");
-const { saltDB } = require("../config.json");
 
 exports.data = {
   SOAPAction: "UndeleteUser",
@@ -11,7 +10,7 @@ exports.data = {
   levelModerator: 3
 };
 
-exports.run = async (request, ActorId) => {
+exports.run = async (request, ActorId, IP, Password) => {
   const user = await userModel.findOne({ ActorId: request.actorId });
   if (!user) return;
   
@@ -22,12 +21,12 @@ exports.run = async (request, ActorId) => {
   await userModel.updateOne({ ActorId: user.ActorId }, { $set: {
     Name: user.LastName,
     "Extra.IsExtra": 0,
-    Password: pbkdf2Sync(`MSPRETRO,${passwordNew}`, saltDB, 1000, 64, "sha512").toString("hex"),
+    Password: pbkdf2Sync(`MSPRETRO,${passwordNew}`, process.env.CUSTOMCONNSTR_SaltDB, 1000, 64, "sha512").toString("hex"),
     BlockedIpAsInt: 0
   }});
 
   setValue(`${user.ActorId}-PASSWORD`, passwordNew);
   await friendModel.updateOne({ RequesterId: 1, ReceiverId: user.ActorId }, { Status: 1 });
   
-  return buildXML("UndeleteUser", await getActorDetails(user.ActorId, user.ActorId));
+  return buildXML("UndeleteUser", await getActorDetails(user.ActorId, user.ActorId, Password));
 };
