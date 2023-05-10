@@ -14,8 +14,6 @@ exports.data = {
 
 exports.run = async (request, undefined, IP) => {
   let hash = pbkdf2Sync(`MSPRETRO,${request.password}`, process.env.CUSTOMCONNSTR_SaltDB, 1000, 64, "sha512").toString("hex");
-  
-  console.log(hash, process.env.CUSTOMCONNSTR_SaltDB);
    
   const user = await userModel.findOne({ Name: request.username.toString().trim(), Password: hash })
   .collation({ locale: "en", strength: 2 });

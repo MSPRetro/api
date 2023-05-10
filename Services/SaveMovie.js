@@ -1,4 +1,6 @@
-const { copyFileSync } = require("fs");
+const { join } = require("path");
+const { createReadStream } = require("fs");
+const { containerClient } = require("../mspretro.js");
 const { movieModel } = require("../Utils/Schemas.js");
 const { buildXML, formatDate, createTodo, getNewId } = require("../Utils/Util.js");
 
@@ -28,12 +30,14 @@ exports.run = async (request, ActorId) => {
     return buildXML("SaveMovie", request.movie.MovieId);
     
   } else {
-    let MovieId = await getNewId("movie_id") + 1;
+    const MovieId = await getNewId("movie_id") + 1;
+    const shardDir = Math.floor(MovieId / 10000);
     
-    let shardDir = Math.floor(MovieId / 10000);
+    const stream = createReadStream(join(__dirname, "../DefaultAssets/movie.jpg"));
     
-    copyFileSync("/root/mspretro/DefaultAssets/movie.jpg", `/var/www/mspretro/movie-snapshots/${shardDir}/${MovieId}.jpg`);
-    
+    const file = containerClient.getBlockBlobClient(`/movie-snapshots/${shardDir}/${MovieId}.jpg`);
+    await file.uploadStream(stream);
+        
     const movie = new movieModel({
       MovieId: MovieId,
       Name: request.movie.Name,
