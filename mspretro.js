@@ -1,22 +1,25 @@
 require("dotenv").config();
 
 const cluster = require("cluster");
-const { hostname } = require("os");
+const { hostname, cpus } = require("os");
+const { readdir } = require("fs");
+
 const express = require("express");
 const bodyParser = require("body-parser");
 require("body-parser-xml")(bodyParser);
 const cors = require("cors");
-// const { WebSocketServer } = require("ws");
+
 const { connect } = require("mongoose");
-const { readdir } = require("fs");
+const { BlobServiceClient } = require("@azure/storage-blob");
+
 const { deleteValue, setValue } = require("./Utils/Globals.js");
 const { setError, clearError } = require("./Utils/ErrorManager.js");
 const config = require("./config.json");
 
-if (cluster.isMaster) {  
+if (cluster.isMaster) {
   let workers = [ ];
-  for (let i = 0; i < config.clusterWorkerSize; i++) workers.push(cluster.fork());
-
+  for (let i = 0; i < cpus().length; i++) workers.push(cluster.fork());
+  
   function messageHandler(msg) {
     if (msg.msg) {
       for (let worker of workers) worker.send(msg);
@@ -76,7 +79,7 @@ if (cluster.isMaster) {
     res.set("HandledBy", `${hostname()}_${process.pid}`);
     
     return await data.run(req, res);
-  })
+  });
 
   app.listen(process.env.PORT, async _ => {
     console.log("The server is starting... - Worker: " + process.pid);
@@ -109,6 +112,9 @@ if (cluster.isMaster) {
       });
       if (process.env.DevServer === "true") console.log(`Loaded ${Object.keys(API).length} routes!`);
     });
+    
+    const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.CUSTOMCONNSTR_AzureBlobStorage);
+    exports.containerClient = blobServiceClient.getContainerClient("$web");
         
     await connect(process.env.CUSTOMCONNSTR_URIMongoDB, {
       useNewUrlParser: true,
@@ -118,22 +124,6 @@ if (cluster.isMaster) {
     .catch(() =>
       console.log("An error has occured with MongoDB - Worker: " + process.pid)
     );
-    
-    /*
-    const socket = new WebSocketServer({ port: 8080 });
-
-    socket.on("connection", (ws, request) => {
-      console.log("Connection etablished");
-      
-      ws.on("message", () => {
-        console.log("New message");
-      })
-    });
-    
-    socket.on("close", () => {
-      console.log("Connection closed");
-    })
-    */
     
     console.log("The server is online! - Worker: " + process.pid);
     setValue("fmsUpdates", { });

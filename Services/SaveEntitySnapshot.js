@@ -1,4 +1,4 @@
-const { writeFile } = require("fs");
+const { containerClient } = require("../mspretro.js");
 const { buildXML } = require("../Utils/Util.js");
 
 exports.data = {
@@ -8,28 +8,14 @@ exports.data = {
 };
 
 exports.run = async (request, ActorId) => {
+  if (![ "look", "room", "moviestar" ].includes(request.EntityType)) return;
   
-  // ./Images/${ActorId}.jpg
+  const shardDir = Math.floor(ActorId / 10000);  
+  const buffer = Buffer.from(request.data, "base64");
   
-  let path;
-  let shardDir = Math.floor(ActorId / 10000);
-  
-  switch (request.EntityType) {
-    case "look":
-      path = `/var/www/mspretro/entity-snapshots/look/${shardDir}/${ActorId}.jpg`; // Wrong, that's not ActorId!
-      break;
-    case "room":
-      path = `/var/www/mspretro/entity-snapshots/room/${shardDir}/${ActorId}.jpg`;
-      break;
-    case "moviestar":
-      path = `/var/www/mspretro/entity-snapshots/moviestar/${shardDir}/${ActorId}.jpg`;
-      break;
-    default:
-      return console.log(`[SaveEntitySnapshot] : ${request.EntityType} is not coded.`);
-  };
-  
-  writeFile(path, request.data, { encoding: "base64" }, function(err) {
-  });
+  // this is wrong for ActorId when it's a look, it's not ActorId but LookId (as it's not yet implemented in the client, it's not a pb)
+  const file = containerClient.getBlockBlobClient(`/entity-snapshots/${request.EntityType}/${shardDir}/${ActorId}.jpg`);
+  await file.upload(buffer, buffer.length);
   
   return buildXML("SaveEntitySnapshot");
 };

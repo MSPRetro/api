@@ -1,4 +1,4 @@
-const { writeFile } = require("fs");
+const { containerClient } = require("../mspretro.js");
 const { buildXML } = require("../Utils/Util.js");
 
 exports.data = {
@@ -8,9 +8,10 @@ exports.data = {
 };
 
 exports.run = async (request, ActorId) => {
+  const buffer = Buffer.from(request.data, "base64");
   
-  writeFile(`/var/www/mspretro/snapshots/${ActorId}.jpg`, request.data, { encoding: "base64" }, function(err) {
-  });
+  const file = containerClient.getBlockBlobClient(`/snapshots/${ActorId}.jpg`);
+  await file.upload(buffer, buffer.length);
   
   return buildXML("SaveMovieStarSnapshot", ActorId);
 };

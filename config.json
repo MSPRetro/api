@@ -12,6 +12,5 @@
     "AllowedIP": [ "92.134.118.5" ]
   },
   "disclamer": "**FAIR USE**\n\nCopyright Disclaimer under section 107 of the Copyright Act 1976, allowance is made for “fair use” for purposes such as criticism, comment, news reporting, teaching, scholarship, education and research.\nFair use is a use permitted by copyright statute that might otherwise be infringing.\nNon-profit, educational or personal use tips the balance in favor of fair use.\n\nAll content & files belong to MovieStarPlanet (c)\nThe server part of the game was entirely coded by Polo.\nHe is the ones who manage the game.\n\nContact: mspretro@gmail.com",
-  "logEveryRequest": true,
-  "clusterWorkerSize": 2
+  "logEveryRequest": true
 }
