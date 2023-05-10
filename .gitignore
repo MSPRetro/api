@@ -1,6 +1,7 @@
-.github/
 .glitch-assets
 Logs/
 Disabled/
+dl.js
+wsdl.xml
 shrinkwrap.yaml
 README.md
