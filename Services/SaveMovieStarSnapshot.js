@@ -1,4 +1,4 @@
-const { containerClient } = require("../mspretro.js");
+const { uploadBase64 } = require("../Utils/BlobManager.js");
 const { buildXML } = require("../Utils/Util.js");
 
 exports.data = {
@@ -7,11 +7,8 @@ exports.data = {
   levelModerator: 0
 };
 
-exports.run = async (request, ActorId) => {
-  const buffer = Buffer.from(request.data, "base64");
-  
-  const file = containerClient.getBlockBlobClient(`/snapshots/${ActorId}.jpg`);
-  await file.upload(buffer, buffer.length);
+exports.run = async (request, ActorId) => {  
+  await uploadBase64(request.data, `/snapshots/${ActorId}.jpg`);
   
   return buildXML("SaveMovieStarSnapshot", ActorId);
 };

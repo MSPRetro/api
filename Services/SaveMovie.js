@@ -1,6 +1,4 @@
-const { join } = require("path");
-const { createReadStream } = require("fs");
-const { containerClient } = require("../mspretro.js");
+const { uploadDefaultImg } = require("../Utils/BlobManager.js");
 const { movieModel } = require("../Utils/Schemas.js");
 const { buildXML, formatDate, createTodo, getNewId } = require("../Utils/Util.js");
 
@@ -33,11 +31,8 @@ exports.run = async (request, ActorId) => {
     const MovieId = await getNewId("movie_id") + 1;
     const shardDir = Math.floor(MovieId / 10000);
     
-    const stream = createReadStream(join(__dirname, "../DefaultAssets/movie.jpg"));
-    
-    const file = containerClient.getBlockBlobClient(`/movie-snapshots/${shardDir}/${MovieId}.jpg`);
-    await file.uploadStream(stream);
-        
+    await uploadDefaultImg("../DefaultAssets/movie.jpg", `/movie-snapshots/${shardDir}/${MovieId}.jpg`);
+            
     const movie = new movieModel({
       MovieId: MovieId,
       Name: request.movie.Name,

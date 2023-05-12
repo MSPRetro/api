@@ -1,4 +1,4 @@
-const { containerClient } = require("../mspretro.js");
+const { uploadBase64 } = require("../Utils/BlobManager.js");
 const { movieModel } = require("../Utils/Schemas.js");
 const { buildXML } = require("../Utils/Util.js");
 
@@ -13,10 +13,7 @@ exports.run = async (request, ActorId) => {
   if (movie.ActorId != ActorId) return buildXML("SaveMovieSnapshot", { });
   
   const shardDir = Math.floor(request.movieId / 10000);
-  const buffer = Buffer.from(request.data, "base64");
-  
-  const file = containerClient.getBlockBlobClient(`/movie-snapshots/${shardDir}/${request.movieId}.jpg`);
-  await file.upload(buffer, buffer.length);
+  await uploadBase64(request.data, `/movie-snapshots/${shardDir}/${request.movieId}.jpg`);
   
   return buildXML("SaveMovieSnapshot");
 };
