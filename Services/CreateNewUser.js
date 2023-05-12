@@ -1,8 +1,6 @@
 const { generate } = require("generate-password");
 const { pbkdf2Sync } = require("crypto");
-const { join } = require("path");
-const { createReadStream } = require("fs");
-const { containerClient } = require("../mspretro.js");
+const { uploadDefaultImg } = require("../Utils/BlobManager.js");
 const { userModel, idModel, clothModel, eyeModel, noseModel, mouthModel, friendModel, ticketModel, IPModel } = require("../Utils/Schemas.js");
 const { buildXML, buildLevel, formatDate, getNewId } = require("../Utils/Util.js");
 const { setValue } = require("../Utils/Globals.js");
@@ -213,16 +211,9 @@ exports.run = async (request, undefined, IP) => {
   
   const shardDir = Math.floor(ActorId / 10000);
   
-  const streamMovieStar = createReadStream(join(__dirname, pathImg));
-    
-  const fileMovieStar = containerClient.getBlockBlobClient(`/entity-snapshots/moviestar/${shardDir}/${ActorId}.jpg`);
-  await fileMovieStar.uploadStream(streamMovieStar);
-  
-  const streamRoom = createReadStream(join(__dirname, "../DefaultAssets/room.jpg"));
-  
-  const fileRoom = containerClient.getBlockBlobClient(`/entity-snapshots/room/${shardDir}/${ActorId}.jpg`);
-  await fileRoom.uploadStream(streamRoom);
-  
+  await uploadDefaultImg(pathImg, `/entity-snapshots/moviestar/${shardDir}/${ActorId}.jpg`);
+  await uploadDefaultImg("../DefaultAssets/room.jpg", `/entity-snapshots/room/${shardDir}/${ActorId}.jpg`);
+   
   let dateLogin = new Date();
   let dateTicket = dateLogin;
   dateTicket.setHours(dateTicket.getHours() + 72);
