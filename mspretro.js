@@ -66,9 +66,7 @@ if (cluster.isMaster) {
   app.use(bodyParser.xml());
   app.use(cors());
   
-  app.all("*", async (req, res) => {
-    // res.set("Access-Control-Allow-Origin", "*");
-    
+  app.all("*", async (req, res) => {    
     const method = req.method;
     const url = req.path.slice(1);
     
