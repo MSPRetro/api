@@ -71,48 +71,62 @@ exports.run = async request => {
     }
   });
   
-  const items = await idModel.find({ ActorId: request.actorId, IsWearing: 1 });
-  
-  let itemsArray = [ ];
-  
-  for (let item of items) {
-    const cloth = await clothModel.findOne({ ClothesId: item.ClothId });
-    
-    itemsArray.push({
-      ActorClothesRelId: item.ClothesRellId,
-      ActorId: item.ActorId,
-      ClothesId: item.ClothId,
-      Color: item.Colors,
-      IsWearing: item.IsWearing,
-      x: 0,
-      y: 0,
-      Cloth: {
-        ClothesId: item.ClothId,
-        Name: cloth.Name,
-        SWF: cloth.SWF,
-        ClothesCategoryId: cloth.ClothesCategoryId,
-        Price: cloth.Price,
-        ShopId: 0,
-        SkinId: cloth.SkinId,
-        Filename: cloth.Filename,
-        Scale: 0.3,
-        Vip: 1,
-        RegNewUser: cloth.RegNewUser,
-        sortorder: 0,
-        New: 0,
-        Discount: 0,
-        ClothesCategory: {
-          ClothesCategoryId: cloth.ClothesCategoryId,
-          Name: cloth.ClothesCategoryName,
-          SlotTypeId: cloth.SlotTypeId,
-          SlotType: {
-            SlotTypeId: cloth.SlotTypeId,
-            Name: cloth.ClothesCategoryName
-          }
-        }  
+  const itemsArray = await idModel.aggregate([
+    {
+      $match: {
+        ActorId: request.actorId,
+        IsWearing: 1
       }
-    });
-  };
+    },
+    {
+      $lookup: {
+        from: "clothes",
+        localField: "ClothId",
+        foreignField: "ClothesId",
+        as: "cloth"
+      }
+    },
+    {
+      $unwind: "$cloth"
+    },
+    {
+      $project: {
+        _id: 0,
+        ActorClothesRelId: "$ClothesRellId",
+        ActorId: "$ActorId",
+        ClothesId: "$ClothId",
+        Color: "$Colors",
+        IsWearing: "$IsWearing",
+        x: "$x",
+        y: "$y",
+        Cloth: {
+          ClothesId: "$ClothId",
+          Name: "$cloth.Name",
+          SWF: "$cloth.SWF",
+          ClothesCategoryId: "$cloth.ClothesCategoryId",
+          Price: "$cloth.Price",
+          ShopId: "$cloth.ShopId",
+          SkinId: "$cloth.SkinId",
+          Filename: "$cloth.Filename",
+          Scale: "$cloth.Scale",
+          Vip: "$cloth.Vip",
+          RegNewUser: "$cloth.RegNewUser",
+          sortorder: "$cloth.Sortorder",
+          New: "$cloth.New",
+          Discount: "$cloth.Discount",
+          ClothesCategory: {
+            ClothesCategoryId: "$cloth.ClothesCategoryId",
+            Name: "$cloth.ClothesCategoryName",
+            SlotTypeId: "$cloth.SlotTypeId",
+            SlotType: {
+              SlotTypeId: "$cloth.SlotTypeId",
+              Name: "$cloth.ClothesCategoryName"
+            }
+          }
+        }
+      }
+    }
+  ]);
   
   let ValueOfGiftsReceived = [ ];
   for (let gift of await giftModel.find({ ReceiverActorId: request.actorId })) {
