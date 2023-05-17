@@ -4,7 +4,7 @@ const { buildXML, formatDate } = require("../Utils/Util.js");
 exports.data = {
   SOAPAction: "MembershipStarcoinsRecieve",
   needTicket: true,
-  levelModerator: 0
+  levelModerator: 3
 };
 
 exports.run = async (request, ActorId) => {
