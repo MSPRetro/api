@@ -203,7 +203,7 @@ exports.run = async (request, ActorId) => {
   } catch {
     totalRecords = 0;
   }
-      
+  
   let ActivitiesType = [ ];
   
   switch (request.type) {
