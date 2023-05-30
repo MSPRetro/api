@@ -9,16 +9,20 @@ exports.data = {
 
 exports.run = async (request, ActorId) => {
   if (request.otherUserId == ActorId) return buildXML("GetFriendShipStatus", 0);
-  
-  const friend1 = await friendModel.findOne({ RequesterId: ActorId, ReceiverId: request.otherUserId });
-  const friend2 = await friendModel.findOne({ ReceiverId: ActorId, RequesterId: request.otherUserId });
-  
+
+  const friendship = await friendModel.findOne({
+    $or: [
+      { RequesterId: ActorId, ReceiverId: request.otherUserId },
+      { ReceiverId: ActorId, RequesterId: request.otherUserId }
+    ]
+  });
+
   let status;
-  
-  if (!friend1 && !friend2) {
+
+  if (!friendship) {
     return buildXML("GetFriendShipStatus", 1);
-  } else if (friend1 && !friend2) {
-    switch (friend1.Status) {
+  } else {
+    switch (friendship.Status) {
       case 0:
         status = 1;
         break;
@@ -26,22 +30,10 @@ exports.run = async (request, ActorId) => {
         status = 2;
         break;
       case 2:
-        status = 3;
+        status = friendship.RequesterId == ActorId ? 3 : 4;
         break;
-    };
-  } else if (!friend1 && friend2) {    
-    switch (friend2.Status) {
-      case 0:
-        status = 1;
-        break;
-      case 1:
-        status = 2;
-        break;
-      case 2:
-        status = 4;
-        break;
-    };
-  };
-  
+    }
+  }
+
   return buildXML("GetFriendShipStatus", status);
 };
