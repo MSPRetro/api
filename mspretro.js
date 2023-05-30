@@ -18,7 +18,8 @@ const config = require("./config.json");
 
 if (cluster.isMaster) {
   let workers = [ ];
-  for (let i = 0; i < cpus().length; i++) workers.push(cluster.fork());
+  
+  cpus().forEach(() => workers.push(cluster.fork()));
   
   function messageHandler(msg) {
     if (msg.msg) {
@@ -26,9 +27,7 @@ if (cluster.isMaster) {
     }
   }
 
-  for (const id in cluster.workers) {    
-    cluster.workers[id].on("message", messageHandler);
-  }
+  for (const id in cluster.workers) cluster.workers[id].on("message", messageHandler);
 
   cluster.on("exit", function (worker) {
     console.log("Worker", worker.id, " has exitted.");

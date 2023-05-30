@@ -8,54 +8,70 @@ exports.data = {
 };
 
 exports.run = async (request, ActorId) => {
-  // const friends = await friendModel.find({ RequesterId: ActorId, Status: 1 });
-  // const friends1 = await friendModel.find({ ReceiverId: ActorId, Status: 1 });
-  
-  const friends1 = await friendModel.aggregate([
-    { $match: {
-      RequesterId: ActorId,
-      Status: 1
-    }},
-    { $lookup: {
-      from: "users",
-      localField: "ReceiverId",
-      foreignField: "ActorId",
-      as: "user"
-    }},
-    { $unwind: "$user" } 
+  const friends = await friendModel.aggregate([
+    {
+      $match: {
+        $or: [
+          { RequesterId: ActorId },
+          { ReceiverId: ActorId }
+        ],
+        Status: 1
+      }
+    },
+    {
+      $lookup: {
+        from: "users",
+        let: {
+          requester: "$RequesterId",
+          receiver: "$ReceiverId"
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $or: [
+                  { $eq: ["$$requester", "$ActorId"] },
+                  { $eq: ["$$receiver", "$ActorId"] }
+                ]
+              }
+            }
+          },
+          {
+            $project: {
+              _id: 0,
+              actorId: "$ActorId",
+              name: "$Name"
+            }
+          }
+        ],
+        as: "user"
+      }
+    },
+    {
+      $unwind: "$user"
+    },
+    {
+      $group: {
+        _id: "$user.actorId",
+        actorId: { $first: "$user.actorId" },
+        name: { $first: "$user.name" }
+      }
+    },
+    {
+      $match: {
+        actorId: { $ne: ActorId }
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        actorId: 1,
+        name: 1
+      }
+    }
   ]);
   
-  const friends2 = await friendModel.aggregate([
-    { $match: {
-      ReceiverId: ActorId,
-      Status: 1
-    }},
-    { $lookup: {
-      from: "users",
-      localField: "RequesterId",
-      foreignField: "ActorId",
-      as: "user"
-    }},
-    { $unwind: "$user" }
-  ]);
-
-  let FriendData = [ ];
-  
-  for (let friend of friends1) {
-    FriendData.push({
-      actorId: friend.user.ActorId,
-      name: friend.user.Name
-    });
-  }
-  
-  for (let friend of friends2) {
-    FriendData.push({
-      actorId: friend.user.ActorId,
-      name: friend.user.Name
-    });
-  }
-      
   return buildXML("GetFriendListWithName", {
-    FriendData: FriendData 
+    FriendData: friends 
   });
 };
