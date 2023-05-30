@@ -119,9 +119,10 @@ if (cluster.isMaster) {
       useUnifiedTopology: true,
     })
     .then(() => console.log("Connected to MongoDB - Worker: " + process.pid))
-    .catch(() =>
-      console.log("An error has occured with MongoDB - Worker: " + process.pid)
-    );
+    .catch(error => {
+      console.log("An error has occured with MongoDB - Worker: " + process.pid);
+      console.error(error);
+    });
     
     console.log("The server is online! - Worker: " + process.pid);
     setValue("fmsUpdates", { });
