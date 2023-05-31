@@ -1,6 +1,6 @@
 const { parseString } = require("xml2js");
 const fetch = require("node-fetch");
-const { existsSync, mkdirSync, appendFileSync } = require("fs");
+const { promises } = require("fs");
 const { createHash } = require("crypto");
 const { ticketModel, userModel } = require("../Utils/Schemas.js");
 const { getValue, deleteValue, setValue } = require("../Utils/Globals.js");
@@ -63,57 +63,14 @@ exports.run = async (req, res) => {
         }
         
         ticketData = validateTicket(ticket);
-        
         if (!ticketData.isValid) return res.sendStatus(403);
 
         ActorId = ticketData.data.ActorId;
 
-        if (SOAPActions[action].data.levelModerator != 0) {
-          if (!await isModerator(ActorId, false, SOAPActions[action].data.levelModerator)) return res.sendStatus(403);
-          
-          /*
-          var modInfo = await userModel.findOne({ ActorId: ActorId });
-
-          await fetch(config.ModLogWebhook, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              embeds: [
-                {
-                  author: {
-                    name: "ModLog",
-                    icon_url: "https://mspretro.com/assets/logo_mspretro.png",
-                  },
-                  title: `Moderator action invoked`,
-                  thumbnail: {
-                    url: `https://cdn.mspretro.com/entity-snapshots/moviestar/0/${ActorId}.jpg`,
-                  },
-                  description: `${modInfo.Name} (${ActorId}) executed ${action}`,
-                  fields: [
-                    {
-                      name: "Arguments",
-                      value: `\`\`\`\n${JSON.stringify(
-                        parsed,
-                        null,
-                        2
-                      )}\n\`\`\``,
-                    },
-                    {
-                      name: "IP",
-                      value: `${IP}`,
-                    },
-                  ],
-                },
-              ],
-            }),
-          });
-          */
-        }
+        if (SOAPActions[action].data.levelModerator != 0 && !await isModerator(ActorId, false, SOAPActions[action].data.levelModerator)) return res.sendStatus(403);
       }
 
-      if (config.logEveryRequest) log(ActorId, action, parsed, IP);
+      if (config.logEveryRequest) await log(ActorId, action, parsed, IP);
 
       const xml = await SOAPActions[action].run(parsed, ActorId, IP, ticketData.data.Password);
 
@@ -166,32 +123,25 @@ exports.run = async (req, res) => {
   }
 }
 
-function log(ActorId = false, action, request, IP) {
+async function log(ActorId = false, action, request, IP) {
   if (ActorId) {
     const path = `./Logs/${ActorId}`;
-
-    if (!existsSync(path)) mkdirSync(path); // Should be moved to CreateNewUser => if the folder is created, no need to recheck every time
-
-    appendFileSync(
-      `${path}/${action}.log`,
-      `[Date] ${new Date()} - [IP] ${IP} - [Request] ${JSON.stringify(
-        request
-      )}\n`
-    );
-    appendFileSync(
-      `${path}/all_requests.log`,
-      `[Action] ${action} - [Date] ${new Date()} - [IP] ${IP} [Request] ${JSON.stringify(
-        request
-      )}\n`
-    );
+    
+    try {
+      await promises.mkdir(path); // Should be moved to CreateNewUser => if the folder is created, no need to recheck every time
+      
+      // user's logs
+      await promises.appendFile(`${path}/${action}.log`, `[Date] ${new Date()} - [IP] ${IP} - [Request] ${JSON.stringify(request)}\n`);
+      await promises.appendFile(`${path}/all_requests.log`, `[Action] ${action} - [Date] ${new Date()} - [IP] ${IP} [Request] ${JSON.stringify(request)}\n`);
+    } catch (error) {
+      if (error.code !== "EEXIST") {
+        throw error;
+      }
+    }
   }
   
-  appendFileSync(
-    "./Logs/all_requests.log",
-    `[Action] ${action} - [Date] ${new Date()} - [IP] ${IP} [ActorId] ${typeof ActorId === "number" ? ActorId : "none"} [Request] ${JSON.stringify(
-      request
-    )}\n`
-  );
+  // global logs
+  await promises.appendFile("./Logs/all_requests.log", `[Action] ${action} - [Date] ${new Date()} - [IP] ${IP} [ActorId] ${typeof ActorId === "number" ? ActorId : "none"} [Request] ${JSON.stringify(request)}\n`);
 }
 
 function createChecksum(args, action = null) {
