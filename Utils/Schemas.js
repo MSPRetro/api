@@ -72,6 +72,10 @@ exports.userModel = model(
       NumberOfAutographsGiven: Number,
       TimeOfLastAutographGiven: Date
     },
+    Gifts: {
+      ValueOfGiftsReceived: Number,
+      ValueOfGiftsGiven: Number
+    },
     VIP: {
       MembershipPurchasedDate: Date,
       MembershipTimeoutDate: Date,
@@ -82,8 +86,6 @@ exports.userModel = model(
     Extra: {
       IsExtra: Number,
       GiftStatus: Number,
-      // TimeGiftGiven: Date,
-      // GiftGivenInTheHour: Number,
       BadWordCount: Number,
       HasUnreadMessages: Number,
       AwardMoney: Number,

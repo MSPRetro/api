@@ -21,21 +21,6 @@ exports.run = async (request, ActorId) => {
       || buildLevel(giver.Progression.Fame) < 3
      ) return;
   
-  
-  /*
-  if (new Date(user.Extra.TimeGiftGiven).getTime() > Date.now() && user.Extra.GiftGivenInTheHour >= 5) return { statuscode: 500 };
-  if (new Date(user.Extra.TimeGiftGiven).getTime() < Date.now()) {
-    await userModel.updateOne({ ActorId: ActorId }, { $set: {
-      "Extra.TimeGiftGiven": new Date(addMinutes(new Date(), 60)),
-      "Extra.GiftGivenInTheHour": 1
-    }});
-  } else {    
-    await userModel.updateOne({ ActorId: ActorId }, { $set: {
-      "Extra.GiftGivenInTheHour": giver.Extra.GiftGivenInTheHour + 1
-    }});
-  };
-  */
-  
   const clothe = await clothModel.findOne({ ClothesId: relCloth.ClothId });
   
   if (clothe.Price > giver.Progression.Money) return;
@@ -56,6 +41,12 @@ exports.run = async (request, ActorId) => {
     SWF: request.swf
   });
   await gift.save();
+  
+  await userModel.updateOne({ ActorId: ActorId }, {
+    $inc: {
+      "Gifts.ValueOfGiftsGiven": clothe.Price
+    }
+  });
   
   await userModel.updateOne({ ActorId: user.ActorId }, { $pull: {
     Wishlist: relCloth.ClothesRellId

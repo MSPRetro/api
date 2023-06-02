@@ -169,6 +169,10 @@ exports.run = async (request, undefined, IP) => {
       NumberOfAutographsGiven: 0,
       TimeOfLastAutographGiven: new Date(0)
     },
+    Gifts: {
+      ValueOfGiftsReceived: 0,
+      ValueOfGiftsGiven: 0
+    },
     VIP: {
       MembershipPurchasedDate: new Date(0),
       MembershipTimeoutDate: new Date(0),
