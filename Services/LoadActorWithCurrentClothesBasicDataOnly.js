@@ -1,4 +1,4 @@
-const { userModel, idModel, clothModel, giftModel, friendModel, boyfriendModel, eyeModel, noseModel, mouthModel } = require("../Utils/Schemas.js");
+const { userModel, idModel, giftModel, friendModel, boyfriendModel, eyeModel, noseModel, mouthModel } = require("../Utils/Schemas.js");
 const { buildXML, buildLevel, formatDate, addDays } = require("../Utils/Util.js");
 
 exports.data = {
@@ -8,10 +8,224 @@ exports.data = {
 };
 
 exports.run = async request => {
-  const user = await userModel.findOne({ ActorId: request.actorId });
-  
-  // For the home page
-  
+  let user = await userModel.aggregate([
+    {
+      $match: {
+        ActorId: request.actorId
+      }
+    },
+    {
+      $lookup: {
+        from: "rellids_clothes",
+        let: { actorId: "$ActorId" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: [ "$ActorId", "$$actorId" ] },
+                  { $eq: [ "$IsWearing", 1 ] }
+                ]
+              }
+            }
+          },
+          {
+            $lookup: {
+              from: "clothes",
+              localField: "ClothId",
+              foreignField: "ClothesId",
+              as: "cloth"
+            }
+          },
+          {
+            $unwind: "$cloth"
+          },
+          {
+            $project: {
+              _id: 0,
+              ActorClothesRelId: "$ClothesRellId",
+              ActorId: "$ActorId",
+              ClothesId: "$ClothId",
+              Color: "$Colors",
+              IsWearing: "$IsWearing",
+              x: "$x",
+              y: "$y",
+              Cloth: {
+                ClothesId: "$ClothId",
+                Name: "$cloth.Name",
+                SWF: "$cloth.SWF",
+                ClothesCategoryId: "$cloth.ClothesCategoryId",
+                Price: "$cloth.Price",
+                ShopId: "$cloth.ShopId",
+                SkinId: "$cloth.SkinId",
+                Filename: "$cloth.Filename",
+                Scale: "$cloth.Scale",
+                Vip: "$cloth.Vip",
+                RegNewUser: "$cloth.RegNewUser",
+                sortorder: "$cloth.Sortorder",
+                New: "$cloth.New",
+                Discount: "$cloth.Discount",
+                ClothesCategory: {
+                  ClothesCategoryId: "$cloth.ClothesCategoryId",
+                  Name: "$cloth.ClothesCategoryName",
+                  SlotTypeId: "$cloth.SlotTypeId",
+                  SlotType: {
+                    SlotTypeId: "$cloth.SlotTypeId",
+                    Name: "$cloth.ClothesCategoryName"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        as: "ActorClothesRels"
+      }
+    },
+    {
+      $lookup: {
+        from: "friends",
+        let: { actorId: "$ActorId" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  {
+                    $or: [
+                      { $eq: ["$RequesterId", "$$actorId"] },
+                      { $eq: ["$ReceiverId", "$$actorId"] }
+                    ]
+                  },
+                  { $eq: ["$Status", 1] }
+                ]
+              }
+            }
+          },
+          {
+            $count: "friendCount"
+          }
+        ],
+        as: "friendCount"
+      }
+    },
+    {
+      $unwind: { path: "$friendCount", preserveNullAndEmptyArrays: true }
+    },
+    {
+      $lookup: {
+        from: "eyes",
+        localField: "Clinic.EyeId",
+        foreignField: "EyeId",
+        pipeline: [
+          {
+            $project: {
+              _id: 0,
+              EyeId: "$EyeId",
+              Name: "$Name",
+              SWF: "$SWF",
+              SkinId: "$SkinId"
+            }
+          }
+        ],
+        as: "eye"
+      }
+    },
+    {
+      $unwind: { path: "$eye", preserveNullAndEmptyArrays: true }
+    },
+    {
+      $lookup: {
+        from: "noses",
+        localField: "Clinic.NoseId",
+        foreignField: "NoseId",
+        pipeline: [
+          {
+            $project: {
+              _id: 0,
+              NoseId: "$NoseId",
+              Name: "$Name",
+              SWF: "$SWF",
+              SkinId: "$SkinId"
+            }
+          }
+        ],
+        as: "nose"
+      }
+    },
+    {
+      $unwind: { path: "$nose", preserveNullAndEmptyArrays: true }
+    },
+    {
+      $lookup: {
+        from: "mouths",
+        localField: "Clinic.MouthId",
+        foreignField: "MouthId",
+        pipeline: [
+          {
+            $project: {
+              _id: 0,
+              MouthId: "$MouthId",
+              Name: "$Name",
+              SWF: "$SWF",
+              SkinId: "$SkinId"
+            }
+          }
+        ],
+        as: "mouth"
+      }
+    },
+    {
+      $unwind: { path: "$mouth", preserveNullAndEmptyArrays: true }
+    },
+    {
+      $addFields: {
+        moderator: {
+          $cond: {
+            if: { $ne: [ "$LevelModerator", 0 ] },
+            then: 1,
+            else: 0
+          }
+        }
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        ActorId: 1,
+        Name: 1,
+        SkinSWF: "$Clinic.SkinSWF",
+        SkinColor: "$Clinic.SkinColor",
+        NoseId: "$Clinic.NoseId",
+        EyeId: "$Clinic.EyeId",
+        MouthId: "$Clinic.MouthId",
+        Money: "$Progression.Money",
+        EyeColors: "$Clinic.EyeColors",
+        MouthColors: "$Clinic.MouthColors",
+        Fame: "$Progression.Fame",
+        Fortune: "$Progression.Fortune",
+        FriendCount: "$friendCount.friendCount",
+        IsExtra: "$Extra.IsExtra",
+        InvitedByActorId: "$Extra.InvitedByActorId",
+        Moderator: "$moderator",
+        ValueOfGiftsReceived: "$Gifts.ValueOfGiftsReceived",
+        ValueOfGiftsGiven: "$Gifts.ValueOfGiftsGiven",
+        NumberOfAutographsReceived: "$Autographs.NumberOfAutographsReceived",
+        NumberOfAutographsGiven: "$Autographs.NumberOfAutographsGiven",
+        TimeOfLastAutographGiven: "$Autographs.TimeOfLastAutographGiven",
+        MembershipPurchasedDate: "$VIP.MembershipPurchasedDate",
+        MembershipTimeoutDate: "$VIP.MembershipTimeoutDate",
+        MembershipGiftRecievedDate: "$VIP.MembershipGiftRecievedDate",
+        TotalVipDays: "$VIP.TotalVipDays",
+        FacebookId: "$Extra.FacebookId",
+        ActorClothesRels: "$ActorClothesRels",
+        BoyfriendData: "$boyfriendData",
+        Eye: "$eye",
+        Nose: "$nose",
+        Mouth: "$mouth"
+      }
+    }
+  ]);
+    
   if (!user) return buildXML("LoadActorWithCurrentClothesBasicDataOnly", {
     ActorId: 0,
     Name: "MSPRETRO",
@@ -71,313 +285,96 @@ exports.run = async request => {
     }
   });
   
-  const itemsArray = await idModel.aggregate([
-    {
-      $match: {
-        ActorId: request.actorId,
-        IsWearing: 1
-      }
-    },
-    {
-      $lookup: {
-        from: "clothes",
-        localField: "ClothId",
-        foreignField: "ClothesId",
-        as: "cloth"
-      }
-    },
-    {
-      $unwind: "$cloth"
-    },
-    {
-      $project: {
-        _id: 0,
-        ActorClothesRelId: "$ClothesRellId",
-        ActorId: "$ActorId",
-        ClothesId: "$ClothId",
-        Color: "$Colors",
-        IsWearing: "$IsWearing",
-        x: "$x",
-        y: "$y",
-        Cloth: {
-          ClothesId: "$ClothId",
-          Name: "$cloth.Name",
-          SWF: "$cloth.SWF",
-          ClothesCategoryId: "$cloth.ClothesCategoryId",
-          Price: "$cloth.Price",
-          ShopId: "$cloth.ShopId",
-          SkinId: "$cloth.SkinId",
-          Filename: "$cloth.Filename",
-          Scale: "$cloth.Scale",
-          Vip: "$cloth.Vip",
-          RegNewUser: "$cloth.RegNewUser",
-          sortorder: "$cloth.Sortorder",
-          New: "$cloth.New",
-          Discount: "$cloth.Discount",
-          ClothesCategory: {
-            ClothesCategoryId: "$cloth.ClothesCategoryId",
-            Name: "$cloth.ClothesCategoryName",
-            SlotTypeId: "$cloth.SlotTypeId",
-            SlotType: {
-              SlotTypeId: "$cloth.SlotTypeId",
-              Name: "$cloth.ClothesCategoryName"
-            }
-          }
-        }
-      }
-    }
-  ]);
-  
-  let ValueOfGiftsReceived = [ ];
-  for (let gift of await giftModel.find({ ReceiverActorId: request.actorId })) {
-    const relCloth = await idModel.findOne({ ClothesRellId: gift.ClothesRellId });
-    const cloth = await clothModel.findOne({ ClothesId: relCloth.ClothId });
-    
-    ValueOfGiftsReceived.push(cloth.Price);
-  };
-  if (ValueOfGiftsReceived.length != 0) ValueOfGiftsReceived = ValueOfGiftsReceived.reduce((a, b) => a + b);
-  else ValueOfGiftsReceived = 0;
-  
-  let ValueOfGiftsGiven = [ ];
-  for (let gift of await giftModel.find({ SenderActorId: request.actorId })) {
-    const relCloth = await idModel.findOne({ ClothesRellId: gift.ClothesRellId });
-    const cloth = await clothModel.findOne({ ClothesId: relCloth.ClothId });
-    
-    ValueOfGiftsGiven.push(cloth.Price);
-  };
-  if (ValueOfGiftsGiven.length != 0) ValueOfGiftsGiven = ValueOfGiftsGiven.reduce((a, b) => a + b);
-  else ValueOfGiftsGiven = 0;
-  
-  /*
-  const friends = await friendModel.countDocuments(
-    { $match: {
-      $or: [
-        {
-          ReceiverId: request.actorId,
-          Status: 1
-        },
-        {
-          RequesterId: request.actorId,
-          Status: 1
-        }
-      ]
-    }}
-  );
-  */
-  
-  const friends1 = await friendModel.find({ RequesterId: user.ActorId, Status: 1 });
-  const friends2 = await friendModel.find({ ReceiverId: user.ActorId, Status: 1 });
-  
-  /*  
-  const boyfriend1 = await boyfriendModel.findOne({ RequesterId: request.actorId });
-  const boyfriend2 = await boyfriendModel.findOne({ ReceiverId: request.actorId });
+  user = user[0];
     
   let BoyfriendId;
   let BoyfriendStatus;
   let BoyFriend;
   
-  if (!boyfriend1 && !boyfriend2) {
+  const boyfriend = await boyfriendModel.findOne(
+    {
+      $or: [
+        { RequesterId: user.ActorId, Status: 1 },
+        { ReceiverId: user.ActorId, Status: 1 },
+        { RequesterId: user.ActorId, Status: 2 },
+        { ReceiverId: user.ActorId, Status: 2 }
+      ]
+    }
+  );
+
+  if (!boyfriend) {
+    BoyFriend = { };
     BoyfriendId = 0;
     BoyfriendStatus = 0;
-    
-    BoyFriend = { };
-  } else if (boyfriend1 && !boyfriend2) {
-    const boyfriendUser = await userModel.findOne({ ActorId: boyfriend1.ReceiverId });
-    
-    switch (boyfriend1.Status) {
-      case 0:
-        BoyfriendId = 0;
-        BoyfriendStatus = 3;
-        
-        BoyFriend = { };
-        
-        break;
-      case 1:
-        BoyfriendId = boyfriend1.ReceiverId;
-        BoyfriendStatus = 2;
-        
-        BoyFriend = {
-          ActorId: boyfriendUser.ActorId,
-          Name: boyfriendUser.Name,
-          SkinSWF: boyfriendUser.Clinic.SkinSWF
-        };
-        
-        break;
-      case 2:
-        BoyfriendId = boyfriend1.ReceiverId;
-        BoyfriendStatus = 1;
-        
-        BoyFriend = {
-          ActorId: boyfriendUser.ActorId,
-          Name: boyfriendUser.Name,
-          SkinSWF: boyfriendUser.Clinic.SkinSWF
-        };
-        
-        break;
-    };
-  } else if (!boyfriend1 && boyfriend2) {
-    const boyfriendUser = await userModel.findOne({ ActorId: boyfriend2.RequesterId });
-    
-    switch (boyfriend2.Status) {
-      case 0:
-        BoyfriendId = 0;
-        BoyfriendStatus = 3;
-        
-        BoyFriend = { };
-        
-        break;
-      case 1:
-        BoyfriendId = boyfriend2.RequesterId;
-        BoyfriendStatus = 2;
-        
-        BoyFriend = {
-          ActorId: boyfriendUser.ActorId,
-          Name: boyfriendUser.Name,
-          SkinSWF: boyfriendUser.Clinic.SkinSWF
-        };
-        
-        break;
-      case 2:
-        BoyfriendId = boyfriend2.RequesterId;
-        BoyfriendStatus = 1;
-        
-        BoyFriend = {
-          ActorId: boyfriendUser.ActorId,
-          Name: boyfriendUser.Name,
-          SkinSWF: boyfriendUser.Clinic.SkinSWF
-        };
-        
-        break;
-    };
-  };
-  */
-  
-    let BoyfriendId;
-  let BoyfriendStatus;
-  let BoyFriend;
-  
-  const boyfriendU1 = await boyfriendModel.findOne({ RequesterId: request.actorId, Status: 1 });
-  const boyfriendU2 = await boyfriendModel.findOne({ ReceiverId: request.actorId, Status: 1 });
-  
-  if (!boyfriendU1 && !boyfriendU2) {
-    const boyfriendU3 = await boyfriendModel.findOne({ RequesterId: request.actorId, Status: 2 });
-    const boyfriendU4 = await boyfriendModel.findOne({ ReceiverId: request.actorId, Status: 2 });
-    
-    if (boyfriendU3 && !boyfriendU4) {
-      const boyfriendUser = await userModel.findOne({ ActorId: boyfriendU3.ReceiverId });
-      
-      BoyFriend = {
-        ActorId: boyfriendUser.ActorId,
-        Name: boyfriendUser.Name,
-        SkinSWF: boyfriendUser.Clinic.SkinSWF
-      };
-      
-      BoyfriendId = boyfriendUser.ActorId;
-      BoyfriendStatus = 1;
-    } else if (!boyfriendU3 && boyfriendU4) {
-      const boyfriendUser = await userModel.findOne({ ActorId: boyfriendU4.RequesterId });
-      
-      BoyFriend = {
-        ActorId: boyfriendUser.ActorId,
-        Name: boyfriendUser.Name,
-        SkinSWF: boyfriendUser.Clinic.SkinSWF
-      };
-      
-      BoyfriendId = boyfriendUser.ActorId;
-      BoyfriendStatus = 1;
-    } else {
-      BoyFriend = { };
-    
-      BoyfriendId = 0;
-      BoyfriendStatus = 0;
-    }
-  } else if (boyfriendU1 && !boyfriendU2) {
-    const boyfriendUser = await userModel.findOne({ ActorId: boyfriendU1.ReceiverId });
-    
+  } else {
+    const boyfriendUser = await userModel.findOne({ ActorId: boyfriend.Status === 2 ? boyfriend.ReceiverId : boyfriend.RequesterId });
+
     BoyFriend = {
       ActorId: boyfriendUser.ActorId,
       Name: boyfriendUser.Name,
       SkinSWF: boyfriendUser.Clinic.SkinSWF
     };
-    
+
     BoyfriendId = boyfriendUser.ActorId;
-    BoyfriendStatus = 2;
-  } else if (!boyfriendU1 && boyfriendU2) {    
-    const boyfriendUser = await userModel.findOne({ ActorId: boyfriendU2.RequesterId });
-    
-    BoyFriend = {
-      ActorId: boyfriendUser.ActorId,
-      Name: boyfriendUser.Name,
-      SkinSWF: boyfriendUser.Clinic.SkinSWF
-    };
-    
-    BoyfriendId = boyfriendUser.ActorId;
-    BoyfriendStatus = 2;
-  };
-    
-  const eye = await eyeModel.findOne({ EyeId: user.Clinic.EyeId });
-  const nose = await noseModel.findOne({ NoseId: user.Clinic.NoseId });
-  const mouth = await mouthModel.findOne({ MouthId: user.Clinic.MouthId });
-  
-  let moderator = 0;
-  if (user.LevelModerator != 0) moderator = 1;
+    BoyfriendStatus = boyfriend.Status;
+  }
   
   return buildXML("LoadActorWithCurrentClothesBasicDataOnly", {
     ActorId: user.ActorId,
     Name: user.Name,
-    Level: buildLevel(user.Progression.Fame),
-    SkinSWF: user.Clinic.SkinSWF,
-    SkinColor: user.Clinic.SkinColor,
-    NoseId: user.Clinic.NoseId,
-    EyeId: user.Clinic.EyeId,
-    MouthId: user.Clinic.MouthId,
-    Money: user.Progression.Money,
-    EyeColors: user.Clinic.EyeColors,
-    MouthColors: user.Clinic.MouthColors,
-    Fame: user.Progression.Fame,
-    Fortune: user.Progression.Fortune,
-    FriendCount: friends1.length + friends2.length,
-    IsExtra: user.Extra.IsExtra,
-    InvitedByActorId: user.Extra.InvitedByActorId,
-    Moderator: moderator,
-    ValueOfGiftsReceived: ValueOfGiftsReceived,
-    ValueOfGiftsGiven: ValueOfGiftsGiven,
+    Level: buildLevel(user.Fame),
+    SkinSWF: user.SkinSWF,
+    SkinColor: user.SkinColor,
+    NoseId: user.NoseId,
+    EyeId: user.EyeId,
+    MouthId: user.MouthId,
+    Money: user.Money,
+    EyeColors: user.EyeColors,
+    MouthColors: user.MouthColors,
+    Fame: user.Fame,
+    Fortune: user.Fortune,
+    FriendCount: user.FriendCount,
+    IsExtra: user.IsExtra,
+    InvitedByActorId: user.InvitedByActorId,
+    Moderator: user.Moderator,
+    ValueOfGiftsReceived: user.ValueOfGiftsReceived,
+    ValueOfGiftsGiven: user.ValueOfGiftsGiven,
     NumberOfGiftsGiven: await giftModel.countDocuments({ SenderActorId: user.ActorId }),
     NumberOfGiftsReceived: await giftModel.countDocuments({ ReceiverActorId: user.ActorId }),
-    NumberOfAutographsReceived: user.Autographs.NumberOfAutographsReceived,
-    NumberOfAutographsGiven: user.Autographs.NumberOfAutographsGiven,
-    TimeOfLastAutographGiven: formatDate(user.Autographs.TimeOfLastAutographGiven, true),
-    FacebookId: user.Extra.FacebookId,
+    NumberOfAutographsReceived: user.NumberOfAutographsReceived,
+    NumberOfAutographsGiven: user.NumberOfAutographsGiven,
+    TimeOfLastAutographGiven: formatDate(user.TimeOfLastAutographGiven, true),
+    FacebookId: user.FacebookId,
     BoyfriendId: BoyfriendId,
     BoyfriendStatus: BoyfriendStatus,
-    MembershipPurchasedDate: formatDate(user.VIP.MembershipPurchasedDate),
-    MembershipTimeoutDate: formatDate(user.VIP.MembershipTimeoutDate),
-    MembershipGiftRecievedDate: formatDate(user.VIP.MembershipGiftRecievedDate),
-    TotalVipDays: user.VIP.TotalVipDays,
+    MembershipPurchasedDate: formatDate(user.MembershipPurchasedDate),
+    MembershipTimeoutDate: formatDate(user.MembershipTimeoutDate),
+    MembershipGiftRecievedDate: formatDate(user.MembershipGiftRecievedDate),
+    TotalVipDays: user.TotalVipDays,
     ActorClothesRels: {
-      ActorClothesRel: itemsArray
+      ActorClothesRel: user.ActorClothesRels
     },
     ActorAnimationRels: { },
     ActorMusicRels: { },
     ActorBackgroundRels: { },
     BoyFriend: BoyFriend,
     Eye: {
-      EyeId: eye.EyeId,
-      Name: eye.Name,
-      SWF: eye.SWF,
-      SkinId: eye.SkinId
+      EyeId: user.Eye.EyeId,
+      Name: user.Eye.Name,
+      SWF: user.Eye.SWF,
+      SkinId: user.Eye.SkinId
     },
     Nose: {
-      NoseId: nose.NoseId,
-      Name: nose.Name,
-      SWF: nose.SWF,
-      SkinId: nose.SkinId
+      NoseId: user.Nose.NoseId,
+      Name: user.Nose.Name,
+      SWF: user.Nose.SWF,
+      SkinId: user.Nose.SkinId
     },
     Mouth: {
-      MouthId: mouth.MouthId,
-      Name: mouth.Name,
-      SWF: mouth.SWF,
-      SkinId: mouth.SkinId
+      MouthId: user.Mouth.MouthId,
+      Name: user.Mouth.Name,
+      SWF: user.Mouth.SWF,
+      SkinId: user.Mouth.SkinId
     }
   });
 };

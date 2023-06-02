@@ -1,4 +1,4 @@
-const { giftModel, idModel, clothModel, todoModel } = require("../Utils/Schemas.js");
+const { giftModel, idModel, clothModel, todoModel, userModel } = require("../Utils/Schemas.js");
 const { buildXML, addFame } = require("../Utils/Util.js");
 
 exports.data = {
@@ -25,6 +25,12 @@ exports.run = async (request, ActorId) => {
   if (!await giftModel.find({ ReceiverActorId: ActorId, State: 0 })) {
     await todoModel.updateOne({ FriendId: ActorId, Type: 8 }, { ActorId: 0, FriendId: 0 });
   };
+  
+  await userModel.updateOne({ ActorId: ActorId }, {
+    $inc: {
+      "Gifts.ValueOfGiftsReceived": cloth.Price
+    }
+  });
   
   // await addFame(ActorId, false, cloth.Price / 10);
   

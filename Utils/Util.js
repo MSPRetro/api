@@ -210,13 +210,11 @@ const isVip = exports.isVip = async (ActorId, user = null) => {
   else return true;
 };
 
-exports.addFame = async (ActorId, user = null, fames) => {
-  if (!user) user = await userModel.findOne({ ActorId: ActorId });
-  
+exports.addFame = async (ActorId, user = null, fames) => {  
   if (await isVip(ActorId, user)) fames = Math.round(fames + (fames * 25 / 100));
     
-  await userModel.updateOne({ ActorId: ActorId }, { $set: {
-    "Progression.Fame": user.Progression.Fame + fames
+  await userModel.updateOne({ ActorId: ActorId }, { $inc: {
+    "Progression.Fame": fames
   } });
 };
 
@@ -267,7 +265,7 @@ let createTodo = exports.createTodo = async (ActorId, Type, Deadline = new Date(
   return await todo.save();
 };
 
-exports.getActorDetails = async (ActorId, RellActorId, Password) => {
+exports.getActorDetails = async (ActorId, RellActorId, Password) => {  
   let user = await userModel.findOne({ ActorId: ActorId });
   if (!user) return { };
   
@@ -307,26 +305,6 @@ exports.getActorDetails = async (ActorId, RellActorId, Password) => {
   if (await pollModel.findOne({ ActorId: ActorId, PollId: config.PollId })) PollTaken = 1;
   else PollTaken = 0;
   
-  let ValueOfGiftsReceived = [ ];
-  for (let gift of await giftModel.find({ ReceiverActorId: ActorId })) {
-    const relCloth = await idModel.findOne({ ClothesRellId: gift.ClothesRellId });
-    const cloth = await clothModel.findOne({ ClothesId: relCloth.ClothId });
-    
-    ValueOfGiftsReceived.push(cloth.Price);
-  };
-  if (ValueOfGiftsReceived.length != 0) ValueOfGiftsReceived = ValueOfGiftsReceived.reduce((a, b) => a + b);
-  else ValueOfGiftsReceived = 0;
-  
-  let ValueOfGiftsGiven = [ ];
-  for (let gift of await giftModel.find({ SenderActorId: ActorId })) {
-    const relCloth = await idModel.findOne({ ClothesRellId: gift.ClothesRellId });
-    const cloth = await clothModel.findOne({ ClothesId: relCloth.ClothId });
-    
-    ValueOfGiftsGiven.push(cloth.Price);
-  };
-  if (ValueOfGiftsGiven.length != 0) ValueOfGiftsGiven = ValueOfGiftsGiven.reduce((a, b) => a + b);
-  else ValueOfGiftsGiven = 0;
-  
   let RoomActorLike = { };
   
   if (user.Room.RoomActorLikes.includes(RellActorId)) RoomActorLike = {
@@ -337,119 +315,48 @@ exports.getActorDetails = async (ActorId, RellActorId, Password) => {
     }
   };
   
-  /* 
-  const friends = await friendModel.countDocuments(
-    { $match: {
-      $or: [
-        {
-          ReceiverId: ActorId,
-          Status: 1
-        },
-        {
-          RequesterId: ActorId,
-          Status: 1
-        }
-      ]
-    }}
-  );
-  */
+  const FriendCount = await friendModel.countDocuments({
+    $or: [
+      { RequesterId: user.ActorId },
+      { ReceiverId: user.ActorId }
+    ],
+    Status: 1
+  });
   
-  const friends1 = await friendModel.find({ RequesterId: ActorId, Status: 1 });
-  const friends2 = await friendModel.find({ ReceiverId: ActorId, Status: 1 });
-    
   let BoyfriendId;
   let BoyfriendStatus;
   let BoyFriend;
   
-  const boyfriendU1 = await boyfriendModel.findOne({ RequesterId: ActorId, Status: 1 });
-  const boyfriendU2 = await boyfriendModel.findOne({ ReceiverId: ActorId, Status: 1 });
-  
-  if (!boyfriendU1 && !boyfriendU2) {
-    const boyfriendU3 = await boyfriendModel.findOne({ RequesterId: ActorId, Status: 2 });
-    const boyfriendU4 = await boyfriendModel.findOne({ ReceiverId: ActorId, Status: 2 });
-    
-    if (boyfriendU3 && !boyfriendU4) {
-      const boyfriendUser = await userModel.findOne({ ActorId: boyfriendU3.ReceiverId });
-      
-      BoyFriend = {
-        ActorId: boyfriendUser.ActorId,
-        Name: boyfriendUser.Name,
-        SkinSWF: boyfriendUser.Clinic.SkinSWF
-      };
-      
-      BoyfriendId = boyfriendUser.ActorId;
-      BoyfriendStatus = 1;
-    } else if (!boyfriendU3 && boyfriendU4) {
-      const boyfriendUser = await userModel.findOne({ ActorId: boyfriendU4.RequesterId });
-      
-      BoyFriend = {
-        ActorId: boyfriendUser.ActorId,
-        Name: boyfriendUser.Name,
-        SkinSWF: boyfriendUser.Clinic.SkinSWF
-      };
-      
-      BoyfriendId = boyfriendUser.ActorId;
-      BoyfriendStatus = 1;
-    } else {
-      const boyfriendU5 = await boyfriendModel.findOne({ RequesterId: ActorId, Status: 3 });
-      
-      if (boyfriendU5) {
-        const boyfriendUser = await userModel.findOne({ ActorId: boyfriendU5.ReceiverId });
-        
-        BoyFriend = {
-          ActorId: boyfriendUser.ActorId,
-          Name: boyfriendUser.Name,
-          SkinSWF: boyfriendUser.Clinic.SkinSWF
-        };
-      
-        BoyfriendId = boyfriendUser.ActorId;
-        BoyfriendStatus = 3;
-//       } else if (!boyfriendU5 && boyfriendU6) {
-//         const boyfriendUser = await userModel.findOne({ ActorId: boyfriendU6.RequesterId });
-        
-//         BoyFriend = {
-//           ActorId: boyfriendUser.ActorId,
-//           Name: boyfriendUser.Name,
-//           SkinSWF: boyfriendUser.Clinic.SkinSWF
-//         };
-      
-//         BoyfriendId = boyfriendUser.ActorId;
-//         BoyfriendStatus = 3;
-      } else {
-        BoyFriend = { };
-    
-        BoyfriendId = 0;
-        BoyfriendStatus = 0;
-      }
+  const boyfriend = await boyfriendModel.findOne(
+    {
+      $or: [
+        { RequesterId: ActorId, Status: 1 },
+        { ReceiverId: ActorId, Status: 1 },
+        { RequesterId: ActorId, Status: 2 },
+        { ReceiverId: ActorId, Status: 2 }
+      ]
     }
-  } else if (boyfriendU1 && !boyfriendU2) {
-    const boyfriendUser = await userModel.findOne({ ActorId: boyfriendU1.ReceiverId });
-    
+  );
+
+  if (!boyfriend) {
+    BoyFriend = { };
+    BoyfriendId = 0;
+    BoyfriendStatus = 0;
+  } else {
+    const boyfriendUser = await userModel.findOne({ ActorId: boyfriend.Status === 2 ? boyfriend.ReceiverId : boyfriend.RequesterId });
+
     BoyFriend = {
       ActorId: boyfriendUser.ActorId,
       Name: boyfriendUser.Name,
       SkinSWF: boyfriendUser.Clinic.SkinSWF
     };
-    
+
     BoyfriendId = boyfriendUser.ActorId;
-    BoyfriendStatus = 2;
-  } else if (!boyfriendU1 && boyfriendU2) {    
-    const boyfriendUser = await userModel.findOne({ ActorId: boyfriendU2.RequesterId });
-    
-    BoyFriend = {
-      ActorId: boyfriendUser.ActorId,
-      Name: boyfriendUser.Name,
-      SkinSWF: boyfriendUser.Clinic.SkinSWF
-    };
-    
-    BoyfriendId = boyfriendUser.ActorId;
-    BoyfriendStatus = 2;
-  };
-    
+    BoyfriendStatus = boyfriend.Status;
+  }
+  
   let moderator = 0;
   if (user.LevelModerator != 0) moderator = 1;
-  
-  // console.log(user.VIP.MembershipGiftRecievedDate.toDateString());
   
   return {
     ActorId: user.ActorId,
@@ -465,7 +372,7 @@ exports.getActorDetails = async (ActorId, RellActorId, Password) => {
     MouthColors: user.Clinic.MouthColors,
     Fame: user.Progression.Fame,
     Fortune: user.Progression.Fortune,
-    FriendCount: friends1.length + friends2.length,
+    FriendCount: FriendCount,
     Password: password,
     ProfileText: user.Profile.ProfileText,
     Created: formatDate(user.Profile.Created),
@@ -484,8 +391,8 @@ exports.getActorDetails = async (ActorId, RellActorId, Password) => {
     Floor: user.Room.Floor,
     InvitedByActorId: user.Extra.InvitedByActorId,
     PollTaken: PollTaken,
-    ValueOfGiftsReceived: ValueOfGiftsReceived,
-    ValueOfGiftsGiven: ValueOfGiftsGiven,
+    ValueOfGiftsReceived: user.Gifts.ValueOfGiftsReceived,
+    ValueOfGiftsGiven: user.Gifts.ValueOfGiftsGiven,
     NumberOfGiftsGiven: await giftModel.countDocuments({ SenderActorId: ActorId }),
     NumberOfGiftsReceived: await giftModel.countDocuments({ ReceiverActorId: ActorId }),
     NumberOfAutographsReceived: user.Autographs.NumberOfAutographsReceived,
@@ -496,7 +403,7 @@ exports.getActorDetails = async (ActorId, RellActorId, Password) => {
     BoyfriendStatus: BoyfriendStatus,
     MembershipPurchasedDate: formatDate(user.VIP.MembershipPurchasedDate),
     MembershipTimeoutDate: formatDate(user.VIP.MembershipTimeoutDate),
-    MembershipGiftRecievedDate: formatDate(user.VIP.MembershipGiftRecievedDate), //formatDate(addDays(new Date(), -1)), // formatDate(user.VIP.MembershipGiftRecievedDateNoVIP, true),
+    MembershipGiftRecievedDate: formatDate(user.VIP.MembershipGiftRecievedDate), // formatDate(addDays(new Date(), -1)), // formatDate(user.VIP.MembershipGiftRecievedDateNoVIP, true),
     BehaviourStatus: BehaviourStatus,
     LockedUntil: LockedUntil,
     LockedText: LockedText,
@@ -504,7 +411,7 @@ exports.getActorDetails = async (ActorId, RellActorId, Password) => {
     PurchaseTimeoutDate: formatDate(new Date()),
     EmailValidated: user.Email.EmailValidated,
     RetentionStatus: user.Extra.RetentionStatus,
-    GiftStatus: 2, //user.Gifts.GiftStatus, If is set to 1, user can see the present given but the devs (Call action UpdateGift)
+    GiftStatus: 2, // user.Gifts.GiftStatus, If is set to 1, user can see the present given but the devs (Call action UpdateGift)
     MarketingNextStepLogins: user.Extra.MarketingNextStepLogins,
     MarketingStep: user.Extra.MarketingStep,
     TotalVipDays: user.VIP.TotalVipDays,
