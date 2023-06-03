@@ -1,4 +1,4 @@
-const { userModel, idModel, giftModel, friendModel, boyfriendModel, eyeModel, noseModel, mouthModel } = require("../Utils/Schemas.js");
+const { userModel, giftModel, boyfriendModel } = require("../Utils/Schemas.js");
 const { buildXML, buildLevel, formatDate, addDays } = require("../Utils/Util.js");
 
 exports.data = {
@@ -307,7 +307,7 @@ exports.run = async request => {
     BoyfriendId = 0;
     BoyfriendStatus = 0;
   } else {
-    const boyfriendUser = await userModel.findOne({ ActorId: boyfriend.Status === 2 ? boyfriend.ReceiverId : boyfriend.RequesterId });
+    const boyfriendUser = await userModel.findOne({ ActorId: user.ActorId == boyfriend.RequesterId ? boyfriend.ReceiverId : boyfriend.RequesterId });
 
     BoyFriend = {
       ActorId: boyfriendUser.ActorId,
