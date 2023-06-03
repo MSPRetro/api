@@ -343,7 +343,7 @@ exports.getActorDetails = async (ActorId, RellActorId, Password) => {
     BoyfriendId = 0;
     BoyfriendStatus = 0;
   } else {
-    const boyfriendUser = await userModel.findOne({ ActorId: boyfriend.Status === 2 ? boyfriend.ReceiverId : boyfriend.RequesterId });
+    const boyfriendUser = await userModel.findOne({ ActorId: ActorId == boyfriend.RequesterId ? boyfriend.ReceiverId : boyfriend.RequesterId });
 
     BoyFriend = {
       ActorId: boyfriendUser.ActorId,
