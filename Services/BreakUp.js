@@ -8,8 +8,15 @@ exports.data = {
 };
 
 exports.run = async (request, ActorId) => {
-  await boyfriendModel.updateOne({ ReceiverId: ActorId, RequesterId: request.boyfriendId }, { Status: 0 });
-  await boyfriendModel.updateOne({ RequesterId: ActorId, ReceiverId: request.boyfriendId }, { Status: 0 });
+  await boyfriendModel.updateMany(
+    {
+      $or: [
+        { ReceiverId: ActorId, RequesterId: request.boyfriendId },
+        { RequesterId: ActorId, ReceiverId: request.boyfriendId }
+      ]
+    },
+    { $set: { Status: 0 } }
+  );
   
   return buildXML("BreakUp");
 }

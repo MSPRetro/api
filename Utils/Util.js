@@ -330,8 +330,8 @@ exports.getActorDetails = async (ActorId, RellActorId, Password) => {
   const boyfriend = await boyfriendModel.findOne(
     {
       $or: [
-        { RequesterId: ActorId, Status: 1 },
-        { ReceiverId: ActorId, Status: 1 },
+        // { RequesterId: ActorId, Status: 1 },
+        // { ReceiverId: ActorId, Status: 1 },
         { RequesterId: ActorId, Status: 2 },
         { ReceiverId: ActorId, Status: 2 }
       ]
