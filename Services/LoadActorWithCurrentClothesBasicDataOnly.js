@@ -294,8 +294,8 @@ exports.run = async request => {
   const boyfriend = await boyfriendModel.findOne(
     {
       $or: [
-        { RequesterId: user.ActorId, Status: 1 },
-        { ReceiverId: user.ActorId, Status: 1 },
+        // { RequesterId: user.ActorId, Status: 1 },
+        // { ReceiverId: user.ActorId, Status: 1 },
         { RequesterId: user.ActorId, Status: 2 },
         { ReceiverId: user.ActorId, Status: 2 }
       ]
@@ -314,7 +314,7 @@ exports.run = async request => {
       Name: boyfriendUser.Name,
       SkinSWF: boyfriendUser.Clinic.SkinSWF
     };
-
+ 
     BoyfriendId = boyfriendUser.ActorId;
     BoyfriendStatus = boyfriend.Status;
   }
