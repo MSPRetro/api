@@ -97,7 +97,7 @@ exports.run = async (request, ActorId) => {
         $facet: {
           users: [
             {
-              $skip: 0
+              $skip: request.pageindex * 7
             }, {
               $limit: 7
             }
