@@ -1,5 +1,5 @@
 const { userModel, friendModel } = require("../Utils/Schemas.js");
-const { buildXML, buildPage, buildLevel } = require("../Utils/Util.js");
+const { buildXML, buildLevel } = require("../Utils/Util.js");
 
 exports.data = {
   SOAPAction: "GetHighscore",
@@ -9,28 +9,27 @@ exports.data = {
 
 exports.run = async (request, ActorId) => {
   let leaderboardArray = [ ];
-  let totalRecords;
+  let userData;
   
   if (request.forFriends) {
-    const pipeline = ([
+    const pipeline = [
       {
         $match: {
           $or: [
-            { RequesterId: 2 },
-            { ReceiverId: 2 }
+            { RequesterId: ActorId },
+            { ReceiverId: ActorId }
           ], 
           Status: 1
         }
-      }, {
+      },
+      {
         $lookup: {
           from: "users", 
           let: {
             actorId: {
               $cond: [
                 {
-                  $eq: [
-                    "$RequesterId", ActorId
-                  ]
+                  $eq: [ "$RequesterId", ActorId ]
                 }, "$ReceiverId", "$RequesterId"
               ]
             }
@@ -41,9 +40,7 @@ exports.run = async (request, ActorId) => {
                 $expr: {
                   $or: [
                     {
-                      $eq: [
-                        "$$actorId", "$ActorId"
-                      ]
+                      $eq: [ "$$actorId", "$ActorId" ]
                     }
                   ]
                 }
@@ -52,13 +49,16 @@ exports.run = async (request, ActorId) => {
           ], 
           as: "friends"
         }
-      }, {
+      },
+      {
         $unwind: "$friends"
-      }, {
+      },
+      {
         $replaceRoot: {
           newRoot: "$friends"
         }
-      }, {
+      },
+      {
         $unionWith: {
           coll: "users", 
           pipeline: [
@@ -69,14 +69,13 @@ exports.run = async (request, ActorId) => {
             }
           ]
         }
-      }, {
+      },
+      {
         $match: {
-          ActorId: {
-            $ne: 1
-          }, 
-          "Extra.IsExtra": 0
+          ActorId: { $ne: 1 }
         }
-      }, {
+      },
+      {
         $project: {
           _id: 0, 
           ActorId: "$ActorId", 
@@ -89,34 +88,28 @@ exports.run = async (request, ActorId) => {
             $size: "$Room.RoomActorLikes"
           }
         }
-      }, {
-        $sort: {
-          Fame: -1
-        }
-      }, {
+      },
+      {
+        $sort: { Fame: -1 }
+      },
+      {
         $facet: {
           users: [
-            {
-              $skip: request.pageindex * 7
-            }, {
-              $limit: 7
-            }
+            { $skip: request.pageindex * 7 },
+            { $limit: 7 }
           ], 
-          totalCount: [{
-              $count: "count"
-            }]
+          totalCount: [{ $count: "count" }]
         }
-      }, {
+      },
+      {
         $project: {
           users: 1, 
           totalCount: {
-            $arrayElemAt: [
-              "$totalCount.count", 0
-            ]
+            $arrayElemAt: [ "$totalCount.count", 0 ]
           }
         }
       }
-    ]);
+    ];
     
     let sortStage = pipeline.find(stage => stage.hasOwnProperty("$sort"));
     
@@ -132,75 +125,86 @@ exports.run = async (request, ActorId) => {
         break;
     };
     
-    let FriendData = await friendModel.aggregate(pipeline);
-    FriendData = FriendData[0];
-    
-    for (let friend of FriendData.users) {      
-      leaderboardArray.push({
-        ActorId: friend.ActorId,
-        Name: friend.Name,
-        Level: buildLevel(friend.Fame),
-        Money: friend.Money,
-        Fame: friend.Fame,
-        Fortune: friend.Fortune,
-        FriendCount: 0,
-        IsExtra: friend.IsExtra,
-        RoomLikes: friend.RoomLikes
-      })
-    }
-    
-    totalRecords = FriendData.totalCount;
+    userData = await friendModel.aggregate(pipeline);
   } else {
-    let users;
+    const pipeline = [
+      {
+        $match: {
+          ActorId: { $ne: 1 },
+          "Extra.IsExtra": 0
+        }
+      },
+      {
+        $project: {
+          _id: 0, 
+          ActorId: "$ActorId", 
+          Name: "$Name", 
+          Money: "$Progression.Money", 
+          Fame: "$Progression.Fame", 
+          Fortune: "$Progression.Fortune", 
+          IsExtra: "$Extra.IsExtra", 
+          RoomLikes: {
+            $size: "$Room.RoomActorLikes"
+          }
+        }
+      },
+      {
+        $sort: { Fame: -1 }
+      },
+      {
+        $facet: {
+          users: [
+            { $skip: request.pageindex * 7 },
+            { $limit: 7 }
+          ], 
+          totalCount: [{ $count: "count" }]
+        }
+      },
+      {
+        $project: {
+          users: 1, 
+          totalCount: {
+            $arrayElemAt: [ "$totalCount.count", 0 ]
+          }
+        }
+      }
+    ];
+    
+    let sortStage = pipeline.find(stage => stage.hasOwnProperty("$sort"));
         
     switch (request.orderBy) {
-      case "LEVEL":
-        users = await userModel.find({ ActorId: { $ne: 1 }, "Extra.IsExtra": 0 })
-          .sort({ "Progression.Fame": -1 })
-          .skip(request.pageindex * 7)
-          .limit(7);
-        
-        break;
+      // the pipeline is LEVEL by default
       case "FORTUNE":
-        users = await userModel.find({ ActorId: { $ne: 1 }, "Extra.IsExtra": 0 })
-          .sort({ "Progression.Fortune": -1 })
-          .skip(request.pageindex * 7)
-          .limit(7);
+        sortStage.$sort = { Fortune: -1 };
         
         break;
-      case "ROOMLIKES":       
-        users = await userModel.aggregate([
-          { $match: { ActorId: { $ne: 1 }, "Extra.IsExtra": 0 }},
-          { $addFields: { len: { $size: "$Room.RoomActorLikes" }}},
-          { $sort: { len: -1 }},
-          { $skip: request.pageindex * 7 },
-          { $limit: 7 }
-        ]);
+      case "ROOMLIKES":
+        sortStage.$sort = { RoomLikes: -1 };
         
         break;
-      default:
-        return;
     };
     
-    for (let user of users) {
-      leaderboardArray.push({
-        ActorId: user.ActorId,
-        Name: user.Name,
-        Level: buildLevel(user.Progression.Fame),
-        Money: user.Progression.Money,
-        Fame: user.Progression.Fame,
-        Fortune: user.Progression.Fortune,
-        FriendCount: 0,
-        IsExtra: user.Extra.IsExtra,
-        RoomLikes: user.Room.RoomActorLikes.length
-      })
-    };
-    
-    totalRecords = await userModel.countDocuments({ "Extra.IsExtra": 0 });
+    userData = await userModel.aggregate(pipeline);
+  };
+  
+  userData = userData[0];
+  
+  for (let user of userData.users) {
+    leaderboardArray.push({
+      ActorId: user.ActorId,
+      Name: user.Name,
+      Level: buildLevel(user.Fame),
+      Money: user.Money,
+      Fame: user.Fame,
+      Fortune: user.Fortune,
+      FriendCount: 0,
+      IsExtra: user.IsExtra,
+      RoomLikes: user.RoomLikes
+    });
   };
   
   return buildXML("GetHighscore", {
-    totalRecords: totalRecords,
+    totalRecords: userData.totalCount,
     pageindex: request.pageindex,
     pagesize: 7,
     items: {
