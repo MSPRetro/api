@@ -12,114 +12,144 @@ exports.run = async (request, ActorId) => {
   let totalRecords;
   
   if (request.forFriends) {
-    const friends1 = await friendModel.find({ RequesterId: ActorId, Status: 1 });
-    const friends2 = await friendModel.find({ ReceiverId: ActorId, Status: 1 });
-    
-    let FriendData = [ ];
-    FriendData.push(await userModel.findOne({ ActorId: ActorId }));
-    
-    for(let f = 0; f < friends1.length; f++) {
-      FriendData.push(await userModel.findOne({ ActorId: friends1[f].ReceiverId }));
-    };
-  
-    for(let j = 0; j < friends2.length; j++) {
-      FriendData.push(await userModel.findOne({ ActorId: friends2[j].RequesterId }));
-    };
-    
-    switch (request.orderBy) {
-      case "LEVEL":
-        FriendData.sort((a, b) => b.Progression.Fame - a.Progression.Fame);
-        
-        /* TODO: Try to make a MongoDB query to improve the performance
-        
-        console.log(ActorId)
-        
-        const a = await friendModel.aggregate([
-          {
-            $match: {
-              or: [
-               {
-                 RequesterId: ActorId,
-                 Status: 1
-               },
-               {
-                 ReceiverId: ActorId,
-                 Status: 1
-               }
+    const pipeline = ([
+      {
+        $match: {
+          $or: [
+            { RequesterId: 2 },
+            { ReceiverId: 2 }
+          ], 
+          Status: 1
+        }
+      }, {
+        $lookup: {
+          from: "users", 
+          let: {
+            actorId: {
+              $cond: [
+                {
+                  $eq: [
+                    "$RequesterId", ActorId
+                  ]
+                }, "$ReceiverId", "$RequesterId"
               ]
             }
-          },
-          {
-            $set: {
-              fieldResult: {
-                $cond: {
-                  if: {
-                    $eq: [ "$ReceiverId", ActorId ]
-                  },
-                  then: "$RequesterId",
-                  else: "$ReceiverId"
+          }, 
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $or: [
+                    {
+                      $eq: [
+                        "$$actorId", "$ActorId"
+                      ]
+                    }
+                  ]
                 }
               }
             }
-          },
-          {
-            $lookup: {
-              from: "users",
-              localField: "fieldResult",
-              foreignField: "ActorId",
-              as: "user"
+          ], 
+          as: "friends"
+        }
+      }, {
+        $unwind: "$friends"
+      }, {
+        $replaceRoot: {
+          newRoot: "$friends"
+        }
+      }, {
+        $unionWith: {
+          coll: "users", 
+          pipeline: [
+            {
+              $match: {
+                ActorId: ActorId
+              }
             }
-          },
-          {
-            $project: {
-              ActorId: "$user.ActorId",
-              Name: "$user.Name",
-              Fame: "$user.Progression.Fame",
-              Money: "$user.Progression.Money",
-              Fortune: "$user.Progression.Fortune",
-              IsExtra: "$user.Extra.IsExtra",
-              RoomLikes: "$user.Room.RoomActorLikes"
+          ]
+        }
+      }, {
+        $match: {
+          ActorId: {
+            $ne: 1
+          }, 
+          "Extra.IsExtra": 0
+        }
+      }, {
+        $project: {
+          _id: 0, 
+          ActorId: "$ActorId", 
+          Name: "$Name", 
+          Money: "$Progression.Money", 
+          Fame: "$Progression.Fame", 
+          Fortune: "$Progression.Fortune", 
+          IsExtra: "$Extra.IsExtra", 
+          RoomLikes: {
+            $size: "$Room.RoomActorLikes"
+          }
+        }
+      }, {
+        $sort: {
+          Fame: -1
+        }
+      }, {
+        $facet: {
+          users: [
+            {
+              $skip: 0
+            }, {
+              $limit: 7
             }
-          },
-          { $sort: { "Fame": -1 } },
-          { $skip: request.pageindex * 7 },
-          { $limit: 7 }
-        ]);
-        
-        console.log(a);
-        */
-
-        break;
+          ], 
+          totalCount: [{
+              $count: "count"
+            }]
+        }
+      }, {
+        $project: {
+          users: 1, 
+          totalCount: {
+            $arrayElemAt: [
+              "$totalCount.count", 0
+            ]
+          }
+        }
+      }
+    ]);
+    
+    let sortStage = pipeline.find(stage => stage.hasOwnProperty("$sort"));
+    
+    switch (request.orderBy) {
+      // the pipeline is LEVEL by default
       case "FORTUNE":
-        FriendData.sort((a, b) => b.Progression.Fortune - a.Progression.Fortune);
+        sortStage.$sort = { Fortune: -1 };
         
         break;
       case "ROOMLIKES":
-        FriendData.sort((a, b) => b.Room.RoomActorLikes.length - a.Room.RoomActorLikes.length);
+        sortStage.$sort = { RoomLikes: -1 };
         
         break;
-      default:
-        return;
     };
     
-    for (let friend of FriendData) {
-      if (friend.ActorId == 1) continue;
-      
+    let FriendData = await friendModel.aggregate(pipeline);
+    FriendData = FriendData[0];
+    
+    for (let friend of FriendData.users) {      
       leaderboardArray.push({
         ActorId: friend.ActorId,
         Name: friend.Name,
-        Level: buildLevel(friend.Progression.Fame),
-        Money: friend.Progression.Money,
-        Fame: friend.Progression.Fame,
-        Fortune: friend.Progression.Fortune,
+        Level: buildLevel(friend.Fame),
+        Money: friend.Money,
+        Fame: friend.Fame,
+        Fortune: friend.Fortune,
         FriendCount: 0,
-        IsExtra: friend.Extra.IsExtra,
-        RoomLikes: friend.Room.RoomActorLikes.length
+        IsExtra: friend.IsExtra,
+        RoomLikes: friend.RoomLikes
       })
     }
     
-    totalRecords = leaderboardArray.length;
-    leaderboardArray = buildPage(request.pageindex, 7, leaderboardArray);
+    totalRecords = FriendData.totalCount;
   } else {
     let users;
         
