@@ -33,7 +33,7 @@ exports.run = async (request, ActorId) => {
                 }, "$ReceiverId", "$RequesterId"
               ]
             }
-          }, 
+          },
           pipeline: [
             {
               $match: {
@@ -45,17 +45,6 @@ exports.run = async (request, ActorId) => {
                   ]
                 }
               }
-            },
-            {
-              $lookup: {
-                from: "users",
-                localField: "ActorId",
-                foreignField: "ActorId",
-                as: "user"
-              }
-            },
-            {
-              $unwind: "$user"
             }
           ],
           as: "looks"
@@ -77,17 +66,6 @@ exports.run = async (request, ActorId) => {
               $match: {
                 ActorId: ActorId
               }
-            },
-            {
-              $lookup: {
-                from: "users",
-                localField: "ActorId",
-                foreignField: "ActorId",
-                as: "user"
-              }
-            },
-            {
-              $unwind: "$user"
             }
           ]
         }
@@ -111,18 +89,38 @@ exports.run = async (request, ActorId) => {
           },
           Sells: {
             $size: "$Sells"
-          },
-          ActorName: "$user.Name"
+          }
         }
       },
-      {
-        $sort: { Likes: -1 }
-      },
+      { $sort: { Likes: -1 } },
+      { $skip: request.pageindex * 5 },
+      { $limit: 5 },
       {
         $facet: {
           looks: [
-            { $skip: request.pageindex * 5 },
-            { $limit: 5 }
+            {
+              $lookup: {
+                from: "users",
+                localField: "ActorId",
+                foreignField: "ActorId",
+                as: "user"
+              }
+            },
+            {
+              $unwind: "$user"
+            },
+            {
+              $project: {
+                LookId: 1,
+                ActorId: 1,
+                Created: 1, 
+                Headline: 1, 
+                LookData: 1, 
+                Likes: 1,
+                Sells: 1,
+                ActorName: "$user.Name"
+              }
+            }
           ], 
           totalCount: [{ $count: "count" }]
         }
@@ -150,17 +148,6 @@ exports.run = async (request, ActorId) => {
         }
       },
       {
-        $lookup: {
-          from: "users",
-          localField: "ActorId",
-          foreignField: "ActorId",
-          as: "user"
-        }
-      },
-      {
-        $unwind: "$user"
-      },
-      {
         $project: {
           _id: 0,
           LookId: "$LookId",
@@ -173,18 +160,38 @@ exports.run = async (request, ActorId) => {
           },
           Sells: {
             $size: "$Sells"
-          },
-          ActorName: "$user.Name"
+          }
         }
       },
-      {
-        $sort: { Likes: -1 }
-      },
+      { $sort: { Likes: -1 } },
+      { $limit: 5 },
+      { $skip: request.pageindex * 5 },
       {
         $facet: {
           looks: [
-            { $skip: request.pageindex * 5 },
-            { $limit: 5 }
+            {
+              $lookup: {
+                from: "users",
+                localField: "ActorId",
+                foreignField: "ActorId",
+                as: "user"
+              }
+            },
+            {
+              $unwind: "$user"
+            },
+            {
+              $project: {
+                LookId: 1,
+                ActorId: 1,
+                Created: 1,
+                Headline: 1,
+                LookData: 1,
+                Likes: 1,
+                Sells: 1,
+                ActorName: "$user.Name"
+              }
+            }
           ], 
           totalCount: [{ $count: "count" }]
         }
