@@ -171,7 +171,7 @@ exports.run = async (request, ActorId) => {
     ];
     
     let sortStage = pipeline.find(stage => stage.hasOwnProperty("$sort"));
-        
+    
     switch (request.orderBy) {
       // the pipeline is LEVEL by default
       case "FORTUNE":
