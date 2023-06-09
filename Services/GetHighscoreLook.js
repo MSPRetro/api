@@ -93,11 +93,12 @@ exports.run = async (request, ActorId) => {
         }
       },
       { $sort: { Likes: -1 } },
-      { $skip: request.pageindex * 5 },
-      { $limit: 5 },
       {
         $facet: {
+          totalCount: [{ $count: "count" }],
           looks: [
+            { $skip: request.pageindex * 5 },
+            { $limit: 5 },
             {
               $lookup: {
                 from: "users",
@@ -121,8 +122,7 @@ exports.run = async (request, ActorId) => {
                 ActorName: "$user.Name"
               }
             }
-          ], 
-          totalCount: [{ $count: "count" }]
+          ]
         }
       },
       {
@@ -152,23 +152,24 @@ exports.run = async (request, ActorId) => {
           _id: 0,
           LookId: "$LookId",
           ActorId: "$ActorId",
-          Created: "$Created", 
-          Headline: "$Headline", 
-          LookData: "$LookData", 
+          Created: "$Created",
+          Headline: "$Headline",
+          LookData: "$LookData",
           Likes: {
-            $size: "$Likes"
+            $size: "$Likes",
           },
           Sells: {
-            $size: "$Sells"
+            $size: "$Sells",
           }
         }
       },
       { $sort: { Likes: -1 } },
-      { $limit: 5 },
-      { $skip: request.pageindex * 5 },
       {
         $facet: {
+          totalCount: [{ $count: "count" }],
           looks: [
+            { $skip: request.pageindex * 5 },
+            { $limit: 5 },
             {
               $lookup: {
                 from: "users",
@@ -192,15 +193,14 @@ exports.run = async (request, ActorId) => {
                 ActorName: "$user.Name"
               }
             }
-          ], 
-          totalCount: [{ $count: "count" }]
+          ]
         }
       },
       {
         $project: {
-          looks: 1, 
+          looks: 1,
           totalCount: {
-            $arrayElemAt: [ "$totalCount.count", 0 ]
+            $arrayElemAt: ["$totalCount.count", 0]
           }
         }
       }
@@ -213,6 +213,7 @@ exports.run = async (request, ActorId) => {
   }
   
   lookData = lookData[0];
+  console.log(lookData);
   
   let leaderboardArray = [ ];    
 
