@@ -8,7 +8,6 @@ exports.data = {
 };
 
 exports.run = async (request, ActorId) => { 
-  let lookArray = [ ];
   let lookData;
   
   if (request.forFriends) {
@@ -214,7 +213,7 @@ exports.run = async (request, ActorId) => {
   
   lookData = lookData[0];
   
-  let leaderboardArray = [ ];    
+  let lookArray = [ ]; 
 
   for (let look of lookData.looks) {
     lookArray.push({
