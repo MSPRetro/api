@@ -213,7 +213,6 @@ exports.run = async (request, ActorId) => {
   }
   
   lookData = lookData[0];
-  console.log(lookData);
   
   let leaderboardArray = [ ];    
 
