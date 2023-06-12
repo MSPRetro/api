@@ -1,5 +1,5 @@
-const { activityModel, friendModel, userModel, movieModel, lookModel } = require("../Utils/Schemas.js");
-const { buildXML, buildPage, formatDate } = require("../Utils/Util.js");
+const { friendModel, userModel, movieModel, lookModel } = require("../Utils/Schemas.js");
+const { buildXML, formatDate } = require("../Utils/Util.js");
 
 exports.data = {
   SOAPAction: "GetTwitActivitiesForFriends",
@@ -10,182 +10,127 @@ exports.data = {
 exports.run = async (request, ActorId) => {
   const user = await userModel.findOne({ ActorId: ActorId });
   
-  /*
-  const friends = await activityModel.aggregate([
-    { $sort: { _Date: -1 } },
-    { $lookup: {
-      from: "friends",
-      localField: "ActorId",
-      foreignField: "ReceiverId",
-      as: "friend"
-    }},
-    { $lookup: {
-      from: "friends",
-      localField: "ActorId",
-      foreignField: "RequesterId",
-      as: "friend"
-    }},
-    { $match: {
-      $or: [
-        {
-          "friend.ReceiverId": ActorId,
-          "friend.Status": 1
+  let activityData = await friendModel.aggregate([
+    {
+      $match: {
+        $or: [
+          { RequesterId: ActorId },
+          { ReceiverId: ActorId }
+        ], 
+        Status: 1
+      }
+    },
+    {
+      $lookup: {
+        from: "activities",
+        let: {
+          actorId: {
+            $cond: [
+              {
+                $eq: [ "$RequesterId", ActorId ]
+              },
+              "$ReceiverId",
+              "$RequesterId"
+            ]
+          }
         },
-        {
-          "friend.RequesterId": ActorId,
-          "friend.Status": 1
-        }
-      ]
-    }},
-    { $skip: request.pageindex * 3 },
-    { $limit: 3 }
-  ]);
-  
-  console.log(JSON.stringify(friends));
-  */
-  
-  const activities = await friendModel.aggregate([
-    {
-      $match: {
-        $or: [
+        pipeline: [
           {
-            ReceiverId: ActorId,
-            Status: 1,
+            $match: {
+              $expr: {
+                $or: [
+                  {
+                    $eq: ["$$actorId", "$ActorId"]
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        as: "activities"
+      }
+    },
+    {
+      $unwind: "$activities"
+    },
+    {
+      $replaceRoot: {
+        newRoot: "$activities"
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        ActivityId: "$ActivityId",
+        ActorId: "$ActorId",
+        Type: "$Type",
+        _Date: "$_Date",
+        MovieId: "$MovieId",
+        FriendId: "$FriendId",
+        ContestId: "$ContestId",
+        LookId: "$LookId"
+      }
+    },
+    {
+      $sort: {
+        _Date: -1,
+      }
+    },
+    {
+      $facet: {
+        totalCount: [
+          {
+            $count: "count",
+          }
+        ],
+        activities: [
+          {
+            $skip: request.pageindex * 3
           },
           {
-            RequesterId: ActorId,
-            Status: 1,
+            $limit: 3,
+          },
+          {
+            $lookup: {
+              from: "users",
+              localField: "ActorId",
+              foreignField: "ActorId",
+              as: "user"
+            }
+          },
+          {
+            $unwind: "$user",
+          },
+          {
+            $project: {
+              ActivityId: 1,
+              ActorId: 1,
+              Type: 1,
+              _Date: 1,
+              MovieId: 1,
+              FriendId: 1,
+              ContestId: 1,
+              LookId: 1
+            }
           }
         ]
       }
     },
     {
-      $set: {
-        fieldResult: {
-          $cond: {
-            if: {
-              $eq: [ "$ReceiverId", ActorId ]
-            },
-            then: "$RequesterId",
-            else: "$ReceiverId"
-          }
-        }
-      }
-    },
-    {
-      $lookup: {
-        from: "activities",
-        localField: "fieldResult",
-        foreignField: "ActorId",
-        as: "activity"
-      }
-    },
-    {
-      $unwind: {
-        path: "$activity",
-        preserveNullAndEmptyArrays: true
-      }
-    },
-    {
-      $match: {
-        activity: { $exists: true }
-      }
-    },
-    {
       $project: {
-        ActivityId: "$activity.ActivityId",
-        ActorId: "$activity.ActorId",
-        Type: "$activity.Type",
-        _Date: "$activity._Date",
-        MovieId: "$activity.MovieId",
-        FriendId: "$activity.FriendId",
-        ContestId: "$activity.ContestId",
-        LookId: "$activity.LookId",
-      }
-    },
-    { $sort: { "_Date": -1 } },
-    { $skip: request.pageindex * 3 },
-    { $limit: 3 }
-  ]);
-  
-  let totalRecords = await friendModel.aggregate([
-    {
-      $match: {
-        $or: [
-          {
-            ReceiverId: ActorId,
-            Status: 1,
-          },
-          {
-            RequesterId: ActorId,
-            Status: 1,
-          }
-        ]
-      }
-    },
-    {
-      $set: {
-        fieldResult: {
-          $cond: {
-            if: {
-              $eq: [ "$ReceiverId", ActorId ]
-            },
-            then: "$RequesterId",
-            else: "$ReceiverId"
-          }
-        }
-      }
-    },
-    {
-      $lookup: {
-        from: "activities",
-        localField: "fieldResult",
-        foreignField: "ActorId",
-        as: "activity"
-      }
-    },
-    {
-      $unwind: {
-        path: "$activity",
-        preserveNullAndEmptyArrays: true
-      }
-    },
-    {
-      $match: {
-        activity: { $exists: true }
-      }
-    },
-    {
-      $project: {
-        ActivityId: "$activity.ActivityId",
-        ActorId: "$activity.ActorId",
-        Type: "$activity.Type",
-        _Date: "$activity._Date",
-        MovieId: "$activity.MovieId",
-        FriendId: "$activity.FriendId",
-        ContestId: "$activity.ContestId",
-        LookId: "$activity.LookId",
-      }
-    },
-    {
-      $group: {
-        _id: null,
-        count: {
-          $sum: 1
+        activities: 1, 
+        totalCount: {
+          $arrayElemAt: [ "$totalCount.count", 0 ]
         }
       }
     }
   ]);
   
-  try {
-    totalRecords = totalRecords[0].count;
-  } catch {
-    totalRecords = 0;
-  }
-  
+  activityData = activityData[0];
+    
   let ActivitiesType = [ ];
   
-  for (let ActivityFriend of activities) {
+  for (let ActivityFriend of activityData.activities) {
     const ActivityUser = await userModel.findOne({ ActorId: ActivityFriend.ActorId });
       
       let FriendUser;
@@ -464,7 +409,7 @@ exports.run = async (request, ActorId) => {
   };
   
   return buildXML("GetTwitActivitiesForFriends", {
-    totalRecords: totalRecords,
+    totalRecords: activityData.totalCount,
     pageindex: request.pageindex,
     pagesize: 3,
     items: {
@@ -472,48 +417,3 @@ exports.run = async (request, ActorId) => {
     }
   });
 };
-
-/*
-  const friends = await friendModel.aggregate([
-    { $match: {
-      $or: [
-        {
-          ReceiverId: ActorId,
-          Status: 1
-        },
-        {
-          RequesterId: ActorId,
-          Status: 1
-        }
-      ]
-    }},
-    { $project: {
-      ReceiverId: {
-        $cond: {
-          if: {
-            $eq: [ "$ReceiverId", ActorId ]
-          },
-          then: {
-            $lookup: {
-              from: "activities",
-              localField: "RequesterId",
-              foreignField: "ActorId",
-              as: "activity"
-            }
-          },
-          else: {
-            $lookup: {
-              from: "activities",
-              localField: "ReceiverId",
-              foreignField: "ActorId",
-              as: "activity"
-            }
-          }
-        }
-      },
-    }},
-    { $sort: { "activity._Date": -1 } },
-    { $skip: request.pageindex * 3 },
-    { $limit: 3 }
-  ]);
-  */
