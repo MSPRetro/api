@@ -439,7 +439,7 @@ exports.getCurrencySymbol = currency => {
         currency: "PLN",
         symbol: "zł",
         orientation: "R",
-        paymentMethods: [ "card", "p24", "blik" ]
+        paymentMethods: [ "card", "klarna", "p24", "blik" ]
       };
     case "GBP":
       return {

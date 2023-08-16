@@ -14,7 +14,6 @@ const { BlobServiceClient } = require("@azure/storage-blob");
 
 const { deleteValue, setValue } = require("./Utils/Globals.js");
 const { setError, clearError } = require("./Utils/ErrorManager.js");
-const config = require("./config.json");
 
 if (cluster.isMaster) {
   let workers = [ ];
