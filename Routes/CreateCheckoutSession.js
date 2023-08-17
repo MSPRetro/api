@@ -1,4 +1,4 @@
-const { userModel, transactionModel } = require("../Utils/Schemas.js");
+const { userModel, productModel, transactionModel } = require("../Utils/Schemas.js");
 const { getNewId, getCurrencySymbol } = require("../Utils/Util.js");
 const stripe = require("stripe")(process.env.CUSTOMCONNSTR_StripeKey);
 
@@ -12,15 +12,15 @@ exports.run = async (req, res) => {
   
   const currencyData = getCurrencySymbol(req.body.Currency);
   
-  const price = process.env[`Product_${currencyData.currency === "EUR" ? "EUR" : req.body.Currency}_${req.body.Key}`];
-  if (!price) return res.sendStatus(404);
+  const product = await productModel.findOne({ Key: req.body.Key, Currency: currencyData.currency });
+  if (!product) return res.sendStatus(404);
   
   const session = await stripe.checkout.sessions.create({
     payment_method_types: currencyData.paymentMethods,
     mode: "payment",
     allow_promotion_codes: true,
     line_items: [{
-      price: price,
+      price: product.PriceId,
       quantity: 1
     }],
     success_url: `${process.env.PaymentGatewayLink}/Success`,

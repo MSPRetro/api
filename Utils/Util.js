@@ -439,7 +439,7 @@ exports.getCurrencySymbol = currency => {
         currency: "PLN",
         symbol: "zł",
         orientation: "R",
-        paymentMethods: [ "card", "p24", "blik" ]
+        paymentMethods: [ "card", "klarna", "p24", "blik" ]
       };
     case "GBP":
       return {
@@ -466,6 +466,41 @@ exports.getCurrencySymbol = currency => {
       return {
         currency: "AUD",
         symbol: "$AU",
+        orientation: "L",
+        paymentMethods: [ "card" ]
+      };
+    case "DKK":
+      return {
+        currency: "DKK",
+        symbol: "kr.",
+        orientation: "L",
+        paymentMethods: [ "card", "klarna" ]
+      };
+    case "CAD":
+      return {
+        currency: "CAD",
+        symbol: "$CA",
+        orientation: "L",
+        paymentMethods: [ "card" ]
+      };
+    case "NOK":
+      return {
+        currency: "NOK",
+        symbol: "kr",
+        orientation: "L",
+        paymentMethods: [ "card", "klarna" ]
+      };
+    case "SEK":
+      return {
+        currency: "SEK",
+        symbol: "kr",
+        orientation: "R",
+        paymentMethods: [ "card", "klarna" ]
+      };
+    case "NZD":
+      return {
+        currency: "NZD",
+        symbol: "$NZ",
         orientation: "L",
         paymentMethods: [ "card" ]
       };
