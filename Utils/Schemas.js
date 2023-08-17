@@ -643,8 +643,8 @@ exports.transactionModel = model(
   })
 );
 
-exports.productModel = model(
-  "products",
+exports.priceModel = model(
+  "prices",
   new Schema({
     ProductId: String,
     PriceId: String,
