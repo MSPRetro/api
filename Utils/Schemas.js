@@ -643,6 +643,17 @@ exports.transactionModel = model(
   })
 );
 
+exports.productModel = model(
+  "products",
+  new Schema({
+    ProductId: String,
+    PriceId: String,
+    Key: String,
+    Currency: String,
+    Price: Number
+  })
+);
+
 exports.confModel = model(
   "configs",
   new Schema({

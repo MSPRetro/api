@@ -1,5 +1,5 @@
 const { getCurrency } = require("locale-currency");
-const { IPCountryModel } = require("../Utils/Schemas.js");
+const { IPCountryModel, productModel } = require("../Utils/Schemas.js");
 const { getCurrencySymbol, buildXML } = require("../Utils/Util.js");
 
 exports.data = {
@@ -36,7 +36,33 @@ exports.run = async (request, undefined, IP) => {
     // unable to detect the IP location, so we show the default currency as EUR
   }
   
-  const prices = getPricesByCurrency(currency);
+  let prices = await productModel.aggregate([
+    { $match: { Currency: currency } },
+    {
+      $group: {
+        _id: "$Key",
+        Price: { $last: { $multiply: ["$Price", 100] } }
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        keyPricePairs: {
+          $push: {
+            k: "$_id",
+            v: "$Price"
+          }
+        }
+      }
+    },
+    {
+      $replaceRoot: {
+        newRoot: { $arrayToObject: "$keyPricePairs" }
+      }
+    }
+  ]);
+  
+  prices = prices[0];
   
   return buildXML("GetBokuPricePoints", {
     country: currency,
@@ -83,78 +109,6 @@ exports.run = async (request, undefined, IP) => {
       }]
     }
   });
-}
-
-function getPricesByCurrency(currency) {
-  switch (currency) {
-    default:
-    case "EUR":
-      return {
-        2000: 500,
-        3000: 1200,
-        6000: 7000,
-        14000: 3300,
-        2001: 500,
-        3001: 1000,
-        6001: 2000,
-        14001: 3500
-      };
-    case "PLN":
-      return {
-        2000: 2400,
-        3000: 5700,
-        6000: 33100,
-        14000: 15600,
-        2001: 2400,
-        3001: 4750,
-        6001: 9450,
-        14001: 16550
-      };
-    case "GBP":
-      return {
-        2000: 450,
-        3000: 1050,
-        6000: 6150,
-        14000: 2900,
-        2001: 450,
-        3001: 1150,
-        6001: 1750,
-        14001: 3100
-      };
-    case "TRY":
-      return {
-        2000: 10200,
-        3000: 24500,
-        6000: 142900,
-        14000: 67400,
-        2001: 10200,
-        3001: 20450,
-        6001: 40850,
-        14001: 71450
-      };
-    case "USD":
-      return {
-        2000: 550,
-        3000: 1300,
-        6000: 7600,
-        14000: 3600,
-        2001: 550,
-        3001: 1100,
-        6001: 2200,
-        14001: 3800
-      }
-    case "AUD":
-      return {
-        2000: 800,
-        3000: 1900,
-        6000: 10900,
-        14000: 5150,
-        2001: 800,
-        3001: 1600,
-        6001: 3200,
-        14001: 5600
-      }
-  }
 }
 
 /*
