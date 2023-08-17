@@ -1,4 +1,4 @@
-const { userModel, productModel, transactionModel } = require("../Utils/Schemas.js");
+const { userModel, priceModel, transactionModel } = require("../Utils/Schemas.js");
 const { getNewId, getCurrencySymbol } = require("../Utils/Util.js");
 const stripe = require("stripe")(process.env.CUSTOMCONNSTR_StripeKey);
 
@@ -12,7 +12,7 @@ exports.run = async (req, res) => {
   
   const currencyData = getCurrencySymbol(req.body.Currency);
   
-  const product = await productModel.findOne({ Key: req.body.Key, Currency: currencyData.currency });
+  const product = await priceModel.findOne({ Key: req.body.Key, Currency: currencyData.currency });
   if (!product) return res.sendStatus(404);
   
   const session = await stripe.checkout.sessions.create({

@@ -1,5 +1,5 @@
 const { getCurrency } = require("locale-currency");
-const { IPCountryModel, productModel } = require("../Utils/Schemas.js");
+const { IPCountryModel, priceModel } = require("../Utils/Schemas.js");
 const { getCurrencySymbol, buildXML } = require("../Utils/Util.js");
 
 exports.data = {
@@ -36,7 +36,7 @@ exports.run = async (request, undefined, IP) => {
     // unable to detect the IP location, so we show the default currency as EUR
   }
   
-  let prices = await productModel.aggregate([
+  let prices = await priceModel.aggregate([
     { $match: { Currency: currency } },
     {
       $group: {
