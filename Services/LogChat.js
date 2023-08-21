@@ -29,7 +29,7 @@ exports.run = async (request, ActorId, IP) => {
 
   const user = await userModel.findOne({ ActorId: ActorId });
 
-  if (await isModerator(user.ActorId, user, 1)) {
+  if (await isModerator(user.ActorId, user, 3)) {
     await processModeratorMessage(
       user.ActorId,
       request.message.toString().replaceAll(":", "!#¤"),
