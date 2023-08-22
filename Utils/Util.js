@@ -1,7 +1,7 @@
 const xml2js = require("xml2js");
 const { pbkdf2Sync } = require("crypto");
 const { setError } = require("./ErrorManager.js");
-const { userModel, behaviorModel, giftModel, idModel, clothModel, confModel, pollModel, friendModel, boyfriendModel, activityModel, todoModel, ticketModel, collectionIdModel } = require("./Schemas.js");
+const { userModel, behaviorModel, giftModel, idModel, clothModel, confModel, pollModel, friendModel, boyfriendModel, activityModel, todoModel, collectionIdModel } = require("./Schemas.js");
 const { getValue, setValue } = require("./Globals.js");
 
 exports.buildXML = (action, object, ticket = "null") => {

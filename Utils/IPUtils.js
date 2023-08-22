@@ -52,7 +52,7 @@ exports.getIPDatas = async IP => {
       const responseAPI = await fetch(`http://check.getipintel.net/check.php?ip=${IP}&contact=mspretro@gmail.com&format=json`)
       .then(res => res.json())
       .catch(() => {
-        setError(`We could not ask our provider if your IP is a VPN or a proxy. Please contact us on our Discord to unblock the situation\n\n[Your IP]: ${IP}`);
+        setError(`We could not ask our provider if your IP is a VPN or a proxy. Send a message to @cy_polo over Telegram to unblock the situation.\n\n[Your IP]: ${IP}`);
         return "errorProvider";
       });
       
@@ -81,7 +81,7 @@ exports.getIPDatas = async IP => {
   };
     
   if (IPDatas.Locked) {
-    setError(`Your connection has been blocked because you are using a VPN/Proxy.\nPlease disable it, then try again.\n\nIf this doesn't work, please contact us by opening a ticket on our Discord server, specifying your IP number.\n\n[IP]: ${IPDatas.IPId}`);
+    setError(`Your connection has been blocked because you are using a VPN/Proxy.\nPlease disable it, then try again.\n\nIf this doesn't work, please contact us by sending a message to @cy_polo over Telegram, specifying your IP number.\n\n[IP]: ${IPDatas.IPId}`);
     
     return "blocked";
   } else return "authorized";

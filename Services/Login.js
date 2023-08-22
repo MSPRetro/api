@@ -55,7 +55,7 @@ exports.run = async (request, undefined, IP) => {
   
   const saveTicket = new ticketModel({
     ActorId: user.ActorId,
-    Ticket: ticket, // this should be hashed
+    // Ticket: ticket, => this should be hashed
     Date: dateTicket,
     Disable: false,
     IPId: IPDatas.IPId

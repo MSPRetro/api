@@ -37,10 +37,7 @@ exports.run = async (req, res) => {
 
     if (process.env.ChecksumEnabled === "true" && req.headers["referer"] != "https://cdn.mspretro.com/Il8Lv2VQ2FBd6GH1O0gzog7iV7nDtol9YNVqZIMX.swf") {
       const checksumClient = req.headers["checksum-client"];
-      const checksumServer = createChecksum(
-        JSON.stringify(req.body) /* + req.cookies.SessionId */,
-        action
-      );
+      const checksumServer = createChecksum(JSON.stringify(req.body), action);
 
       if (checksumClient !== checksumServer) return res.sendStatus(403);
     }
@@ -52,10 +49,10 @@ exports.run = async (req, res) => {
       if (parsed === "ERROR") return res.sendStatus(500);
 
       let user;
+      let ticket;
       let ActorId = false;
 
       if (SOAPActions[action].data.needTicket) {
-        let ticket;
         try {
           ticket = parsed.TicketHeader.Ticket;
         } catch {
@@ -70,7 +67,7 @@ exports.run = async (req, res) => {
         if (SOAPActions[action].data.levelModerator != 0 && !await isModerator(ActorId, false, SOAPActions[action].data.levelModerator)) return res.sendStatus(403);
       }
 
-      if (config.logEveryRequest) await log(ActorId, action, parsed, IP);
+      if (config.logEveryRequest) await log(ActorId, action, redactTicket(parsed, ticket), IP);
 
       const xml = await SOAPActions[action].run(parsed, ActorId, IP, ticketData.data.Password);
 
@@ -79,16 +76,6 @@ exports.run = async (req, res) => {
       }
 
       if (process.env.ChecksumEnabled === "true") {
-        /*
-        let cookie = req.cookies.SessionId;
-
-        if (!globals.getValue(`${cookie}-COOKIE`)) return res.sendStatus(403);
-        globals.deleteValue(`${cookie}-COOKIE`);
-
-        cookie = Date.now() + generate({ length: 40, numbers: true });
-        globals.setValue(`${cookie}-COOKIE`, true);
-        */
-
         parseString(xml, (err, result) => {
           const json = JSON.stringify(result);
           const checksum = createChecksum(json);
@@ -101,12 +88,9 @@ exports.run = async (req, res) => {
       res.send(xml);
     } else {
       const parsed = parseRawXml(req.body);
-      console.log(`${action} is not coded! args: ${JSON.stringify(parsed)}`);
-      await setError(
-        `The API requested by the game is not yet complete, but it will be fixed soon.\n\n[SOAPAction]: ${action}\n[Args]: ${JSON.stringify(
-          parsed
-        )}`, false
-      );
+      console.log(`${action} is not coded! args: ${JSON.stringify(parsed)}`); // if a ticket exists, it is not redacted
+      
+      await setError(`The API requested by the game is not yet complete, but it will be fixed soon.\n\n[SOAPAction]: ${action}\n[Args]: ${JSON.stringify(parsed)}`, false);
       return res.sendStatus(404);
     }
   } catch (Error) {
@@ -114,16 +98,12 @@ exports.run = async (req, res) => {
     console.error(`[Request] ${JSON.stringify(req.body)}`);
     console.error(Error);
 
-    await setError(
-      `An error has occurred, please report it on our Discord server.\nDiscord: Join our discord server: ${
-        config.discord
-      }\n\n[SOAPAction]: ${action}\n[Error]: ${Error.toString()}`, false
-    );
+    await setError(`An error has occurred, please report it to the administrators.\n\n[SOAPAction]: ${action}\n[Error]: ${Error.toString()}`, false);
     return res.sendStatus(500);
   }
 }
 
-async function log(ActorId = false, action, request, IP) {
+async function log(ActorId = false, action, redactedReq, IP) {
   if (ActorId) {
     const path = `./Logs/${ActorId}`;
     
@@ -131,8 +111,8 @@ async function log(ActorId = false, action, request, IP) {
       await promises.mkdir(path); // Should be moved to CreateNewUser => if the folder is created, no need to recheck every time
       
       // user's logs
-      await promises.appendFile(`${path}/${action}.log`, `[Date] ${new Date()} - [IP] ${IP} - [Request] ${JSON.stringify(request)}\n`);
-      await promises.appendFile(`${path}/all_requests.log`, `[Action] ${action} - [Date] ${new Date()} - [IP] ${IP} [Request] ${JSON.stringify(request)}\n`);
+      await promises.appendFile(`${path}/${action}.log`, `[Date] ${new Date()} - [IP] ${IP} - [Request] ${redactedReq}\n`);
+      await promises.appendFile(`${path}/all_requests.log`, `[Action] ${action} - [Date] ${new Date()} - [IP] ${IP} [Request] ${redactedReq}\n`);
     } catch (error) {
       if (error.code !== "EEXIST") {
         throw error;
@@ -141,7 +121,7 @@ async function log(ActorId = false, action, request, IP) {
   }
   
   // global logs
-  await promises.appendFile("./Logs/all_requests.log", `[Action] ${action} - [Date] ${new Date()} - [IP] ${IP} [ActorId] ${typeof ActorId === "number" ? ActorId : "none"} [Request] ${JSON.stringify(request)}\n`);
+  await promises.appendFile("./Logs/all_requests.log", `[Action] ${action} - [Date] ${new Date()} - [IP] ${IP} [ActorId] ${typeof ActorId === "number" ? ActorId : "none"} [Request] ${redactedReq}\n`);
 }
 
 function createChecksum(args, action = null) {
@@ -162,4 +142,11 @@ function sanitize(v) {
     }
   }
   return v;
+}
+
+function redactTicket(request, ticket) {
+  // regex to match the ticket?
+  if (ticket) return JSON.stringify(request).replaceAll(ticket, "REDACTED");
+  
+  return request;
 }

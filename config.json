@@ -1,6 +1,5 @@
 {
   "AppVersion" : 5,
-  "discord": "https://discord.gg/bwa9aCr",
   "cloudflare": {
     "zone": "805748179fb10e4b9ec914c0ef75991a",
     "email": "",

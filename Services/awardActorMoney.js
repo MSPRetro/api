@@ -11,7 +11,7 @@ exports.run = async (request, ActorId) => {
   let user = await userModel.findOne({ ActorId: ActorId });
   
   if (!await isModerator(ActorId, user, 3)) {
-     if (user.Extra.AwardMoney != 0) return;
+     if (user.Extra.AwardMoney != 0) return buildXML("awardActorMoney");
     
      await userModel.updateOne({ ActorId: request.actorId }, { $set: {
        "Progression.Money": user.Progression.Money + 200,
