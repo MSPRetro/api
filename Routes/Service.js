@@ -67,7 +67,7 @@ exports.run = async (req, res) => {
         if (SOAPActions[action].data.levelModerator != 0 && !await isModerator(ActorId, false, SOAPActions[action].data.levelModerator)) return res.sendStatus(403);
       }
 
-      if (config.logEveryRequest) await log(ActorId, action, redactTicket(parsed, ticket), IP);
+      if (process.env.LogEveryRequest === "true") await log(ActorId, action, redactTicket(parsed, ticket), IP);
 
       const xml = await SOAPActions[action].run(parsed, ActorId, IP, ticketData.data.Password);
 
