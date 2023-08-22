@@ -1,5 +1,4 @@
 const { setError } = require("../Utils/ErrorManager.js");
-const { discord } = require("../config.json");
 
 exports.data = {
   SOAPAction: "GetBokuBuyUrl",
@@ -8,7 +7,9 @@ exports.data = {
 };
 
 exports.run = async (request, ActorId) => {
-  await setError(`MSP Retro is a free game, meaning you aren’t able to buy any additional StarCoins nor VIP Membership.\nPlease join our discord server to see how to gain VIP membership. ${discord}`);
+  // await setError(`MSPRetro is a free game, meaning you aren’t able to buy any additional StarCoins nor VIP Membership.\nPlease join our discord server to see how to gain VIP membership. ${discord}`);
+  
+  await setError(`Payment by phone is currently not available. Please pay by credit card.`);
   
   return { statuscode: 500 };
 }

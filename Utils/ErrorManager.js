@@ -1,9 +1,8 @@
 const { errorModel } = require("./Schemas.js");
-const { discord } = require("../config.json");
 const { randomBytes } = require("crypto");
 
 const defaultError = "An error occured, but we couldn't figure out where did something went wrong. Please report it to the administrators.";
-const errorArray = []
+const errorArray = [ ];
 
 exports.setError = async (error, sendEvent = true, info = { }) => {
   if (sendEvent) process.send({ msg: "setErrorInvoked", data: { err: error }});
@@ -21,9 +20,8 @@ exports.setError = async (error, sendEvent = true, info = { }) => {
 
   const errorId = `${version}-${traceId}-${id}-${flags}`;
   
-  if (sendEvent)
-  {
-    let doc = new errorModel({
+  if (sendEvent) {
+    const doc = new errorModel({
       errorId,
       error,
       timestamp: Date.now()

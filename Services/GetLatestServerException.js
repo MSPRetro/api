@@ -2,7 +2,6 @@ const { buildXML } = require("../Utils/Util.js");
 const { errorModel } = require("../Utils/Schemas.js");
 const { randomBytes } = require("crypto");
 const { getError, clearError } = require("../Utils/ErrorManager.js");
-const { discord } = require("../config.json");
 
 exports.data = {
   SOAPAction: "GetLatestServerException",
@@ -15,7 +14,7 @@ exports.run = () => {
   clearError();
   
   // console.log(error);
-  let message = error.errorId === null ? error.error : `An error occured.\nTrace parent ID: ${error.errorId}\n\nCreate a ticket and report it in our Discord Server: ${discord}`;
+  let message = error.errorId === null ? error.error : `An error occured.\nTrace parent ID: ${error.errorId}\n\nPlease report the trace parent ID to the administrators if you think this error isn't legitimate (check MSPRetro website to know if it's a disabled feature).`;
   
   return buildXML("GetLatestServerException", message);
 };

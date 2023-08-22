@@ -110,7 +110,7 @@ exports.ticketModel = model(
   "tickets",
   new Schema({
     ActorId: Number,
-    Ticket: String,
+    // Ticket: String,
     Date: String,
     Disable: Boolean,
     IPId: Number

@@ -231,7 +231,7 @@ exports.run = async (request, undefined, IP) => {
     
   const saveTicket = new ticketModel({
     ActorId: ActorId,
-    Ticket: ticket,
+    // Ticket: ticket,
     Date: dateTicket,
     Disable: false,
     IPId: IPId
