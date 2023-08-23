@@ -1,13 +1,10 @@
 const { parseString } = require("xml2js");
-const fetch = require("node-fetch");
 const { promises } = require("fs");
 const { createHash } = require("crypto");
-const { ticketModel, userModel } = require("../Utils/Schemas.js");
-const { getValue, deleteValue, setValue } = require("../Utils/Globals.js");
 const { parseRawXml, isModerator } = require("../Utils/Util.js");
 const { setError } = require("../Utils/ErrorManager.js");
 const { SOAPActions } = require("../mspretro.js");
-const { getIPDatas } = require("../Utils/IPUtils.js");
+const { getIPData } = require("../Utils/IPUtils.js");
 const { validateTicket } = require("../Utils/Ticket.js");
 const config = require("../config.json");
 
@@ -25,8 +22,10 @@ exports.run = async (req, res) => {
   let action;
 
   res.set("checksum-server", createChecksum(undefined));
+  
+  const { Locked } = await getIPData(IP);
 
-  if (await getIPDatas(IP) !== "authorized") return res.sendStatus(403);
+  if (Locked) return res.sendStatus(403);
   
   try {
     let endpoint = req.header("soapaction");

@@ -122,7 +122,6 @@ exports.IPModel = model(
   new Schema({
     IPId: Number,
     IP: String,
-    Score: Number,
     Warns: Number,
     Locked: Boolean
   })

@@ -2,7 +2,6 @@ const { IPModel } = require("./Schemas.js");
 const { getValue, setValue } = require("./Globals.js");
 const { setError } = require("./ErrorManager.js");
 const { getNewId } = require("./Util.js");
-const fetch = require("node-fetch");
 
 const regexIP = /\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b/;
 
@@ -42,47 +41,33 @@ exports.ipInt = value => {
   };
 };
 
-exports.getIPDatas = async IP => {
-  let IPDatas = getValue(`${IP}-IP`);
+const getIPData = exports.getIPData = async IP => {
+  let IPData = getValue(`${IP}-IP`);
   
-  if (!IPDatas) {
-    IPDatas = await IPModel.findOne({ IP: IP });
-        
-    if (!IPDatas) {
-      const responseAPI = await fetch(`http://check.getipintel.net/check.php?ip=${IP}&contact=mspretro@gmail.com&format=json`)
-      .then(res => res.json())
-      .catch(() => {
-        setError(`We could not ask our provider if your IP is a VPN or a proxy. Send a message to @cy_polo over Telegram to unblock the situation.\n\n[Your IP]: ${IP}`);
-        return "errorProvider";
-      });
-      
-      let locked = false;
-      if (parseFloat(responseAPI.result) >= 0.90) locked = true;
-      
+  if (!IPData) {
+    IPData = await IPModel.findOne({ IP: IP });
+    
+    if (!IPData) {
       let IPId = await getNewId("ip_id") + 1;
       
       const addIP = new IPModel({
         IPId: IPId,
         IP: IP,
-        Score: parseFloat(responseAPI.result),
         Warns: 0,
-        Locked: locked
+        Locked: false
       });
       await addIP.save();
       
-      IPDatas = {
+      IPData = {
         IPId: IPId,
         IP: IP,
-        Score: parseFloat(responseAPI.result),
         Warns: 0,
-        Locked: locked
+        Locked: false
       };
-    } else setValue(`${IP}-IP`);
+    };
+    
+    setValue(`${IP}-IP`, IPData);
   };
-    
-  if (IPDatas.Locked) {
-    setError(`Your connection has been blocked because you are using a VPN/Proxy.\nPlease disable it, then try again.\n\nIf this doesn't work, please contact us by sending a message to @cy_polo over Telegram, specifying your IP number.\n\n[IP]: ${IPDatas.IPId}`);
-    
-    return "blocked";
-  } else return "authorized";
+  
+  return IPData;
 }

@@ -1,4 +1,4 @@
-const { getIPDatas } = require("../Utils/IPUtils.js");
+const { getIPData } = require("../Utils/IPUtils.js");
 const config = require("../config.json");
 
 exports.data = {
@@ -13,6 +13,8 @@ exports.run = async (req, res) => {
 
   let maintenance = false;
   if (config.maintenance.InMaintenance && !config.maintenance.AllowedIP.includes(IP)) maintenance = true;
+  
+  const { IPId, Locked } = await getIPData(IP);
 
   res.json({
     version: config.AppVersion,
@@ -20,8 +22,8 @@ exports.run = async (req, res) => {
       status: maintenance,
       message: config.maintenance.message,
     },
-    IPStatus: await getIPDatas(IP),
-    IP: IP,
-    disclamer: config.disclamer,
+    IPStatus: Locked ? "blocked" : "authorized",
+    IP: IPId,
+    disclamer: config.disclamer
   });
 }

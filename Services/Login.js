@@ -1,6 +1,7 @@
 const { generate } = require("generate-password");
 const { pbkdf2Sync } = require("crypto");
-const { userModel, ticketModel, IPModel } = require("../Utils/Schemas.js");
+const { userModel, ticketModel } = require("../Utils/Schemas.js");
+const { getIPData } = require("../Utils/IPUtils.js");
 const { buildXML, getActorDetails, formatDate, buildLevel } = require("../Utils/Util.js");
 const { generateTicket } = require("../Utils/Ticket.js");
 const { getValue, deleteValue, setValue } = require("../Utils/Globals.js");
@@ -46,19 +47,19 @@ exports.run = async (request, undefined, IP) => {
   let dateTicket = dateLogin;
   dateTicket.setHours(dateTicket.getHours() + 24);
   dateTicket = dateTicket.getTime();
-  
-  const IPDatas = await IPModel.findOne({ IP: IP });
-
   const ticket = generateTicket(user.ActorId, request.password, IP);
+  
   setValue(`${user.ActorId}-LEVEL`, buildLevel(user.Progression.Fame));
   setValue(`${user.ActorId}-PASSWORD`, request.password);
+  
+  const { IPId } = await getIPData(IP);
   
   const saveTicket = new ticketModel({
     ActorId: user.ActorId,
     // Ticket: ticket, => this should be hashed
     Date: dateTicket,
     Disable: false,
-    IPId: IPDatas.IPId
+    IPId: IPId
   });
   await saveTicket.save();
   
