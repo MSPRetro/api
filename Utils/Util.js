@@ -294,7 +294,7 @@ exports.getActorDetails = async (ActorId, RellActorId, Password) => {
       await createTodo(RellActorId, false, 4, 0, user.Extra.InvitedByActorId, 0, 0);
     };
     
-    email = user.Email.Email;
+    email = (user.Email.EmailValidated == 2 ? user.Email.Email : "");
     password = Password;
   }
   

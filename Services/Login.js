@@ -19,7 +19,7 @@ exports.run = async (request, undefined, IP) => {
   const user = await userModel.findOne({ Name: request.username.toString().trim(), Password: hash })
   .collation({ locale: "en", strength: 2 });
   
-  if(!user || new RegExp("\\bDeleted User\\b").test(user.Name.trim())) return buildXML("Login", {
+  if (!user || new RegExp("\\bDeleted User\\b").test(user.Name.trim())) return buildXML("Login", {
     status: "InvalidCredentials",
     actor: { },
     blockedIpAsInt: 0,
@@ -28,7 +28,7 @@ exports.run = async (request, undefined, IP) => {
     }
   }, "");
   
-  run({
+  await run({
     roomId: -1, 
     actorId: user.ActorId, 
     message: "User login at: " + formatDate(new Date(), false) + ", status: " + (user.BlockedIpAsInt == 0 ? "Success" : "Blocked")

@@ -67,7 +67,7 @@ if (cluster.isMaster) {
   app.all("*", async (req, res) => {    
     const method = req.method;
     const url = req.path.slice(1);
-    
+        
     const data = API[`${url}-${method}`];
     
     if (!data || data.data.Method !== method) return res.sendStatus(404);
