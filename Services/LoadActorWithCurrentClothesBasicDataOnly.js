@@ -225,7 +225,9 @@ exports.run = async request => {
       }
     }
   ]);
-    
+  
+  user = user[0];
+  
   if (!user) return buildXML("LoadActorWithCurrentClothesBasicDataOnly", {
     ActorId: 0,
     Name: "MSPRETRO",
@@ -284,8 +286,6 @@ exports.run = async request => {
       SkinId: 2
     }
   });
-  
-  user = user[0];
     
   let BoyfriendId;
   let BoyfriendStatus;

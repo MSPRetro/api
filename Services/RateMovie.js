@@ -11,7 +11,7 @@ exports.run = async (request, ActorId) => {
   for (let i in request.rateMovie) {
     if (isNaN(request.rateMovie[i] && typeof request.rateMovie[i] !== "string")) request.rateMovie[i] = "";
   };
-    
+  
   const movie = await movieModel.findOne({ MovieId: request.rateMovie.MovieId });
   if (!movie || movie.ActorId == ActorId || request.rateMovie.Score <= 1 && request.rateMovie.Score >= 5 || await commentMovieModel.findOne({ MovieId: movie.MovieId, ActorId: ActorId, Score: { $ne: -1 } })) return;
   
@@ -27,11 +27,10 @@ exports.run = async (request, ActorId) => {
   });
   await rate.save();
   
-  let AverageRating;
+  let AverageRating = request.rateMovie.Score;
   const RatedCount = await commentMovieModel.countDocuments({ MovieId: movie.MovieId, Score: { $ne: -1 } });
   
-  if (RatedCount == 1) AverageRating = request.rateMovie.Score;
-  else AverageRating = movie.RatedTotalScore / movie.RatedCount;
+  if (RatedCount != 1) AverageRating = (movie.RatedTotalScore + request.rateMovie.Score) / movie.RatedCount;
   
   await movieModel.updateOne({ MovieId: movie.MovieId }, {
     RatedCount: RatedCount,
