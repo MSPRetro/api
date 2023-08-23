@@ -26,12 +26,13 @@ exports.run = async (request, undefined, IP) => {
         return BigInt(int) * BigInt(65536) + BigInt(+value)
       });
   }
-
+  
   try {
     const IPData = await IPCountryModel.findOne({ ip_range_start: { $lte: parseInt(IPasInt) } })
     .sort({ ip_range_start:  -1 });
   
-    if (IPData.country_code) currency = getCurrency(IPData.country_code);
+    if (IPData.country_code) currency = getCurrencySymbol(getCurrency(IPData.country_code)).currency; // if the currency isn't implemented, we use the default currency (EUR)
+    
   } catch {
     // unable to detect the IP location, so we show the default currency as EUR
   }
