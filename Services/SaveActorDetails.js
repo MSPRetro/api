@@ -1,4 +1,4 @@
-const { mailIsValid } = require("../Utils/MailManager.js");
+const { run } = require("./SendEmailValidation.js");
 const { userModel, eyeModel, noseModel, mouthModel } = require("../Utils/Schemas.js");
 const { buildXML, createActivity, addFame } = require("../Utils/Util.js");
 
@@ -19,24 +19,10 @@ exports.run = async (request, ActorId) => {
   if (user.Clinic.MouthId !== request.data.MouthId || user.Clinic.MouthColors !== request.data.MouthColors) await buyClinic(ActorId, "MouthId", request.data.MouthId, request.data.MouthColors);
   if (user.Clinic.SkinColor !== request.data.SkinColor) await buyClinic(ActorId, "SkinColor", null, request.data.SkinColor);
   
-  if (request.data.Email !== "" && request.data.Email !== user.Email.Email) {
-    if (!mailIsValid(request.data.Email)) return;
-    
-    if (user.Email.FirstEmail == "") {
-      await userModel.updateOne({ ActorId: ActorId }, { $set: {
-        "Email.Email": request.data.Email,
-        "Email.FirstEmail": request.data.Email
-      }});
-    };
-    
-    await userModel.updateOne({ ActorId: ActorId }, { $set: {
-        "Email.Email": request.data.Email
-    }});
-    
-  };
+  if (request.data.Email !== user.Email.Email) await run({ email: request.data.Email }, ActorId);
   
   await userModel.updateOne({ ActorId: ActorId }, { $set: {
-    "Email.EmailSettings": request.data.EmailValidated,
+    "Email.EmailSettings": request.data.EmailSettings,
     "Profile.ProfileText": request.data.ProfileText,
     "Favorites.FavoriteMovie": request.data.FavoriteMovie,
     "Favorites.FavoriteActor": request.data.FavoriteActor,

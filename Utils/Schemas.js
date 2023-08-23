@@ -29,9 +29,9 @@ exports.userModel = model(
     BlockedIpAsInt: Number,
     Email: {
       Email: String,
-      FirstEmail: String,
       Token: String,
       EmailValidated: Number,
+      MoneyReceived: Number,
       EmailSettings: Number
     },
     Clinic: {
