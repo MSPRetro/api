@@ -1,7 +1,8 @@
 const { generate } = require("generate-password");
 const { pbkdf2Sync } = require("crypto");
 const { uploadDefaultImg } = require("../Utils/BlobManager.js");
-const { userModel, idModel, clothModel, eyeModel, noseModel, mouthModel, friendModel, ticketModel, IPModel } = require("../Utils/Schemas.js");
+const { userModel, idModel, clothModel, eyeModel, noseModel, mouthModel, friendModel, ticketModel } = require("../Utils/Schemas.js");
+const { getIPData } = require("../Utils/IPUtils.js");
 const { buildXML, buildLevel, formatDate, getNewId } = require("../Utils/Util.js");
 const { setValue } = require("../Utils/Globals.js");
 const { setError } = require("../Utils/ErrorManager.js");
@@ -227,7 +228,7 @@ exports.run = async (request, undefined, IP) => {
   setValue(`${ActorId}-LEVEL`, 0);
   setValue(`${ActorId}-PASSWORD`, request.password);
   
-  const { IPId } = await IPModel.findOne({ IP: IP });
+  const { IPId } = await getIPData(IP);
     
   const saveTicket = new ticketModel({
     ActorId: ActorId,

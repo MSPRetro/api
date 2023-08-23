@@ -1,5 +1,6 @@
-const { IPModel, logModel, userModel } = require("../Utils/Schemas.js");
+const { logModel, userModel } = require("../Utils/Schemas.js");
 const { buildXML, formatDate, isModerator, getNewId } = require("../Utils/Util.js");
+const { getIPData } = require("../Utils/IPUtils.js");
 const { getValue, setValue } = require("../Utils/Globals.js");
 const { ChatLogWebhook } = require("../config.json");
 const fetch = require("node-fetch");
@@ -12,17 +13,17 @@ exports.data = {
 
 exports.run = async (request, ActorId, IP) => {
   if (isNaN(request.message && typeof request.message !== "string")) return buildXML("LogChat");
-
-  const IPData = await IPModel.findOne({ IP: IP });
   
   let LogId = await getNewId("chatlog_id") + 1;
-
+  
+  const { IPId } = await getIPData(IP);
+  
   const saveLog = new logModel({
     ActorId: ActorId,
     LogId: LogId,
     RoomId: request.roomId,
     Date: new Date(),
-    IPId: IPData.IPId,
+    IPId: IPId,
     Message: request.message,
   });
   await saveLog.save();
@@ -36,36 +37,6 @@ exports.run = async (request, ActorId, IP) => {
       request.roomId
     );
   }
-  
-  /*
-  await fetch(ChatLogWebhook, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      embeds: [
-        {
-          author: {
-            name: "ChatLog",
-            icon_url: "https://mspretro.com/assets/logo_mspretro.png",
-          },
-          title: `${user.Name} to ${await getRoomName(request.roomId)}`,
-          thumbnail: {
-            url: `https://cdn.mspretro.com/entity-snapshots/moviestar/0/${ActorId}.jpg`,
-          },
-          description: request.message,
-          fields: [
-            {
-              name: "Extras",
-              value: `LogId: ${LogId}\nIPId: ${IPData.IPId}`,
-            },
-          ],
-        },
-      ],
-    }),
-  });
-  */
 
   return buildXML("LogChat");
 };
