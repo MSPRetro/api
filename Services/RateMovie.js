@@ -30,8 +30,8 @@ exports.run = async (request, ActorId) => {
   let AverageRating = request.rateMovie.Score;
   const RatedCount = await commentMovieModel.countDocuments({ MovieId: movie.MovieId, Score: { $ne: -1 } });
   
-  if (RatedCount != 1) AverageRating = (movie.RatedTotalScore + request.rateMovie.Score) / movie.RatedCount;
-  
+  if (RatedCount != 1) AverageRating = (movie.RatedTotalScore + request.rateMovie.Score) / RatedCount;
+    
   await movieModel.updateOne({ MovieId: movie.MovieId }, {
     RatedCount: RatedCount,
     RatedTotalScore: movie.RatedTotalScore + request.rateMovie.Score,

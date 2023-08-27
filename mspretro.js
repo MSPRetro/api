@@ -64,10 +64,12 @@ if (cluster.isMaster) {
   app.use(bodyParser.xml());
   app.use(cors());
   
-  app.all("*", async (req, res) => {    
+  app.all("*", async (req, res) => {
+    // we need to sanitize all JSON body requests (avoid MongoDB query injections)
+    
     const method = req.method;
     const url = req.path.slice(1);
-        
+    
     const data = API[`${url}-${method}`];
     
     if (!data || data.data.Method !== method) return res.sendStatus(404);
