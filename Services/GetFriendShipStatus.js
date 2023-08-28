@@ -9,6 +9,7 @@ exports.data = {
 
 exports.run = async (request, ActorId) => {
   if (request.otherUserId == ActorId) return buildXML("GetFriendShipStatus", 0);
+  if (request.otherUserId == 1) return buildXML("GetFriendShipStatus", 2);
 
   const friendship = await friendModel.findOne({
     $or: [

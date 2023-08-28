@@ -8,7 +8,7 @@ exports.data = {
 };
 
 exports.run = async (request, ActorId) => {
-  const friends = await friendModel.aggregate([
+  let friends = await friendModel.aggregate([
     {
       $match: {
         $or: [
@@ -70,6 +70,8 @@ exports.run = async (request, ActorId) => {
       }
     }
   ]);
+  
+  friends.push({ actorId: 1, name: "MSPRetro" });
   
   return buildXML("GetFriendListWithName", {
     FriendData: friends 

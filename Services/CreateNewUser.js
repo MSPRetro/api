@@ -1,7 +1,7 @@
 const { generate } = require("generate-password");
 const { pbkdf2Sync } = require("crypto");
 const { uploadDefaultImg } = require("../Utils/BlobManager.js");
-const { userModel, idModel, clothModel, eyeModel, noseModel, mouthModel, friendModel, ticketModel } = require("../Utils/Schemas.js");
+const { userModel, idModel, clothModel, eyeModel, noseModel, mouthModel, ticketModel } = require("../Utils/Schemas.js");
 const { getIPData } = require("../Utils/IPUtils.js");
 const { buildXML, buildLevel, formatDate, getNewId } = require("../Utils/Util.js");
 const { setValue } = require("../Utils/Globals.js");
@@ -205,13 +205,6 @@ exports.run = async (request, undefined, IP) => {
   });
   await user.save();
     
-  const friend = new friendModel({
-    RequesterId: 1,
-    ReceiverId: ActorId,
-    Status: 1
-  });
-  await friend.save();
-  
   let pathImg = "../DefaultAssets/boy_head.jpg";
   if (SkinId == 1) pathImg = "../DefaultAssets/girl_head.jpg";
   

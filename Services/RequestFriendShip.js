@@ -8,6 +8,7 @@ exports.data = {
 };
 
 exports.run = async (request, ActorId) => {
+  if (request.friendId == 1) return buildXML("RequestFriendShip", true);
   if (request.friendId == ActorId || !await userModel.findOne({ ActorId: request.friendId })) return;
   
   const friend1 = await friendModel.findOne({ RequesterId: ActorId, ReceiverId: request.friendId });

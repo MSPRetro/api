@@ -1,4 +1,4 @@
-const { userModel, friendModel, ticketModel } = require("../Utils/Schemas.js");
+const { userModel, ticketModel } = require("../Utils/Schemas.js");
 const { buildXML, isModerator } = require("../Utils/Util.js");
 const { deleteValue } = require("../Utils/Globals.js");
 
@@ -30,7 +30,6 @@ exports.run = async (request, ActorId) => {
     } });
   };
   
-  await friendModel.updateOne({ RequesterId: 1, ReceiverId: user.ActorId }, { Status: 0 });
   deleteValue(`${user.ActorId}-PASSWORD`);
   await ticketModel.updateMany({ ActorId: user.ActorId, Disable: false }, { Disable: true });
   

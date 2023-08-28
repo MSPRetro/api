@@ -210,9 +210,50 @@ const isVip = exports.isVip = async (ActorId, user = null) => {
   else return true;
 };
 
-exports.addFame = async (ActorId, user = null, fames) => {  
-  if (await isVip(ActorId, user)) fames = Math.round(fames + (fames * 25 / 100));
-    
+const friendVIPCount = exports.friendVIPCount = async ActorId => {
+  let friends = await friendModel.aggregate([
+    {
+      $match: {
+        $or: [
+          { RequesterId: ActorId, Status: 1 },
+          { ReceiverId: ActorId, Status: 1 }
+        ]
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        intArray: {
+          $push: {
+            $cond: [
+              { $eq: [ "$RequesterId", ActorId ] },
+              "$ReceiverId",
+              "$RequesterId"
+            ]
+          }
+        }
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        intArray: 1
+      }
+    }
+  ]);
+  
+  friends = friends[0];
+  if (!friends) return 0;
+  
+  return await userModel.countDocuments({ ActorId: { $in: friends.intArray }, "VIP.MembershipTimeoutDate": { $gte: new Date() } }) + 1;
+};
+
+exports.addFame = async (ActorId, user = null, fames, fromAutographOrMovie) => {  
+  if (fromAutographOrMovie) {
+    if (await isVip(ActorId, user)) fames = Math.round(fames + (fames * 25 / 100));
+    if (await friendVIPCount(ActorId) >= 100) fames = Math.round(fames + (fames * 10 / 100));
+  }
+  
   await userModel.updateOne({ ActorId: ActorId }, { $inc: {
     "Progression.Fame": fames
   } });
@@ -321,7 +362,7 @@ exports.getActorDetails = async (ActorId, RellActorId, Password) => {
       { ReceiverId: user.ActorId }
     ],
     Status: 1
-  });
+  }) + 1;
   
   let BoyfriendId;
   let BoyfriendStatus;

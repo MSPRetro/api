@@ -333,7 +333,7 @@ exports.run = async request => {
     MouthColors: user.MouthColors,
     Fame: user.Fame,
     Fortune: user.Fortune,
-    FriendCount: user.FriendCount,
+    FriendCount: user.FriendCount + 1,
     IsExtra: user.IsExtra,
     InvitedByActorId: user.InvitedByActorId,
     Moderator: user.Moderator,
