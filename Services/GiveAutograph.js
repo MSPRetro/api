@@ -25,13 +25,13 @@ exports.run = async (request, ActorId) => {
     "Autographs.TimeOfLastAutographGiven": new Date()
   }});
   
-  await addFame(ActorId, user, 50);
+  await addFame(ActorId, user, 50, true);
   
   await userModel.updateOne({ ActorId: receiverActorId.ActorId }, { $set: {
     "Autographs.NumberOfAutographsReceived": receiverActorId.Autographs.NumberOfAutographsReceived + 1,
   }});
     
-  await addFame(request.receiverActorId, receiverActorId, 180 + buildLevel(user.Progression.Fame));
+  await addFame(request.receiverActorId, receiverActorId, 180 + buildLevel(user.Progression.Fame), true);
   
   return buildXML("GiveAutograph");
 };

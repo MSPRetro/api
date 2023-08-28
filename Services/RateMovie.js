@@ -45,7 +45,7 @@ exports.run = async (request, ActorId) => {
     "Progression.Money": user.Progression.Money + 50 + request.rateMovie.Score * 5 + movie.ActorWatched.length,
   }});
   
-  await addFame(movie.ActorId, user, request.rateMovie.Score * 10 + movie.ActorWatched.length);
+  await addFame(movie.ActorId, user, request.rateMovie.Score * 10 + movie.ActorWatched.length, true);
   
   for (let actor of movie.MovieActorRels) {
     if (actor.ActorId == movie.ActorId) continue;
@@ -58,7 +58,7 @@ exports.run = async (request, ActorId) => {
       "Progression.Fortune": user.Progression.Fortune + 50 + request.rateMovie.Score * 2 + movie.ActorWatched.length
     }});
     
-    await addFame(actor.ActorId, user, request.rateMovie.Score * 5 + movie.ActorWatched.length);
+    await addFame(actor.ActorId, user, request.rateMovie.Score * 5 + movie.ActorWatched.length, true);
   };
   
   user = await userModel.findOne({ ActorId: ActorId });

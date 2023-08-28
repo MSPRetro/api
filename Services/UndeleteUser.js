@@ -1,6 +1,6 @@
 const { generate } = require("generate-password");
 const { pbkdf2Sync } = require("crypto");
-const { userModel, friendModel } = require("../Utils/Schemas.js");
+const { userModel } = require("../Utils/Schemas.js");
 const { buildXML, isModerator, getActorDetails } = require("../Utils/Util.js");
 const { setValue } = require("../Utils/Globals.js");
 
@@ -26,7 +26,6 @@ exports.run = async (request, ActorId, IP, Password) => {
   }});
 
   setValue(`${user.ActorId}-PASSWORD`, passwordNew);
-  await friendModel.updateOne({ RequesterId: 1, ReceiverId: user.ActorId }, { Status: 1 });
   
   return buildXML("UndeleteUser", await getActorDetails(user.ActorId, user.ActorId, Password));
 };
