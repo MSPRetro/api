@@ -1,4 +1,4 @@
-const { friendModel, userModel } = require("../Utils/Schemas.js");
+const { friendModel } = require("../Utils/Schemas.js");
 const { buildXML } = require("../Utils/Util.js");
 
 exports.data = {
