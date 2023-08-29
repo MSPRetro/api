@@ -8,7 +8,7 @@ exports.data = {
 };
 
 exports.run = async request => {
-  const backgrounds = await idBackgroundModel.find({ ActordId: request.actorId });
+  const backgrounds = await idBackgroundModel.find({ ActorId: request.actorId });
   
   let backgroundsArr = [ ];
   
