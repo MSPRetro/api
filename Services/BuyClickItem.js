@@ -1,5 +1,5 @@
 const { userModel, clickitemModel, idclickitemModel } = require("../Utils/Schemas.js");
-const { buildXML, getActorDetails, formatDate, isVip, addFame, getNewId } = require("../Utils/Util.js");
+const { buildXML, getActorDetails, formatDate, isVip, addOrRemoveMoney, addFame, getNewId } = require("../Utils/Util.js");
 
 exports.data = {
   SOAPAction: "BuyClickItem",
@@ -16,11 +16,8 @@ exports.run = async (request, ActorId, IP, Password) => {
   if (clickitem.Price > user.Progression.Money || clickitem.Vip != 0 && !await isVip(ActorId, user)) return;
   
   let RellId = await getNewId("rell_clickitem_id") + 1;
-  
-  await userModel.updateOne({ ActorId: ActorId }, { $set: {
-    "Progression.Money": user.Progression.Money - clickitem.Price
-  } });
-  
+    
+  await addOrRemoveMoney(ActorId, - clickitem.Price);
   await addFame(ActorId, user, clickitem.Price / 10);
   
   const item = new idclickitemModel({

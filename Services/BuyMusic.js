@@ -1,5 +1,5 @@
 const { userModel, musicModel, idMusicModel } = require("../Utils/Schemas.js");
-const { buildXML, getActorDetails, isModerator, addFame, getNewId } = require("../Utils/Util.js");
+const { buildXML, getActorDetails, isModerator, addOrRemoveMoney, addFame, getNewId } = require("../Utils/Util.js");
 
 exports.data = {
   SOAPAction: "BuyMusic",
@@ -23,12 +23,8 @@ exports.run = async (request, ActorId, IP, Password) => {
   if (await idMusicModel.findOne({ ActorId: ActorId, MusicId: music.MusicId })) return;
   
   let RellId = await getNewId("rell_music_id") + 1;
-  
-  await userModel.updateOne({ ActorId: ActorId }, { $set: {
-    "Progression.Money": user.Progression.Money - Price,
-    "Progression.Fame": user.Progression.Fame + (Price / 10)
-  } });
-  
+    
+  await addOrRemoveMoney(ActorId, - Price);
   await addFame(ActorId, user, Price / 10);
   
   await musicModel.updateOne({ MusicId: music.MusicId }, { $push: { "BuyBy": ActorId } });

@@ -1,5 +1,5 @@
 const { movieModel, userModel, commentMovieModel } = require("../Utils/Schemas.js");
-const { buildXML, formatDate, addFame, getNewId } = require("../Utils/Util.js");
+const { buildXML, formatDate, addOrRemoveMoney, addFame, getNewId } = require("../Utils/Util.js");
 
 exports.data = {
   SOAPAction: "RateMovie",
@@ -40,32 +40,18 @@ exports.run = async (request, ActorId) => {
   });
   
   let user = await userModel.findOne({ ActorId: movie.ActorId });
-  
-  await userModel.updateOne({ ActorId: movie.ActorId }, { $set: {
-    "Progression.Money": user.Progression.Money + 50 + request.rateMovie.Score * 5 + movie.ActorWatched.length,
-  }});
-  
+    
+  await addOrRemoveMoney(movie.ActorId, 50 + request.rateMovie.Score * 5 + movie.ActorWatched.length, true);
   await addFame(movie.ActorId, user, request.rateMovie.Score * 10 + movie.ActorWatched.length, true);
   
   for (let actor of movie.MovieActorRels) {
     if (actor.ActorId == movie.ActorId) continue;
     
-    user = await userModel.findOne({ ActorId: actor.ActorId });
-    if (!user) continue;
-    
-    await userModel.updateOne({ ActorId: actor.ActorId }, { $set: {
-      "Progression.Money": user.Progression.Money + 50 + request.rateMovie.Score * 2 + movie.ActorWatched.length,
-      "Progression.Fortune": user.Progression.Fortune + 50 + request.rateMovie.Score * 2 + movie.ActorWatched.length
-    }});
-    
-    await addFame(actor.ActorId, user, request.rateMovie.Score * 5 + movie.ActorWatched.length, true);
+    await addOrRemoveMoney(actor.ActorId, 50 + request.rateMovie.Score * 2 + movie.ActorWatched.length, true);    
+    await addFame(actor.ActorId, false, request.rateMovie.Score * 5 + movie.ActorWatched.length, true);
   };
   
-  user = await userModel.findOne({ ActorId: ActorId });
-  await userModel.updateOne({ ActorId: ActorId }, { $set: {
-    "Progression.Money": user.Progression.Money + 10,
-    "Progression.Fortune": user.Progression.Fortune + 10
-  } });
+  await addOrRemoveMoney(ActorId, 10, true);
   
   return buildXML("RateMovie");
 };

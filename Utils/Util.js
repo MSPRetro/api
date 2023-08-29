@@ -254,9 +254,30 @@ exports.addFame = async (ActorId, user = null, fames, fromAutographOrMovie) => {
     if (await friendVIPCount(ActorId) >= 100) fames = Math.round(fames + (fames * 10 / 100));
   }
   
-  await userModel.updateOne({ ActorId: ActorId }, { $inc: {
-    "Progression.Fame": fames
-  } });
+  return await userModel.findOneAndUpdate(
+    { ActorId: ActorId },
+    { $inc: { "Progression.Fame": fames } },
+    { new: true }
+  );
+};
+
+exports.addOrRemoveMoney = async (ActorId, amount, updateFortune) => {
+  if (updateFortune) {
+    return await userModel.findOneAndUpdate(
+      { ActorId: ActorId },
+      { $inc: {
+        "Progression.Money": amount,
+        "Progression.Fortune": amount
+      } },
+      { new: true }
+    );
+  }
+  
+  return await userModel.findOneAndUpdate(
+    { ActorId: ActorId },
+    { $inc: { "Progression.Money": amount } },
+    { new: true }
+  );
 };
 
 const getNewId = exports.getNewId = async sequence_name => {

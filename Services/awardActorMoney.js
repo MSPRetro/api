@@ -1,5 +1,5 @@
 const { userModel, transactionModel } = require("../Utils/Schemas.js");
-const { buildXML, isModerator, numStr, getNewId } = require("../Utils/Util.js");
+const { buildXML, addOrRemoveMoney, isModerator, numStr, getNewId } = require("../Utils/Util.js");
 
 exports.data = {
   SOAPAction: "awardActorMoney",
@@ -12,16 +12,15 @@ exports.run = async (request, ActorId) => {
   
   if (!await isModerator(ActorId, user, 3)) {
      if (user.Extra.AwardMoney != 0) return buildXML("awardActorMoney");
+     
+     await addOrRemoveMoney(ActorId, 200, true);
     
-     await userModel.updateOne({ ActorId: request.actorId }, { $set: {
-       "Progression.Money": user.Progression.Money + 200,
-       "Progression.Fortune": user.Progression.Fortune + 200,
+     await userModel.updateOne({ ActorId: ActorId }, { $set: {
        "Extra.AwardMoney": 1
      }});
   } else {
     user = await userModel.findOne({ ActorId: request.actorId });
-  
-    await userModel.updateOne({ ActorId: request.actorId }, { $set: { "Progression.Money": user.Progression.Money + request.amount } });
+    const updatedActor = await addOrRemoveMoney(request.actorId, request.amount);
     
     let TransactionId = await getNewId("transaction_id") + 1;
     
@@ -35,7 +34,7 @@ exports.run = async (request, ActorId) => {
       MobileNumber: "0",
       Timestamp: new Date(),
       StarCoinsBefore: user.Progression.Money,
-      StarCoinsAfter: user.Progression.Money + request.amount,
+      StarCoinsAfter: updatedActor.Progression.Money,
       result_code: 1,
       content_id: `MANUAL - ${numStr(request.amount, ".")} StarCoins`,
       CardNumber: 0
