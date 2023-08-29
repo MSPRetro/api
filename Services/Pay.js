@@ -10,7 +10,7 @@ exports.data = {
 exports.run = async (request, ActorId, IP, Password) => {
   if (Math.sign(request.starcoins) != 1) return;
   
-  await addOrRemoveMoney(ActorId, request.starcoins);
+  await addOrRemoveMoney(ActorId, - request.starcoins);
   await addFame(ActorId, false, request.starcoins / 10);
     
   return buildXML("Pay", await getActorDetails(ActorId, ActorId, Password));
