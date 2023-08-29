@@ -1,5 +1,5 @@
 const { userModel, transactionModel } = require("../Utils/Schemas.js");
-const { addDays, getCurrencySymbol, numStr } = require("../Utils/Util.js");
+const { addDays, addOrRemoveMoney, getCurrencySymbol, numStr } = require("../Utils/Util.js");
 const { sendMail } = require("../Utils/MailManager.js");
 const stripe = require("stripe");
 
@@ -38,10 +38,8 @@ exports.run = async (req, res) => {
       "VIP.TotalVipDays": user.VIP.TotalVipDays + productData.amountVIPDays--
     } });
   }
-  
-  await userModel.updateOne({ ActorId: user.ActorId }, { $set: {
-    "Progression.Money": user.Progression.Money + productData.amountStarCoins
-  } });
+    
+  await addOrRemoveMoney(user.ActorId, productData.amountStarCoins);
   
   await transactionModel.updateOne({ TransactionId: transaction.TransactionId }, {
     CheckoutDone: 1,

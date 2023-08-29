@@ -1,6 +1,6 @@
 const { run } = require("./SendEmailValidation.js");
 const { userModel, eyeModel, noseModel, mouthModel } = require("../Utils/Schemas.js");
-const { buildXML, createActivity, addFame } = require("../Utils/Util.js");
+const { buildXML, createActivity, addOrRemoveMoney, addFame } = require("../Utils/Util.js");
 
 exports.data = {
   SOAPAction: "SaveActorDetails",
@@ -9,7 +9,7 @@ exports.data = {
 };
 
 exports.run = async (request, ActorId) => {  
-  for(let i in request.data) {
+  for (let i in request.data) {
     if (isNaN(request.data[i] && typeof request.data[i] !== "string")) request.data[i] = "";
   };
   
@@ -51,11 +51,8 @@ async function buyClinic(ActorId, type, id, colors) {
       
       await userModel.updateOne({ ActorId: ActorId }, { $set: {
         "Clinic.EyeId": id,
-        "Clinic.EyeColors": colors,
-        "Progression.Money": user.Progression.Money - 800
+        "Clinic.EyeColors": colors
       }});
-      
-      await addFame(ActorId, user, 80);
       
       break;
     case "NoseId":
@@ -63,11 +60,8 @@ async function buyClinic(ActorId, type, id, colors) {
       if (nose.SkinId != user.Clinic.SkinSWF && nose.SkinId != 0) return;
       
       await userModel.updateOne({ ActorId: ActorId }, { $set: {
-        "Clinic.NoseId": id,
-        "Progression.Money": user.Progression.Money - 800,
+        "Clinic.NoseId": id
       }});
-      
-      await addFame(ActorId, user, 80);
       
       break;
     case "MouthId":
@@ -76,23 +70,20 @@ async function buyClinic(ActorId, type, id, colors) {
       
       await userModel.updateOne({ ActorId: ActorId }, { $set: {
         "Clinic.MouthId": id,
-        "Clinic.MouthColors": colors,
-        "Progression.Money": user.Progression.Money - 800
+        "Clinic.MouthColors": colors
       }});
-      
-      await addFame(ActorId, user, 80);
-      
+            
       break;
     case "SkinColor":
       await userModel.updateOne({ ActorId: ActorId }, { $set: {
-        "Clinic.SkinColor": colors,
-        "Progression.Money": user.Progression.Money - 800
+        "Clinic.SkinColor": colors
       }});
-      
-      await addFame(ActorId, user, 80);
-      
+            
       break;
   }
+  
+  await addOrRemoveMoney(ActorId, -800);
+  await addFame(ActorId, user, 80);
   
   return;
 }

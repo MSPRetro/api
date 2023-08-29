@@ -1,5 +1,5 @@
 const { userModel, giftModel, idModel, clothModel } = require("../Utils/Schemas.js");
-const { buildXML, addMinutes, formatDate, buildLevel, createTodo, addFame, getNewId } = require("../Utils/Util.js");
+const { buildXML, addMinutes, formatDate, buildLevel, createTodo, addOrRemoveMoney, addFame, getNewId } = require("../Utils/Util.js");
 
 exports.data = {
   SOAPAction: "BuyGift",
@@ -24,10 +24,8 @@ exports.run = async (request, ActorId) => {
   const clothe = await clothModel.findOne({ ClothesId: relCloth.ClothId });
   
   if (clothe.Price > giver.Progression.Money) return;
-  await userModel.updateOne({ ActorId: ActorId }, { $set: {
-    "Progression.Money": giver.Progression.Money - clothe.Price
-  } });
   
+  await addOrRemoveMoney(ActorId, - clothe.Price);
   await addFame(ActorId, giver, clothe.Price / 10);
   
   let GiftId = await getNewId("gift_id") + 1;

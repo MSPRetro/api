@@ -1,5 +1,5 @@
 const { userModel } = require("../Utils/Schemas.js");
-const { buildXML, formatDate } = require("../Utils/Util.js");
+const { buildXML, addOrRemoveMoney, formatDate } = require("../Utils/Util.js");
 
 exports.data = {
   SOAPAction: "MembershipStarcoinsRecieve",
@@ -13,20 +13,16 @@ exports.run = async (request, ActorId) => {
   if ([ 5, 10, 20, 40 ].includes(request.starCoins)) {
     // whell no vip
     
-    await userModel.updateOne({ ActorId: ActorId }, {
-      "Progression.Money": user.Progression.Money + request.starCoins,
-      "Progression.Fortune": user.Progression.Fortune + request.starCoins,
-      "VIP.MembershipGiftRecievedDate": new Date()
-    });
+    await addOrRemoveMoney(ActorId, request.starCoins, true);
   } else if ([ 25, 50, 100, 200 ].includes(request.starCoins)) {
     // whell vip
     
-    await userModel.updateOne({ ActorId: ActorId }, {
-      "Progression.Money": user.Progression.Money + request.starCoins,
-      "Progression.Fortune": user.Progression.Fortune + request.starCoins,
-      "VIP.MembershipGiftRecievedDate": new Date()
-    });
+    await addOrRemoveMoney(ActorId, request.starCoins, true);
   };
+  
+  await userModel.updateOne({ ActorId: ActorId }, {
+    "VIP.MembershipGiftRecievedDate": new Date()
+  });
   
   return buildXML("MembershipStarcoinsRecieve");
 };

@@ -1,5 +1,5 @@
 const { userModel, idBackgroundModel, backgroundModel } = require("../Utils/Schemas.js");
-const { buildXML, getActorDetails, isModerator, isVip, addFame, getNewId } = require("../Utils/Util.js");
+const { buildXML, getActorDetails, isModerator, isVip, addOrRemoveMoney, addFame, getNewId } = require("../Utils/Util.js");
 
 exports.data = {
   SOAPAction: "BuyBackground",
@@ -24,10 +24,7 @@ exports.run = async (request, ActorId, IP, Password) => {
   
   let RellId = await getNewId("rell_background_id") + 1;
   
-  await userModel.updateOne({ ActorId: ActorId }, { $set: {
-    "Progression.Money": user.Progression.Money - Price
-  } });
-  
+  await addOrRemoveMoney(ActorId, - Price);
   await addFame(ActorId, user, Price / 10);
   
   await backgroundModel.updateOne({ BackgroundId: background.BackgroundId }, { $push: { "BuyBy": ActorId } });
