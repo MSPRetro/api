@@ -36,7 +36,6 @@ exports.buildXML = (action, object, ticket = "null") => {
   return new xml2js.Builder().buildObject(obj);
 };
 
-
 exports.buildXMLnull = (action, ticket = "null") => {
   let obj = {
     "soap:Envelope": {
