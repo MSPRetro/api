@@ -11,6 +11,7 @@ const cors = require("cors");
 
 const { connect } = require("mongoose");
 const { BlobServiceClient } = require("@azure/storage-blob");
+const { EmailClient } = require("@azure/communication-email");
 
 const { deleteValue, setValue } = require("./Utils/Globals.js");
 const { setError, clearError } = require("./Utils/ErrorManager.js");
@@ -113,7 +114,9 @@ if (cluster.isMaster) {
     
     const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.CUSTOMCONNSTR_AzureBlobStorage);
     exports.containerClient = blobServiceClient.getContainerClient("$web");
-        
+    
+    exports.emailClient = new EmailClient(process.env.CUSTOMCONNSTR_AzureCommunicationService);
+    
     await connect(process.env.CUSTOMCONNSTR_URIMongoDB, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
