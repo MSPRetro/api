@@ -34,7 +34,7 @@ exports.run = async (req, res) => {
     action = endpoint.replace("http://moviestarplanet.com/", "");
     action = action.replace(new RegExp('"', "gi"), "");
 
-    if (process.env.ChecksumEnabled === "true" && req.headers["referer"] != "https://cdn.mspretro.com/Il8Lv2VQ2FBd6GH1O0gzog7iV7nDtol9YNVqZIMX.swf") {
+    if (process.env.ChecksumEnabled === "true") {
       const checksumClient = req.headers["checksum-client"];
       const checksumServer = createChecksum(JSON.stringify(req.body), action);
 
