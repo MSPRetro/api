@@ -1,29 +1,39 @@
-const { createTransport } = require("nodemailer");
+const { emailClient } = require("../mspretro.js");
 
-exports.sendMail = async (to, subject, content, cci = "") => {
-  if (!mailIsValid(to)) return false;
+exports.sendMail = async (from, toEmail, toName, subject, content, cci = "") => {
+  if (!mailIsValid(toEmail)) return false;
   
-  const transporter = createTransport({
-    service: "gmail",
-    auth: {
-      user: "mspretro@gmail.com",
-      pass: process.env.CUSTOMCONNSTR_PasswordEmail
+  let bcc = [ ];
+  
+  if (from === "order") {
+    bcc = [{
+      address: process.env.CUSTOMCONNSTR_TrustpilotEmail,
+      name: "Trustpilot"
+    }];
+  };
+  
+  const email = {
+    senderAddress: from + ".donotreply@mspretro.com",
+    content: {
+      subject: subject,
+      plainText: content
+    },
+    recipients: {
+      to: [{
+        address: toEmail,
+        name: toName
+      }],
+      bcc
     }
-  });
-
-  transporter.sendMail({
-    from: '"MSPRetro" <contact@mspretro.com>',
-    to: to,
-    bcc: cci,
-    subject: subject,
-    text: content
-  }, function(error, info) {
-    if (error) {
-      return false;
-    } else {
-      return true;
-    }
-  });
+  };
+  
+  const poller = await emailClient.beginSend(email);
+  if (!poller.getOperationState().isStarted) return false;
+  
+  const response = await poller.pollUntilDone();  
+  if (!response || response.Status !== "Succeeded") return false;
+  
+  return true;
 };
 
 const mailIsValid = exports.mailIsValid = mail => {

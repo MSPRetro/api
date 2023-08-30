@@ -27,7 +27,7 @@ exports.run = async request => {
   await ticketModel.updateMany({ ActorId: user.ActorId, Disable: false }, { Disable: true });
   setValue(`${user.ActorId}-PASSWORD`, password);
   
-  if (await sendMail(request.email, "Email and password recovery", `Hello ${user.Name},\nwe have received a request to change your password and your email. If you have not done so, please log in again with your new password, and change your email.\nNew email: ${request.email}\nNew password: ${password}\n\nSee you soon!\nAdmin`)) return buildXML("RecoverUserFromEmailHistory", -1); 
+  if (await sendMail("recover", request.email, user.Name, "Email and password recovery", `Hello ${user.Name},\n\ngreetings!\nWe have received a request to change your password and your email. If you have not done so, please log in again with your new password, and change your email.\nNew email: ${request.email}\nNew password: ${password}\n\nKind regards,\nThe MSPRetro team`)) return buildXML("RecoverUserFromEmailHistory", -1); 
   else return buildXML("RecoverUserFromEmailHistory", 1);
   
   // -1 : An error has occured
