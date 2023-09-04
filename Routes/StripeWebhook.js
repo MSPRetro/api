@@ -20,7 +20,7 @@ exports.run = async (req, res) => {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
   
-  const transaction = await transactionModel.findOne({ StripeId: event.data.object.id });
+  const transaction = await transactionModel.findOne({ StripeId: event.data.object.id, CheckoutDone: 0 });
   if (!transaction) return res.sendStatus(404);
     
   const productData = getProductByKey(transaction.content_id);
