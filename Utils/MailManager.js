@@ -13,7 +13,7 @@ exports.sendMail = async (from, toEmail, toName, subject, content, cci = "") => 
   };
   
   const email = {
-    senderAddress: from + ".donotreply@mspretro.com",
+    senderAddress: from + "@donotreply.mspretro.com",
     content: {
       subject: subject,
       plainText: content
