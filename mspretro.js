@@ -13,6 +13,7 @@ const { connect } = require("mongoose");
 const { BlobServiceClient } = require("@azure/storage-blob");
 const { EmailClient } = require("@azure/communication-email");
 
+const { sanitizeJSON } = require("./Utils/Util.js");
 const { deleteValue, setValue } = require("./Utils/Globals.js");
 const { setError, clearError } = require("./Utils/ErrorManager.js");
 
@@ -66,7 +67,13 @@ if (cluster.isMaster) {
   app.use(cors());
   
   app.all("*", async (req, res) => {
-    // we need to sanitize all JSON body requests (avoid MongoDB query injections)
+    const contentType = req.header("Content-Type");   
+    
+    // Avoid MongoDB injection
+    if (contentType && (contentType.includes("application/x-www-form-urlencoded") || contentType.includes("application/json"))) {
+      req.body = JSON.parse(JSON.stringify(req.body));
+      req.body = sanitizeJSON(req.body);
+    }
     
     const method = req.method;
     const url = req.path.slice(1);
