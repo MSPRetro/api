@@ -65,6 +65,17 @@ exports.buildXMLnull = (action, ticket = "null") => {
   return new xml2js.Builder().buildObject(obj);
 };
 
+const sanitizeJSON = exports.sanitizeJSON = (v) => {
+  if (v instanceof Object) {
+    for (let key in v) {
+      if (/^\$/.test(key)) delete v[key];
+      else sanitizeJSON(v[key]);
+    }
+  }
+  
+  return v;
+}
+
 exports.numStr = (a, b) => {
   a = "" + a;
   b = b || " ";

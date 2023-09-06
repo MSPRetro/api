@@ -1,7 +1,7 @@
 const { parseString } = require("xml2js");
 const { promises } = require("fs");
 const { createHash } = require("crypto");
-const { parseRawXml, isModerator } = require("../Utils/Util.js");
+const { sanitizeJSON, parseRawXml, isModerator } = require("../Utils/Util.js");
 const { setError } = require("../Utils/ErrorManager.js");
 const { SOAPActions } = require("../mspretro.js");
 const { getIPData } = require("../Utils/IPUtils.js");
@@ -24,7 +24,6 @@ exports.run = async (req, res) => {
   res.set("checksum-server", createChecksum(undefined));
   
   const { Locked } = await getIPData(IP);
-
   if (Locked) return res.sendStatus(403);
   
   try {
@@ -44,7 +43,7 @@ exports.run = async (req, res) => {
     let ticketData = { isValid: false, data: { ActorId: null, IP: "", Password: "" } };
 
     if (SOAPActions[action]) {
-      let parsed = sanitize(parseRawXml(req.body));
+      let parsed = sanitizeJSON(parseRawXml(req.body));
       if (parsed === "ERROR") return res.sendStatus(500);
 
       let user;
@@ -128,19 +127,6 @@ function createChecksum(args, action = null) {
 
   sha.update(args + action + process.env.CUSTOMCONNSTR_SaltClient);
   return sha.digest("hex");
-}
-
-function sanitize(v) {
-  if (v instanceof Object) {
-    for (var key in v) {
-      if (/^\$/.test(key)) {
-        delete v[key];
-      } else {
-        sanitize(v[key]);
-      }
-    }
-  }
-  return v;
 }
 
 function redactTicket(request, ticket) {
