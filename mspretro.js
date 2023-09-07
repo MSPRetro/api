@@ -67,17 +67,16 @@ if (cluster.isMaster) {
   app.use(cors());
   
   app.all("*", async (req, res) => {
-    const contentType = req.header("Content-Type");   
+    const contentType = req.header("Content-Type");
+    const url = req.path.slice(1);
     
     // Avoid MongoDB injection
-    if (contentType && (contentType.includes("application/x-www-form-urlencoded") || contentType.includes("application/json"))) {
+    if ((contentType && url !== "/StripeWebhook") && (contentType.includes("application/x-www-form-urlencoded") || contentType.includes("application/json"))) {
       req.body = JSON.parse(JSON.stringify(req.body));
       req.body = sanitizeJSON(req.body);
     }
     
     const method = req.method;
-    const url = req.path.slice(1);
-    
     const data = API[`${url}-${method}`];
     
     if (!data || data.data.Method !== method) return res.sendStatus(404);

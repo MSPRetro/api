@@ -8,7 +8,7 @@ exports.data = {
   Method: "POST"
 }
 
-exports.run = async (req, res) => {
+exports.run = async (req, res) => {  
   const signature = req.header("stripe-signature");
   if (!signature) return res.sendStatus(404);
   
