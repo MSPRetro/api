@@ -12,7 +12,7 @@ exports.run = async (request, ActorId) => {
     if (isNaN(request.rateMovie[i] && typeof request.rateMovie[i] !== "string")) request.rateMovie[i] = "";
   };
   
-  const movie = await movieModel.findOne({ MovieId: request.rateMovie.MovieId });
+  const movie = await movieModel.findOne({ MovieId: request.rateMovie.MovieId, Status: 100 });
   if (!movie || movie.ActorId == ActorId || request.rateMovie.Score <= 1 && request.rateMovie.Score >= 5 || await commentMovieModel.findOne({ MovieId: movie.MovieId, ActorId: ActorId, Score: { $ne: -1 } })) return;
   
   let RateMovieId = await getNewId("comment_movie_id") + 1;
