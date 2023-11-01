@@ -1,5 +1,5 @@
 const { uploadDefaultImg } = require("../Utils/BlobManager.js");
-const { movieModel } = require("../Utils/Schemas.js");
+const { movieModel, userModel } = require("../Utils/Schemas.js");
 const { buildXML, formatDate, createTodo, getNewId } = require("../Utils/Util.js");
 
 exports.data = {
@@ -17,6 +17,9 @@ exports.run = async (request, ActorId) => {
     const movie = await movieModel.findOne({ MovieId: request.movie.MovieId, ActorId: ActorId, Status: 0 });
     if (!movie) return;
     
+    if (!await isMovieActorSecure(request.movie.MovieActorRels.MovieActorRel)) return;
+    
+    
     await movieModel.updateOne({ MovieId: request.movie.MovieId }, {
       Name: request.movie.Name,
       MovieData: request.movie.MovieData,
@@ -28,6 +31,8 @@ exports.run = async (request, ActorId) => {
     return buildXML("SaveMovie", request.movie.MovieId);
     
   } else {
+    if (!await isMovieActorSecure(request.movie.MovieActorRels.MovieActorRel)) return;
+    
     const MovieId = await getNewId("movie_id") + 1;
     const shardDir = Math.floor(MovieId / 10000);
     
@@ -64,3 +69,19 @@ exports.run = async (request, ActorId) => {
     return buildXML("SaveMovie", MovieId);
   };
 };
+
+async function isMovieActorSecure(MovieActorRels) {
+  if (MovieActorRels.length > 5) return false;
+  
+  let existingActor = [ ];
+  
+  for (let MovieActor of MovieActorRels) {
+    if (!await userModel.findOne({ ActorId: MovieActor.ActorId })) return false;
+    
+    if (existingActor.includes(MovieActor.ActorId)) return false;
+    
+    existingActor.push(MovieActor.ActorId);
+  }
+  
+  return true;
+}
