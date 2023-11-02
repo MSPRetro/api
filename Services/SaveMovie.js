@@ -17,8 +17,7 @@ exports.run = async (request, ActorId) => {
     const movie = await movieModel.findOne({ MovieId: request.movie.MovieId, ActorId: ActorId, Status: 0 });
     if (!movie) return;
     
-    if (!await isMovieActorSecure(request.movie.MovieActorRels.MovieActorRel)) return;
-    
+    if (request.movie.MovieActorRels.MovieActorRel.MovieActorRelId === undefined && !await isMovieActorSecure(request.movie.MovieActorRels.MovieActorRel)) return;
     
     await movieModel.updateOne({ MovieId: request.movie.MovieId }, {
       Name: request.movie.Name,
@@ -30,8 +29,8 @@ exports.run = async (request, ActorId) => {
     
     return buildXML("SaveMovie", request.movie.MovieId);
     
-  } else {
-    if (!await isMovieActorSecure(request.movie.MovieActorRels.MovieActorRel)) return;
+  } else {    
+    if (request.movie.MovieActorRels.MovieActorRel.MovieActorRelId === undefined && !await isMovieActorSecure(request.movie.MovieActorRels.MovieActorRel)) return;
     
     const MovieId = await getNewId("movie_id") + 1;
     const shardDir = Math.floor(MovieId / 10000);
@@ -70,7 +69,7 @@ exports.run = async (request, ActorId) => {
   };
 };
 
-async function isMovieActorSecure(MovieActorRels) {
+async function isMovieActorSecure(MovieActorRels) {  
   if (MovieActorRels.length > 5) return false;
   
   let existingActor = [ ];
