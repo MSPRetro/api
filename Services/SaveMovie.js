@@ -69,8 +69,9 @@ exports.run = async (request, ActorId) => {
   };
 };
 
-async function isMovieActorSecure(MovieActorRels) {  
-  if (MovieActorRels.length > 5) return false;
+async function isMovieActorSecure(MovieActorRels) {
+  // we should check if the actor is VIP or not, since the actor limit ins't the same (non VIP: 6, VIP: 8)
+  if (MovieActorRels.length > 8) return false;
   
   let existingActor = [ ];
   
