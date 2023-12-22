@@ -5,7 +5,7 @@ const { deleteValue } = require("../Utils/Globals.js");
 exports.data = {
   SOAPAction: "DeleteUser2",
   needTicket: true,
-  levelModerator: 0
+  levelModerator: 3
 }
 
 exports.run = async (request, ActorId) => {
