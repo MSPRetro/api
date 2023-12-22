@@ -1,8 +1,8 @@
 {
   "AppVersion" : 5,
   "maintenance": {
-    "InMaintenance": true,
-    "message": "We have stopped the game for a few hours to resolve a security issue. Your data will not be affected.\nThe game is expected to return in a few hours.\n\nVIP users will be compensated.\nWe apologize for any inconvenience caused.",
+    "InMaintenance": false,
+    "message": "",
     "AllowedIP": [ "92.134.118.5", "141.145.219.108" ]
   },
   "disclamer": "**FAIR USE**\n\nCopyright Disclaimer under section 107 of the Copyright Act 1976, allowance is made for “fair use” for purposes such as criticism, comment, news reporting, teaching, scholarship, education and research.\nFair use is a use permitted by copyright statute that might otherwise be infringing.\nNon-profit, educational or personal use tips the balance in favor of fair use.\n\nAll content & files belong to MovieStarPlanet (c)\nThe server part of the game was entirely coded by Polo.\nHe is the ones who manages the game.\n\nContact: contact@mspretro.com"
