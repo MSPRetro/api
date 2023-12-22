@@ -16,7 +16,7 @@ exports.run = async (request, ActorId) => {
   if (![ "stand", "talk", "Wave", "walk", "stand up", "Run", "Sidewave", "Sittingonchair", "Sittingthefloor", "lying down", "Layingonside", "Sidedance1", "dance4", "jump2", "sidejump2", "Handgesture1", "I am Cool", "punch", "kick", "fall", "zombiewalk", "ide", "scared" ].includes(request.mood.FigureAnimation)) {
     const animation = await animationModel.findOne({ Filename: request.mood.FigureAnimation });
 
-    if (!idAnimationModel.findOne({ AnimationId: animation.AnimationId })) return;
+    if (!await idAnimationModel.findOne({ AnimationId: animation.AnimationId })) return;
   };
 
   if (request.mood.MouthAnimation !== "none" && !await idclickitemModel.findOne({ ActorId: ActorId, ActorClickItemRelId: request.mood.MouthAnimation })) return;
