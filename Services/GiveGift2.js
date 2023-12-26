@@ -16,7 +16,7 @@ exports.run = async (request, ActorId) => {
   if (![ "Gift_item_1.swf", "Gift_item_2.swf", "Gift_item_3.swf", "Gift_item_4.swf", "Gift_item_5.swf", "Gift_item_6.swf" ].includes(request.swf)
       || !user
       || !itemRelId
-      || (buildLevel(user.Progression.Fame) <= 3)
+      || (buildLevel(user.Progression.Fame) < 3)
      ) return;
   
   await idModel.updateOne({ ActorId: ActorId, ClothesRellId: request.relId }, {
