@@ -8,12 +8,15 @@ exports.data = {
 }
 
 exports.run = async (req, res) => {
-  if (!await userModel.findOne({ ActorId: req.body.ActorId })) return res.sendStatus(404);
+  const user = await userModel.findOne({ ActorId: req.body.ActorId });
+  if (!user) return res.sendStatus(404);
   
   const currencyData = getCurrencySymbol(req.body.Currency);
   
   const product = await priceModel.findOne({ Key: req.body.Key, Currency: currencyData.currency });
   if (!product) return res.sendStatus(404);
+  
+  const params = `?actorId=${user.ActorId}&username=${user.Name}&key=${req.body.Key}`;
   
   const session = await stripe.checkout.sessions.create({
     payment_method_types: currencyData.paymentMethods,
@@ -23,8 +26,8 @@ exports.run = async (req, res) => {
       price: product.PriceId,
       quantity: 1
     }],
-    success_url: `${process.env.PaymentGatewayLink}/Success`,
-    cancel_url: `${process.env.PaymentGatewayLink}/Cancel`
+    success_url: `${process.env.PaymentGatewayLink}/Success${params}`,
+    cancel_url: `${process.env.PaymentGatewayLink}/Cancel${params}`
   });
   
   let TransactionId = await getNewId("transaction_id") + 1;
@@ -33,7 +36,7 @@ exports.run = async (req, res) => {
     TransactionId: TransactionId,
     StripeId: session.id,
     CheckoutDone: 0,
-    ActorId: req.body.ActorId,
+    ActorId: user.ActorId,
     Amount: session.amount_total / 100,
     Currency: currencyData.symbol,
     MobileNumber: "0",
