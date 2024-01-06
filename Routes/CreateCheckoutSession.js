@@ -7,7 +7,7 @@ exports.data = {
   Method: "POST"
 }
 
-exports.run = async (req, res) => {
+exports.run = async (req, res) => {  
   const user = await userModel.findOne({ ActorId: req.body.ActorId });
   if (!user) return res.sendStatus(404);
   
@@ -16,7 +16,7 @@ exports.run = async (req, res) => {
   const product = await priceModel.findOne({ Key: req.body.Key, Currency: currencyData.currency });
   if (!product) return res.sendStatus(404);
   
-  const params = `?actorId=${user.ActorId}&username=${user.Name}&key=${req.body.Key}`;
+  const params = `?actorId=${user.ActorId}&username=${Buffer.from(user.Name).toString("base64")}&key=${req.body.Key}`;
   
   const session = await stripe.checkout.sessions.create({
     payment_method_types: currencyData.paymentMethods,
