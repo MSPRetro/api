@@ -52,7 +52,7 @@ exports.run = async (request, ActorId) => {
       AverageRating: 0,
       StarCoinsEarned: 0,
       MovieData: request.movie.MovieData,
-      Complexity: request.movie.Complexity,
+      Complexity: request.movie.Complexity, // Complexity should be used to calculate the fame
       CompetitionDate: new Date(0),
       CompetitionId: 0,
       CompetitionVotes: [ ],
