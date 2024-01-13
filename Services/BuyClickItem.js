@@ -12,7 +12,7 @@ exports.run = async (request, ActorId, IP, Password) => {
   if (!clickitem) return;
   
   let user = await userModel.findOne({ ActorId: ActorId });
-  if (clickitem.Vip != 0 && !await isVip(ActorId, user));
+  if (clickitem.Vip != 0 && !await isVip(ActorId, user)) return;
   if (clickitem.Price > user.Progression.Money || clickitem.Vip != 0 && !await isVip(ActorId, user)) return;
   
   let RellId = await getNewId("rell_clickitem_id") + 1;
