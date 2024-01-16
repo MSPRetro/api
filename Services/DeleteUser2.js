@@ -21,7 +21,7 @@ exports.run = async (request, ActorId) => {
     } });
   } else {
     user = await userModel.findOne({ ActorId: request.userIdTobeDeleted, "Extra.IsExtra": 0 });
-    if (!user || await isModerator(user.ActorId, user, 1) || !await isModerator(ActorId, false, 3)) return buildXML("DeleteUser2", 0);
+    if (!user || user.ActorId == 1 || await isModerator(user.ActorId, user, 1) || !await isModerator(ActorId, false, 2)) return buildXML("DeleteUser2", 0);
     
     await userModel.updateOne({ ActorId: user.ActorId }, { $set: {
       Name: "Deleted User",
