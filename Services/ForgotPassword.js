@@ -12,7 +12,9 @@ exports.data = {
 };
 
 exports.run = async request => {
-  const user = await userModel.findOne({ Name: new RegExp("\\b" + request.actorName + "\\b", "i") });
+  const user = await userModel.findOne({ Name: request.actorName, "Extra.IsExtra": 0 })
+  .collation({ locale: "en", strength: 2 });
+  
   if (!user) return buildXML("ForgotPassword", 0);
   
   if (user.Email.EmailValidated != 2) return buildXML("ForgotPassword", 3);

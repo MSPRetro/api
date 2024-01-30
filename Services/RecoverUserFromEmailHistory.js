@@ -12,10 +12,10 @@ exports.data = {
 };
 
 exports.run = async request => {
-  const user = await userModel.findOne({ Name: new RegExp("\\b" + request.actorName + "\\b", "i") });
-  if (!user) return buildXML("RecoverUserFromEmailHistory", 0);
-
-  if (user.Email.FirstEmail === "" || user.Email.FirstEmail !== request.email) return buildXML("RecoverUserFromEmailHistory", 0);
+  const user = await userModel.findOne({ Name: request.actorName, "Extra.IsExtra": 0 })
+  .collation({ locale: "en", strength: 2 });
+  
+  if (!user || user.Email.FirstEmail === "" || user.Email.FirstEmail !== request.email) return buildXML("RecoverUserFromEmailHistory", 0);
   
   const password = generate({ length: 8, numbers: true });
   
