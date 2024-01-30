@@ -17,12 +17,17 @@ exports.run = async (req, res) => {
 
   if (user.Email.EmailValidated == 2) return res.send("You've already confirmed your email!");
   
-  if (user.Email.MoneyReceived != 1) await addOrRemoveMoney(user.ActorId, 300, true);
-  
-  await userModel.updateOne({ ActorId: user.ActorId }, { $set: {
+  let emailObj = {
     "Email.EmailValidated": 2,
     "Email.MoneyReceived": 1
-  } });
+  };
+  
+  if (user.Email.MoneyReceived != 1) {
+    emailObj["Email.FirstEmail"] = user.Email.Email;
+    await addOrRemoveMoney(user.ActorId, 300, true);
+  };
+  
+  await userModel.updateOne({ ActorId: user.ActorId }, { $set: emailObj });
     
   res.send("Your email is now activated!");
 }

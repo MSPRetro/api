@@ -1,3 +1,4 @@
+const { createFMSNotification } = require("./LogChat.js");
 const { userModel, ticketModel } = require("../Utils/Schemas.js");
 const { buildXML, isModerator } = require("../Utils/Util.js");
 const { deleteValue } = require("../Utils/Globals.js");
@@ -28,6 +29,8 @@ exports.run = async (request, ActorId) => {
       LastName: user.Name,
       "Extra.IsExtra": 1
     } });
+    
+    createFMSNotification("logout|" + ActorId + "|" + user.ActorId);
   };
   
   deleteValue(`${user.ActorId}-PASSWORD`);
