@@ -19,7 +19,6 @@ exports.run = async request => {
     Password: pbkdf2Sync(`MSPRETRO,${password}`, process.env.CUSTOMCONNSTR_SaltDB, 1000, 64, "sha512").toString("hex")
   });
   
-  
   setValue(`${request.actorId}-PASSWORD`, password);
   
   return buildXML("ResetPassword", password);
