@@ -129,6 +129,7 @@ exports.run = async (request, undefined, IP) => {
     BlockedIpAsInt: 0,
     Email: {
       Email: "",
+      FirstEmail: "",
       Token: "",
       EmailValidated: 0,
       MoneyReceived: 0,

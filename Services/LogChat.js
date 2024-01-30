@@ -41,7 +41,7 @@ exports.run = async (request, ActorId, IP) => {
   return buildXML("LogChat");
 };
 
-function createFMSNotification(command) {
+const createFMSNotification = exports.createFMSNotification = command => {
   const obj = getValue("fmsUpdates");
   
   if (!obj) {
