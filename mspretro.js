@@ -64,7 +64,12 @@ if (cluster.isMaster) {
   app.use("/StripeWebhook", bodyParser.raw({ type: "*/*" }));
   app.use(bodyParser.json());
   app.use(bodyParser.xml());
-  app.use(cors());
+  app.use(cors({
+    origin: "https://cdn.mspretro.com",
+    methods: "POST",
+    allowedHeaders: [ "Content-Type", "SOAPAction" ],
+    maxAge: 86400 // 24h for Firefox, 2h for Chromium version >= 76, 10 minutes for Chromium version < 76
+  }));
   
   app.all("*", async (req, res) => {
     const contentType = req.header("Content-Type");
