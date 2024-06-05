@@ -1,5 +1,6 @@
 const { userModel, giftModel, boyfriendModel } = require("../Utils/Schemas.js");
-const { buildXML, buildLevel, formatDate, addDays } = require("../Utils/Util.js");
+const { buildLevel, formatDate, addDays } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "LoadActorWithCurrentClothesBasicDataOnly",

@@ -1,6 +1,7 @@
 const { createFMSNotification } = require("./LogChat.js");
 const { userModel, ticketModel } = require("../Utils/Schemas.js");
-const { buildXML, isModerator } = require("../Utils/Util.js");
+const { isModerator } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 const { deleteValue } = require("../Utils/Globals.js");
 
 exports.data = {

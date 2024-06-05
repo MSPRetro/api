@@ -1,5 +1,6 @@
 const { todoModel, userModel, movieModel } = require("../Utils/Schemas.js");
-const { buildXML, formatDate, addDays } = require("../Utils/Util.js");
+const { formatDate, addDays } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "GetTodos",

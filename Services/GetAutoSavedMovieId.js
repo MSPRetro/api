@@ -1,5 +1,5 @@
-const { buildXML } = require("../Utils/Util.js");
 const globals = require("../Utils/Globals.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "GetAutoSavedMovieId",

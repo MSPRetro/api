@@ -1,5 +1,6 @@
 const { friendModel, userModel } = require("../Utils/Schemas.js");
-const { buildXML, createTodo } = require("../Utils/Util.js");
+const { createTodo } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "RequestFriendShip",

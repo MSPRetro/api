@@ -1,5 +1,6 @@
 const { userModel } = require("../Utils/Schemas.js");
-const { buildXML, isVip, addMinutes, buildLevel, addFame } = require("../Utils/Util.js");
+const { isVip, addMinutes, buildLevel, addFame } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "GiveAutograph",

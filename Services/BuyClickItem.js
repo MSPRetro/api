@@ -1,5 +1,6 @@
 const { userModel, clickitemModel, idclickitemModel } = require("../Utils/Schemas.js");
-const { buildXML, getActorDetails, formatDate, isVip, addOrRemoveMoney, addFame, getNewId } = require("../Utils/Util.js");
+const { getActorDetails, formatDate, isVip, addOrRemoveMoney, addFame, getNewId } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "BuyClickItem",

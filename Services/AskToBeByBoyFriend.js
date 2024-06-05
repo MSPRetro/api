@@ -1,5 +1,6 @@
 const { userModel, boyfriendModel } = require("../Utils/Schemas.js");
-const { buildXML, createTodo, formatDate } = require("../Utils/Util.js");
+const { createTodo, formatDate } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "AskToBeByBoyFriend",

@@ -1,5 +1,5 @@
 const { friendModel, todoModel } = require("../Utils/Schemas.js");
-const { buildXML } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "RejectFriendShip",

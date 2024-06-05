@@ -1,5 +1,5 @@
 const { userModel } = require("../Utils/Schemas.js");
-const { buildXML, buildXMLnull } = require("../Utils/Util.js");
+const { buildXML, buildXMLnull } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "LoadMood",

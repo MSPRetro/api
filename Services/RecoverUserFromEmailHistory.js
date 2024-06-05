@@ -3,7 +3,7 @@ const { pbkdf2Sync } = require("crypto");
 const { setValue } = require("../Utils/Globals.js");
 const { sendMail, mailIsValid } = require("../Utils/MailManager.js");
 const { userModel, ticketModel } = require("../Utils/Schemas.js");
-const { buildXML } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "RecoverUserFromEmailHistory",

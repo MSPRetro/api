@@ -1,7 +1,8 @@
 const { generate } = require("generate-password");
 const { pbkdf2Sync } = require("crypto");
 const { userModel } = require("../Utils/Schemas.js");
-const { buildXML, isModerator, getActorDetails } = require("../Utils/Util.js");
+const { isModerator, getActorDetails } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 const { setValue } = require("../Utils/Globals.js");
 
 exports.data = {

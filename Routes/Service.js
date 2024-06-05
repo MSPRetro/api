@@ -1,7 +1,8 @@
 const { parseString } = require("xml2js");
 const { promises } = require("fs");
 const { createHash } = require("crypto");
-const { sanitizeJSON, parseRawXml, isModerator } = require("../Utils/Util.js");
+const { sanitizeJSON, isModerator } = require("../Utils/Util.js");
+const { parseRawXml } = require("../Utils/XML.js");
 const { setError } = require("../Utils/ErrorManager.js");
 const { SOAPActions } = require("../mspretro.js");
 const { getIPData } = require("../Utils/IPUtils.js");

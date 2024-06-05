@@ -1,6 +1,7 @@
 const { run } = require("./SendEmailValidation.js");
 const { userModel, eyeModel, noseModel, mouthModel } = require("../Utils/Schemas.js");
-const { buildXML, createActivity, addOrRemoveMoney, addFame } = require("../Utils/Util.js");
+const { createActivity, addOrRemoveMoney, addFame } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "SaveActorDetails",

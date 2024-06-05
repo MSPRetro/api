@@ -1,6 +1,6 @@
 const { IPModel, userModel } = require("../Utils/Schemas.js");
 const { setValue } = require("../Utils/Globals.js");
-const { buildXML } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "unblockIP",

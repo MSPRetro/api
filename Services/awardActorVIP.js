@@ -1,5 +1,6 @@
 const { userModel, transactionModel } = require("../Utils/Schemas.js");
-const { buildXML, addDays, numStr, getNewId } = require("../Utils/Util.js");
+const { addDays, numStr, getNewId } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "awardActorVIP",

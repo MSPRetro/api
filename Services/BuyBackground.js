@@ -1,5 +1,6 @@
 const { userModel, idBackgroundModel, backgroundModel } = require("../Utils/Schemas.js");
-const { buildXML, getActorDetails, isModerator, isVip, addOrRemoveMoney, addFame, getNewId } = require("../Utils/Util.js");
+const { getActorDetails, isModerator, isVip, addOrRemoveMoney, addFame, getNewId } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "BuyBackground",

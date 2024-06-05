@@ -1,5 +1,6 @@
 const { commentEntityModel, userModel, lookModel } = require("../Utils/Schemas.js");
-const { buildXML, isModerator } = require("../Utils/Util.js");
+const { isModerator } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "EntityCommentDelete",

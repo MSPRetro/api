@@ -1,5 +1,6 @@
 const { userModel, guestbookModel } = require("../Utils/Schemas.js");
-const { buildXML, createActivity, getNewId } = require("../Utils/Util.js");
+const { createActivity, getNewId } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "AddGuestBookEntry",
