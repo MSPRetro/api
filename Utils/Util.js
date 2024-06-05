@@ -12,9 +12,10 @@ exports.buildXML = (action, object, ticket = "null") => {
         "xmlns:xsd": "http://www.w3.org/2001/XMLSchema",
         "xmlns:soap": "http://schemas.xmlsoap.org/soap/envelope/"
       },
-      "soap:Body": {}
+      "soap:Body": { }
     }
   };
+  
   if (ticket != "null") {
     obj["soap:Envelope"]["soap:Header"] = {
       TicketHeader: {
@@ -25,14 +26,14 @@ exports.buildXML = (action, object, ticket = "null") => {
       }
     };
   }
+  
   obj["soap:Envelope"]["soap:Body"][action + "Response"] = {
     $: {
       xmlns: "http://moviestarplanet.com/"
     }
   };
-  obj["soap:Envelope"]["soap:Body"][action + "Response"][
-    action + "Result"
-  ] = object;
+  obj["soap:Envelope"]["soap:Body"][action + "Response"][ action + "Result" ] = object;
+  
   return new xml2js.Builder().buildObject(obj);
 };
 
@@ -44,9 +45,10 @@ exports.buildXMLnull = (action, ticket = "null") => {
         "xmlns:xsd": "http://www.w3.org/2001/XMLSchema",
         "xmlns:soap": "http://schemas.xmlsoap.org/soap/envelope/"
       },
-      "soap:Body": {}
+      "soap:Body": { }
     }
   };
+  
   if (ticket != "null") {
     obj["soap:Envelope"]["soap:Header"] = {
       TicketHeader: {
@@ -57,6 +59,7 @@ exports.buildXMLnull = (action, ticket = "null") => {
       }
     };
   }
+  
   obj["soap:Envelope"]["soap:Body"][action + "Response"] = {
     $: {
       xmlns: "http://moviestarplanet.com/"
@@ -197,7 +200,7 @@ const buildLevel = exports.buildLevel = fames => {
   return r;
 };
 
-const isModerator = exports.isModerator = async (ActorId, user = null, level) => {
+exports.isModerator = async (ActorId, user = null, level) => {
   if (!user) user = await userModel.findOne({ ActorId: ActorId });
   
   if (level != 0 && level <= user.LevelModerator) return true;
@@ -581,48 +584,45 @@ exports.getCurrencySymbol = currency => {
 
 function loopXmlData(xml) {
   if (Array.isArray(xml) && xml.length == 1) {
-    if (typeof xml[0] === "object" && xml[0] !== null) {
-      return loopXmlData(xml[0]);
-    }
+    if (typeof xml[0] === "object" && xml[0] !== null) return loopXmlData(xml[0]);
 
     if (xml[0] == "false" || xml[0] == "true") return xml[0] == "true";
-    
     if (xml[0] == null) return null;
-
     if (!isNaN(xml[0])) return parseInt(xml[0]);
     
     return xml[0];
   };
+  
   if (Array.isArray(xml)) {
-    var result = [];
+    let result = [];
     
-    for (var element of xml) {
+    for (let element of xml) {
       if (typeof element === "object" && element !== null) {
         result.push(loopXmlData(element));
+        
         continue;
       }
       
       if (element == "false" || element == "true") {
         result.push((element == "true"));
+        
         continue;
       }
       
       if (element == null) {  
         result.push(null);
+        
         continue;
       }
 
       if (!isNaN(element)) {
         result.push(parseInt(element));
-        continue;
-      }
-      
-      var res = loopXmlData(loopXmlData);
-      
-      if (res == null) {
-        continue;
-      }
         
+        continue;
+      }
+      
+      let res = loopXmlData(loopXmlData);
+      if (res == null) continue;        
       
       result.push(res);
     }
@@ -630,16 +630,19 @@ function loopXmlData(xml) {
   }
 
   if (typeof xml === "object" && xml !== null) {
-
-    var output = {};
-    for (var name in xml) {
+    let output = { };
+    
+    for (let name in xml) {
       if (name == "$") continue;
-      var result = loopXmlData(xml[name]);
-      if (typeof result === "object" && result !== null && Object.keys(result).length == 0)
-        result = null;
+      
+      let result = loopXmlData(xml[name]);
+      if (typeof result === "object" && result !== null && Object.keys(result).length == 0) result = null;
+      
       output[name.replace(new RegExp("tns:"), "")] = result;
     }
+    
     return output;
   }
+  
   return null;
 };

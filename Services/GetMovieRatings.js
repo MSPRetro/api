@@ -1,5 +1,5 @@
 const { commentMovieModel, userModel } = require("../Utils/Schemas.js");
-const { buildXML, buildPage, formatDate } = require("../Utils/Util.js");
+const { buildXML, formatDate } = require("../Utils/Util.js");
 
 exports.data = {
   SOAPAction: "GetMovieRatings",

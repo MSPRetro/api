@@ -21,7 +21,7 @@ exports.run = async (req, res) => {
   if (config.maintenance.InMaintenance && !config.maintenance.AllowedIP.includes(IP)) return res.sendStatus(403);
   let action;
 
-  res.set("checksum-server", createChecksum(undefined));
+  if (process.env.ChecksumEnabled === "true") res.set("checksum-server", createChecksum(undefined));
   
   const { Locked } = await getIPData(IP);
   if (Locked) return res.sendStatus(403);
