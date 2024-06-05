@@ -8,10 +8,11 @@ exports.data = {
 };
 
 exports.run = async (request, ActorId) => {  
-  const users = await userModel.find({ Name: request.searchString.toString().trim() })
+  const users = await userModel.find({ Name: { $regex: new RegExp(`^${request.searchString.toString().trim()}`, "i") } })
   .skip(request.pageindex * 10)
   .limit(10)
-  .collation({ locale: "en", strength: 2 });
+  .collation({ locale: 'en', strength: 2 });
+
   
   let ActorName = [ ];
   for (let user of users) {
@@ -19,7 +20,7 @@ exports.run = async (request, ActorId) => {
   };
   
   return buildXML("FindUser2", {
-    totalRecords: await userModel.countDocuments({ Name: request.searchString.toString().trim() }),
+    totalRecords: await userModel.countDocuments({ Name: { $regex: new RegExp(`^${request.searchString.toString().trim()}`, "i") } }),
     pageindex: request.pageindex,
     pagesize: 10,
     items: {
