@@ -1,5 +1,6 @@
 const { movieModel, userModel } = require("../Utils/Schemas.js");
-const { buildXML, buildPage, formatDate } = require("../Utils/Util.js");
+const { buildPage, formatDate } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "GetParticipatingMovies",

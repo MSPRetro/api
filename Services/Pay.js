@@ -1,5 +1,6 @@
 const { userModel } = require("../Utils/Schemas.js");
-const { buildXML, addOrRemoveMoney, addFame, getActorDetails } = require("../Utils/Util.js");
+const { addOrRemoveMoney, addFame, getActorDetails } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "Pay",

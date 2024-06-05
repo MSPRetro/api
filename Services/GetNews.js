@@ -1,5 +1,6 @@
 const { newsModel, competitionModel } = require("../Utils/Schemas.js");
-const { buildXML, buildXMLnull, formatDate } = require("../Utils/Util.js");
+const { formatDate } = require("../Utils/Util.js");
+const { buildXML, buildXMLnull } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "GetNews",

@@ -1,5 +1,6 @@
 const { behaviorModel, logModel, IPModel } = require("../Utils/Schemas.js");
-const { buildXML, isModerator, getNewId } = require("../Utils/Util.js");
+const { isModerator, getNewId } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "UpdateBehaviourStatusNew",

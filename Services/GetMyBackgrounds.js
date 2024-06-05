@@ -1,4 +1,4 @@
-const { buildXML } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 const { idBackgroundModel, backgroundModel } = require("../Utils/Schemas.js");
 
 exports.data = {

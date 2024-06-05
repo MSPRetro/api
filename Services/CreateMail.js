@@ -1,5 +1,6 @@
 const { mailModel, userModel } = require("../Utils/Schemas.js");
-const { buildXML, getNewId } = require("../Utils/Util.js");
+const { getNewId } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "CreateMail",

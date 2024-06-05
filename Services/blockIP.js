@@ -2,7 +2,7 @@ const { createFMSNotification } = require("./LogChat.js");
 const { IPModel, ticketModel, userModel } = require("../Utils/Schemas.js");
 const { ipInt } = require("../Utils/IPUtils.js");
 const { deleteValue } = require("../Utils/Globals.js");
-const { buildXML } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "blockIP",

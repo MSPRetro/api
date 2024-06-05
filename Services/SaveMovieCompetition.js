@@ -1,5 +1,6 @@
 const { competitionModel, newsModel, movieModel, userModel } = require("../Utils/Schemas.js");
-const { buildXML, formatDate, getNewId } = require("../Utils/Util.js");
+const { formatDate, getNewId } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "SaveMovieCompetition",

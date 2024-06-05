@@ -1,5 +1,6 @@
 const { movieModel } = require("../Utils/Schemas.js");
-const { buildXML, formatDate } = require("../Utils/Util.js");
+const { formatDate } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "GetMovieByGuid",

@@ -1,5 +1,5 @@
-const { buildXML } = require("../Utils/Util.js");
 const { userModel } = require("../Utils/Schemas.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "GetActorIdFromName",

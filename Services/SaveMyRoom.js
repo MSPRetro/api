@@ -1,5 +1,6 @@
 const { userModel, idModel } = require("../Utils/Schemas.js");
-const { buildXML, createActivity } = require("../Utils/Util.js");
+const { createActivity } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "SaveMyRoom",

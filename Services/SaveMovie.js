@@ -1,6 +1,7 @@
 const { uploadDefaultImg } = require("../Utils/BlobManager.js");
 const { movieModel, userModel } = require("../Utils/Schemas.js");
-const { buildXML, formatDate, createTodo, getNewId } = require("../Utils/Util.js");
+const { formatDate, createTodo, getNewId } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "SaveMovie",

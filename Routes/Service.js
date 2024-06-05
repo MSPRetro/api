@@ -1,7 +1,8 @@
 const { parseString } = require("xml2js");
 const { promises } = require("fs");
 const { createHash } = require("crypto");
-const { sanitizeJSON, parseRawXml, isModerator } = require("../Utils/Util.js");
+const { sanitizeJSON, isModerator } = require("../Utils/Util.js");
+const { parseRawXml } = require("../Utils/XML.js");
 const { setError } = require("../Utils/ErrorManager.js");
 const { SOAPActions } = require("../mspretro.js");
 const { getIPData } = require("../Utils/IPUtils.js");
@@ -21,7 +22,7 @@ exports.run = async (req, res) => {
   if (config.maintenance.InMaintenance && !config.maintenance.AllowedIP.includes(IP)) return res.sendStatus(403);
   let action;
 
-  res.set("checksum-server", createChecksum(undefined));
+  if (process.env.ChecksumEnabled === "true") res.set("checksum-server", createChecksum(undefined));
   
   const { Locked } = await getIPData(IP);
   if (Locked) return res.sendStatus(403);

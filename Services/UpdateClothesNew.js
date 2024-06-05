@@ -1,5 +1,6 @@
 const { idModel, clothModel } = require("../Utils/Schemas.js");
-const { buildXML, addDays } = require("../Utils/Util.js");
+const { addDays } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "UpdateClothesNew",

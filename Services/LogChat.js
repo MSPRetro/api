@@ -1,5 +1,6 @@
 const { logModel, userModel } = require("../Utils/Schemas.js");
-const { buildXML, formatDate, isModerator, getNewId } = require("../Utils/Util.js");
+const { formatDate, isModerator, getNewId } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 const { getIPData } = require("../Utils/IPUtils.js");
 const { getValue, setValue } = require("../Utils/Globals.js");
 const { ChatLogWebhook } = require("../config.json");

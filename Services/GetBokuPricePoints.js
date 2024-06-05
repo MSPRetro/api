@@ -1,6 +1,7 @@
 const { getCurrency } = require("locale-currency");
 const { IPCountryModel, priceModel } = require("../Utils/Schemas.js");
-const { getCurrencySymbol, buildXML } = require("../Utils/Util.js");
+const { getCurrencySymbol } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "GetBokuPricePoints",

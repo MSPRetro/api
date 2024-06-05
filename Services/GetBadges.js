@@ -1,4 +1,5 @@
-const { buildXML, friendVIPCount } = require("../Utils/Util.js");
+const { friendVIPCount } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "GetBadges",

@@ -1,5 +1,5 @@
 const fetch = require("node-fetch");
-const { buildXML } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "ClearCache",

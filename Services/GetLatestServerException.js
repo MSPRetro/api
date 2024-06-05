@@ -1,4 +1,4 @@
-const { buildXML } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 const { errorModel } = require("../Utils/Schemas.js");
 const { randomBytes } = require("crypto");
 const { getError, clearError } = require("../Utils/ErrorManager.js");

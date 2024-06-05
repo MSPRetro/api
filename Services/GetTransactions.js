@@ -1,5 +1,6 @@
 const { transactionModel } = require("../Utils/Schemas.js");
-const { buildXML, formatDate, isModerator } = require("../Utils/Util.js");
+const { formatDate, isModerator } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "GetTransactions",

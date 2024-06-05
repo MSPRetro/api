@@ -1,5 +1,6 @@
 const { userModel, idAnimationModel, animationModel } = require("../Utils/Schemas.js");
-const { buildXML, getActorDetails, isVip, isModerator, addOrRemoveMoney, addFame, getNewId } = require("../Utils/Util.js");
+const { getActorDetails, isVip, isModerator, addOrRemoveMoney, addFame, getNewId } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "BuyAnimation",

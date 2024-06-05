@@ -1,5 +1,6 @@
 const { userModel, friendModel } = require("../Utils/Schemas.js");
-const { buildXML, buildLevel } = require("../Utils/Util.js");
+const { buildLevel } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "GetHighscore",

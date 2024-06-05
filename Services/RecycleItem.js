@@ -1,5 +1,5 @@
 const { userModel, idModel, idclickitemModel, clothModel, clickitemModel } = require("../Utils/Schemas.js");
-const { buildXML } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "RecycleItem",

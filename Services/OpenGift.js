@@ -1,5 +1,6 @@
 const { giftModel, idModel, clothModel, todoModel, userModel } = require("../Utils/Schemas.js");
-const { buildXML, addFame } = require("../Utils/Util.js");
+const { addFame } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "OpenGift",

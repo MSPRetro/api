@@ -1,5 +1,6 @@
 const { movieModel, userModel, commentMovieModel } = require("../Utils/Schemas.js");
-const { buildXML, formatDate, addOrRemoveMoney, addFame, getNewId } = require("../Utils/Util.js");
+const { formatDate, addOrRemoveMoney, addFame, getNewId } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "RateMovie",

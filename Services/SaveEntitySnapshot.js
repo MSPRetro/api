@@ -1,5 +1,5 @@
 const { uploadBase64 } = require("../Utils/BlobManager.js");
-const { buildXML } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "SaveEntitySnapshot",

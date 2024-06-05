@@ -1,5 +1,6 @@
 const { userModel, giftModel, idModel, clothModel } = require("../Utils/Schemas.js");
-const { buildXML, buildLevel, addMinutes, createTodo, getNewId } = require("../Utils/Util.js");
+const { buildLevel, addMinutes, createTodo, getNewId } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "GiveGift2",

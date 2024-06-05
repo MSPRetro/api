@@ -1,6 +1,6 @@
 const { sendMail, mailIsValid } = require("../Utils/MailManager.js");
 const { userModel } = require("../Utils/Schemas.js");
-const { buildXML } = require("../Utils/Util.js");
+const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
   SOAPAction: "SendInvitation",
