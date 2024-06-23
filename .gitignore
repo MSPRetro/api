@@ -1,4 +1,5 @@
 .glitch-assets
+node_modules/
 Logs/
 Disabled/
 dl.js
