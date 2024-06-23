@@ -65,7 +65,7 @@ if (cluster.isMaster) {
   app.use(bodyParser.json());
   app.use(bodyParser.xml());
   app.use(cors({
-    origin: "https://cdn.mspretro.com",
+    origin: [ "https://mspretro.com", "https://cdn.mspretro.com" ],
     methods: "POST",
     allowedHeaders: [ "Content-Type", "SOAPAction" ],
     maxAge: 86400 // 24h for Firefox, 2h for Chromium version >= 76, 10 minutes for Chromium version < 76
