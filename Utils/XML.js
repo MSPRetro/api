@@ -78,17 +78,23 @@ const sanitizeJSON = exports.sanitizeJSON = (v) => {
 
 exports.parseRawXml = xmlObj => {
   try {
-    var body = xmlObj["SOAP-ENV:Envelope"]["SOAP-ENV:Body"][0];
-    if (body == "" || body == null) {
-      return "";
-    }
+    // Convert empty object to object (so we can use properties on it)
+    // This is a workaround for the xml2js library and we should not use it
+    xmlObj = JSON.parse(JSON.stringify(xmlObj));
+
+    let body = xmlObj["SOAP-ENV:Envelope"]["SOAP-ENV:Body"][0];
+    if (body == "" || body == null) return "";
+
     body = body[Object.keys(body)[0]];
-    var result = loopXmlData(body);
+
+    let result = loopXmlData(body);
+
     if (xmlObj["SOAP-ENV:Envelope"].hasOwnProperty("SOAP-ENV:Header")) {
       result["TicketHeader"] = {
         Ticket: xmlObj["SOAP-ENV:Envelope"]["SOAP-ENV:Header"][0]["tns:TicketHeader"][0]["tns:Ticket"][0]
       };
     }
+
     return result;
   } catch {
     setError("Parse raw XML got weird response, please contact the devs.\n" + xmlObj.toString());
