@@ -19,7 +19,7 @@ exports.run = async (request, ActorId) => {
 		const movie = await movieModel.findOne({
 			MovieId: request.movie.MovieId,
 			ActorId: ActorId,
-			Status: 0
+			State: 0
 		});
 		if (!movie) return;
 
