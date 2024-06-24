@@ -144,10 +144,7 @@ if (cluster.isMaster) {
 			process.env.CUSTOMCONNSTR_AzureCommunicationService
 		);
 
-		await connect(process.env.CUSTOMCONNSTR_URIMongoDB, {
-			useNewUrlParser: true,
-			useUnifiedTopology: true
-		})
+		await connect(process.env.CUSTOMCONNSTR_URIMongoDB)
 			.then(() =>
 				console.log("Connected to MongoDB - Worker: " + process.pid)
 			)
