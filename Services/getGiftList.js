@@ -1,51 +1,59 @@
-const { userModel, giftModel, idModel, clothModel } = require("../Utils/Schemas.js");
+const {
+	userModel,
+	giftModel,
+	idModel,
+	clothModel
+} = require("../Utils/Schemas.js");
 const { formatDate } = require("../Utils/Util.js");
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
-  SOAPAction: "getGiftList",
-  needTicket: true,
-  levelModerator: 0
+	SOAPAction: "getGiftList",
+	needTicket: true,
+	levelModerator: 0
 };
 
 exports.run = async (request, ActorId) => {
-  const gifts = await giftModel.find({ ReceiverActorId: ActorId, State: 0 });
-  const user = await userModel.findOne({ ActorId: ActorId });
-  
-  let giftsArr = [ ];
-  
-  for (let gift of gifts) {
-    const userGiver = await userModel.findOne({ ActorId: gift.SenderActorId });
-    const relCloth = await idModel.findOne({ ClothesRellId: gift.ClothesRellId });
-    const cloth = await clothModel.findOne({ ClothesId: relCloth.ClothId });
-    
-    giftsArr.push({
-      GiftId: gift.GiftId,
-      ActorId: ActorId,
-      GiverId: gift.SenderActorId,
-      ClothesId: cloth.ClothesId,
-      Color: relCloth.Colors,
-      State: gift.State,
-      SWF: gift.SWF,
-      Price: cloth.Price,
-      dateStr: formatDate(new Date()),
-      actorClothesRelId: relCloth.ClothesRellId,
-      Actor: {
-        ActorId: user.ActorId,
-        Name: user.Name,
-      },
-      Giver: {
-        ActorId: userGiver.ActorId,
-        Name: userGiver.Name
-      }
-    });
-  }
-  
-  return buildXML("getGiftList", {
-    Gift: giftsArr
-  });
-};
+	const gifts = await giftModel.find({ ReceiverActorId: ActorId, State: 0 });
+	const user = await userModel.findOne({ ActorId: ActorId });
 
+	let giftsArr = [];
+
+	for (let gift of gifts) {
+		const userGiver = await userModel.findOne({
+			ActorId: gift.SenderActorId
+		});
+		const relCloth = await idModel.findOne({
+			ClothesRellId: gift.ClothesRellId
+		});
+		const cloth = await clothModel.findOne({ ClothesId: relCloth.ClothId });
+
+		giftsArr.push({
+			GiftId: gift.GiftId,
+			ActorId: ActorId,
+			GiverId: gift.SenderActorId,
+			ClothesId: cloth.ClothesId,
+			Color: relCloth.Colors,
+			State: gift.State,
+			SWF: gift.SWF,
+			Price: cloth.Price,
+			dateStr: formatDate(new Date()),
+			actorClothesRelId: relCloth.ClothesRellId,
+			Actor: {
+				ActorId: user.ActorId,
+				Name: user.Name
+			},
+			Giver: {
+				ActorId: userGiver.ActorId,
+				Name: userGiver.Name
+			}
+		});
+	}
+
+	return buildXML("getGiftList", {
+		Gift: giftsArr
+	});
+};
 
 /*
     <s:complexType name="ArrayOfGift">

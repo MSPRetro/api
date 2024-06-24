@@ -1,25 +1,25 @@
-const { getValue, setValue } = require("../Utils/Globals.js")
+const { getValue, setValue } = require("../Utils/Globals.js");
 
 exports.data = {
-  Name: "fetchFMSupdates",
-  Method: "GET"
-}
+	Name: "fetchFMSupdates",
+	Method: "GET"
+};
 
 exports.run = (req, res) => {
-  let fmsUpdates = getValue("fmsUpdates");
+	let fmsUpdates = getValue("fmsUpdates");
 
-  if (fmsUpdates == undefined) {
-    setValue("fmsUpdates", {});
-    return res.send(`&`);
-  }
+	if (fmsUpdates == undefined) {
+		setValue("fmsUpdates", {});
+		return res.send(`&`);
+	}
 
-  let joined = Object.keys(fmsUpdates)
-  .map(function (key) {
-    return key + "=" + fmsUpdates[key];
-  })
-  .join("&");
+	let joined = Object.keys(fmsUpdates)
+		.map(function (key) {
+			return key + "=" + fmsUpdates[key];
+		})
+		.join("&");
 
-  res.send(`&${joined}`);
+	res.send(`&${joined}`);
 
-  setValue("fmsUpdates", {});
-}
+	setValue("fmsUpdates", {});
+};

@@ -1,13 +1,13 @@
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
-  SOAPAction: "ClientLog",
-  needTicket: false,
-  levelModerator: 0
+	SOAPAction: "ClientLog",
+	needTicket: false,
+	levelModerator: 0
 };
 
 exports.run = async (request, ActorId) => {
-  // console.log(`[ClientLog]: \nType: ${request.logType}\nMessage: ${request.msg}`);
-  
-  return buildXML("ClientLog");
-}
+	// console.log(`[ClientLog]: \nType: ${request.logType}\nMessage: ${request.msg}`);
+
+	return buildXML("ClientLog");
+};

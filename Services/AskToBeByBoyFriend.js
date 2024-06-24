@@ -3,45 +3,51 @@ const { createTodo, formatDate } = require("../Utils/Util.js");
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
-  SOAPAction: "AskToBeByBoyFriend",
-  needTicket: true,
-  levelModerator: 0
+	SOAPAction: "AskToBeByBoyFriend",
+	needTicket: true,
+	levelModerator: 0
 };
 
-exports.run = async (request, ActorId) => { 
-  if (request.actorIdOfAsked == ActorId) return;
-  
-  const user = await userModel.findOne({ ActorId: request.actorIdOfAsked });
-  if (!user) return;
+exports.run = async (request, ActorId) => {
+	if (request.actorIdOfAsked == ActorId) return;
 
-  const boyfriend = await boyfriendModel.findOne({ RequesterId: ActorId, ReceiverId: request.actorIdOfAsked });
-  
-  /*
+	const user = await userModel.findOne({ ActorId: request.actorIdOfAsked });
+	if (!user) return;
+
+	const boyfriend = await boyfriendModel.findOne({
+		RequesterId: ActorId,
+		ReceiverId: request.actorIdOfAsked
+	});
+
+	/*
   boyfriend.Status
   0 : None
   1 : Waiting for answer
   2 : In relationship
   3 : Declined
   */
-  
-  // put all pending invites of the requester to the NONE status
-  await boyfriendModel.updateMany({ RequesterId: ActorId }, { Status: 0 });
-  
-  if (!boyfriend) {
-    const friend = new boyfriendModel({
-      RequesterId: ActorId,
-      ReceiverId: request.actorIdOfAsked,
-      Status: 1
-    });
-    
-    await friend.save();
-  } else {
-    await boyfriendModel.updateOne({ RequesterId: ActorId, ReceiverId: request.actorIdOfAsked }, { Status: 1 });
-  }
-  
-  await createTodo(ActorId, 5, false, 0, request.actorIdOfAsked, 0, 0, 0);
-  
-  return buildXML("AskToBeByBoyFriend", false);
+
+	// put all pending invites of the requester to the NONE status
+	await boyfriendModel.updateMany({ RequesterId: ActorId }, { Status: 0 });
+
+	if (!boyfriend) {
+		const friend = new boyfriendModel({
+			RequesterId: ActorId,
+			ReceiverId: request.actorIdOfAsked,
+			Status: 1
+		});
+
+		await friend.save();
+	} else {
+		await boyfriendModel.updateOne(
+			{ RequesterId: ActorId, ReceiverId: request.actorIdOfAsked },
+			{ Status: 1 }
+		);
+	}
+
+	await createTodo(ActorId, 5, false, 0, request.actorIdOfAsked, 0, 0, 0);
+
+	return buildXML("AskToBeByBoyFriend", false);
 };
 
 /*

@@ -1,8 +1,8 @@
 exports.data = {
-  Name: "",
-  Method: "GET"
-}
+	Name: "",
+	Method: "GET"
+};
 
 exports.run = (req, res) => {
-  res.send("Hello World!");
-}
+	res.send("Hello World!");
+};

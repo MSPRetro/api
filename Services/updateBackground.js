@@ -2,22 +2,25 @@ const { backgroundModel } = require("../Utils/Schemas.js");
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
-  SOAPAction: "updateBackground",
-  needTicket: true,
-  levelModerator: 3
+	SOAPAction: "updateBackground",
+	needTicket: true,
+	levelModerator: 3
 };
 
-exports.run = async request => {  
-  await backgroundModel.updateOne({ BackgroundId: request.background.BackgroundId }, {
-    Name: request.background.Name,
-    Price: request.background.Price,
-    Vip: request.background.Vip,
-    IsHidden: request.background.Deleted,
-    New: request.background.New,
-    Discount: request.background.Discount
-  });
-  
-  return buildXML("updateBackground");
+exports.run = async request => {
+	await backgroundModel.updateOne(
+		{ BackgroundId: request.background.BackgroundId },
+		{
+			Name: request.background.Name,
+			Price: request.background.Price,
+			Vip: request.background.Vip,
+			IsHidden: request.background.Deleted,
+			New: request.background.New,
+			Discount: request.background.Discount
+		}
+	);
+
+	return buildXML("updateBackground");
 };
 
 /*

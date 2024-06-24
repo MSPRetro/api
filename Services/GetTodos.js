@@ -3,201 +3,202 @@ const { formatDate, addDays } = require("../Utils/Util.js");
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
-  SOAPAction: "GetTodos",
-  needTicket: true,
-  levelModerator: 0
+	SOAPAction: "GetTodos",
+	needTicket: true,
+	levelModerator: 0
 };
 
 exports.run = async (request, ActorId) => {
-  const user = await userModel.findOne({ ActorId: ActorId });
-  const todos = await todoModel.find({ FriendId: ActorId })
-  .sort({ _id: -1 })
-  .skip(request.pageindex * 2)
-  .limit(2);
-  
-  // formatDate(addDays(new Date(), -1))
-  
-  let todosArr = [ ];
-  
-  for (let todo of todos) {
-    let TodoUser;
-    let movie;
-    
-    switch (todo.Type) {
-      case 0:
-        // Submit movie
-        
-        movie = await movieModel.findOne({ MovieId: todo.MovieId });
-        
-        todosArr.push({
-          TodoId: todo.TodoId,
-          ActorId: ActorId,
-          Deadline: formatDate(todo.Deadline),
-          Type: 0,
-          FriendId: 0,
-          MovieId: todo.MovieId,
-          ContestId: 0,
-          MovieCompetitionId: 0,
-          Priority: 0,
-          GiftId: 0,
-          Actor: {
-            ActorId: user.ActorId,
-            Name: user.Name
-          },
-          Friend: { },
-          Movie: {
-            MovieId: movie.MovieId,
-            Name: movie.Name,
-            Guid: movie.Guid
-          },
-          Contest: { },
-          MovieCompetition: { }
-        });
-        
-        break;
-      case 1:
-        // Vote for the competition
-        break;
-      case 2:
-        // Rate a movie?
-        break;
-      case 3:
-        // Friend request
-        TodoUser = await userModel.findOne({ ActorId: todo.ActorId });
-        
-        todosArr.push({
-          TodoId: todo.TodoId,
-          ActorId: ActorId,
-          Deadline: formatDate(todo.Deadline),
-          Type: 3,
-          FriendId: todo.ActorId,
-          MovieId: 0,
-          ContestId: 0,
-          MovieCompetitionId: 0,
-          Priority: 0,
-          GiftId: 0,
-          Actor: {
-            ActorId: user.ActorId,
-            Name: user.Name
-          },
-          Friend: {
-            ActorId: TodoUser.ActorId,
-            Name: TodoUser.Name
-          },
-          Movie: { },
-          Contest: { },
-          MovieCompetition: { }
-        });
-        
-        break;
-      case 4:
-        // Receive starcoins when the user who is invited reaches level 3
-        
-        TodoUser = await userModel.findOne({ ActorId: todo.ActorId });
-        
-        todosArr.push({
-          TodoId: todo.TodoId,
-          ActorId: ActorId,
-          Deadline: formatDate(todo.Deadline),
-          Type: 4,
-          FriendId: todo.ActorId,
-          MovieId: 0,
-          ContestId: 0,
-          MovieCompetitionId: 0,
-          Priority: 0,
-          GiftId: 0,
-          Actor: {
-            ActorId: user.ActorId,
-            Name: user.Name
-          },
-          Friend: {
-            ActorId: TodoUser.ActorId,
-            Name: TodoUser.Name
-          },
-          Movie: { },
-          Contest: { },
-          MovieCompetition: { }
-        });
-        
-        break;
-      case 5:
-      case 6:
-        // Boyfriend & Girlfriend request
-        
-        TodoUser = await userModel.findOne({ ActorId: todo.ActorId });
-        
-        let Type;
-        if (user.Clinic.SkinSWF === "maleskin") Type = 5;
-        else Type = 6;
-        
-        todosArr.push({
-          TodoId: todo.TodoId,
-          ActorId: ActorId,
-          Deadline: formatDate(todo.Deadline),
-          Type: Type,
-          FriendId: todo.ActorId,
-          MovieId: 0,
-          ContestId: 0,
-          MovieCompetitionId: 0,
-          Priority: 0,
-          GiftId: 0,
-          Actor: {
-            ActorId: user.ActorId,
-            Name: user.Name
-          },
-          Friend: {
-            ActorId: TodoUser.ActorId,
-            Name: TodoUser.Name
-          },
-          Movie: { },
-          Contest: { },
-          MovieCompetition: { }
-        });
-        
-        break;
-      case 7:
-        // Vote for a movie?
-        break;
-      case 8:
-        // New gift
-        TodoUser = await userModel.findOne({ ActorId: todo.ActorId });
-        
-        todosArr.push({
-          TodoId: todo.TodoId,
-          ActorId: ActorId,
-          Deadline: formatDate(todo.Deadline),
-          Type: 8,
-          FriendId: todo.ActorId,
-          MovieId: 0,
-          ContestId: 0,
-          MovieCompetitionId: 0,
-          Priority: 0,
-          GiftId: todo.GiftId,
-          Actor: {
-            ActorId: user.ActorId,
-            Name: user.Name
-          },
-          Friend: {
-            ActorId: TodoUser.ActorId,
-            Name: TodoUser.Name
-          },
-          Movie: { },
-          Contest: { },
-          MovieCompetition: { }
-        });
-        
-        break;
-    };
-  };
-  
-  return buildXML("GetTodos", {
-    totalRecords: await todoModel.countDocuments({ FriendId: ActorId }),
-    pageindex: request.pageindex,
-    pagesize: 2,
-    items: {
-      Todo: todosArr
-    }
-  });
+	const user = await userModel.findOne({ ActorId: ActorId });
+	const todos = await todoModel
+		.find({ FriendId: ActorId })
+		.sort({ _id: -1 })
+		.skip(request.pageindex * 2)
+		.limit(2);
+
+	// formatDate(addDays(new Date(), -1))
+
+	let todosArr = [];
+
+	for (let todo of todos) {
+		let TodoUser;
+		let movie;
+
+		switch (todo.Type) {
+			case 0:
+				// Submit movie
+
+				movie = await movieModel.findOne({ MovieId: todo.MovieId });
+
+				todosArr.push({
+					TodoId: todo.TodoId,
+					ActorId: ActorId,
+					Deadline: formatDate(todo.Deadline),
+					Type: 0,
+					FriendId: 0,
+					MovieId: todo.MovieId,
+					ContestId: 0,
+					MovieCompetitionId: 0,
+					Priority: 0,
+					GiftId: 0,
+					Actor: {
+						ActorId: user.ActorId,
+						Name: user.Name
+					},
+					Friend: {},
+					Movie: {
+						MovieId: movie.MovieId,
+						Name: movie.Name,
+						Guid: movie.Guid
+					},
+					Contest: {},
+					MovieCompetition: {}
+				});
+
+				break;
+			case 1:
+				// Vote for the competition
+				break;
+			case 2:
+				// Rate a movie?
+				break;
+			case 3:
+				// Friend request
+				TodoUser = await userModel.findOne({ ActorId: todo.ActorId });
+
+				todosArr.push({
+					TodoId: todo.TodoId,
+					ActorId: ActorId,
+					Deadline: formatDate(todo.Deadline),
+					Type: 3,
+					FriendId: todo.ActorId,
+					MovieId: 0,
+					ContestId: 0,
+					MovieCompetitionId: 0,
+					Priority: 0,
+					GiftId: 0,
+					Actor: {
+						ActorId: user.ActorId,
+						Name: user.Name
+					},
+					Friend: {
+						ActorId: TodoUser.ActorId,
+						Name: TodoUser.Name
+					},
+					Movie: {},
+					Contest: {},
+					MovieCompetition: {}
+				});
+
+				break;
+			case 4:
+				// Receive starcoins when the user who is invited reaches level 3
+
+				TodoUser = await userModel.findOne({ ActorId: todo.ActorId });
+
+				todosArr.push({
+					TodoId: todo.TodoId,
+					ActorId: ActorId,
+					Deadline: formatDate(todo.Deadline),
+					Type: 4,
+					FriendId: todo.ActorId,
+					MovieId: 0,
+					ContestId: 0,
+					MovieCompetitionId: 0,
+					Priority: 0,
+					GiftId: 0,
+					Actor: {
+						ActorId: user.ActorId,
+						Name: user.Name
+					},
+					Friend: {
+						ActorId: TodoUser.ActorId,
+						Name: TodoUser.Name
+					},
+					Movie: {},
+					Contest: {},
+					MovieCompetition: {}
+				});
+
+				break;
+			case 5:
+			case 6:
+				// Boyfriend & Girlfriend request
+
+				TodoUser = await userModel.findOne({ ActorId: todo.ActorId });
+
+				let Type;
+				if (user.Clinic.SkinSWF === "maleskin") Type = 5;
+				else Type = 6;
+
+				todosArr.push({
+					TodoId: todo.TodoId,
+					ActorId: ActorId,
+					Deadline: formatDate(todo.Deadline),
+					Type: Type,
+					FriendId: todo.ActorId,
+					MovieId: 0,
+					ContestId: 0,
+					MovieCompetitionId: 0,
+					Priority: 0,
+					GiftId: 0,
+					Actor: {
+						ActorId: user.ActorId,
+						Name: user.Name
+					},
+					Friend: {
+						ActorId: TodoUser.ActorId,
+						Name: TodoUser.Name
+					},
+					Movie: {},
+					Contest: {},
+					MovieCompetition: {}
+				});
+
+				break;
+			case 7:
+				// Vote for a movie?
+				break;
+			case 8:
+				// New gift
+				TodoUser = await userModel.findOne({ ActorId: todo.ActorId });
+
+				todosArr.push({
+					TodoId: todo.TodoId,
+					ActorId: ActorId,
+					Deadline: formatDate(todo.Deadline),
+					Type: 8,
+					FriendId: todo.ActorId,
+					MovieId: 0,
+					ContestId: 0,
+					MovieCompetitionId: 0,
+					Priority: 0,
+					GiftId: todo.GiftId,
+					Actor: {
+						ActorId: user.ActorId,
+						Name: user.Name
+					},
+					Friend: {
+						ActorId: TodoUser.ActorId,
+						Name: TodoUser.Name
+					},
+					Movie: {},
+					Contest: {},
+					MovieCompetition: {}
+				});
+
+				break;
+		}
+	}
+
+	return buildXML("GetTodos", {
+		totalRecords: await todoModel.countDocuments({ FriendId: ActorId }),
+		pageindex: request.pageindex,
+		pagesize: 2,
+		items: {
+			Todo: todosArr
+		}
+	});
 };
 
 /*

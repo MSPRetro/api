@@ -3,46 +3,51 @@ const { formatDate, isModerator } = require("../Utils/Util.js");
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
-  SOAPAction: "GetTransactions",
-  needTicket: true,
-  levelModerator: 0
+	SOAPAction: "GetTransactions",
+	needTicket: true,
+	levelModerator: 0
 };
 
 exports.run = async (request, ActorId) => {
-  if (request.userId != ActorId && !await isModerator(ActorId, false, 1)) return;
-  
-  const transactions = await transactionModel.find({ ActorId: request.userId, CheckoutDone: 1 })
-  .sort({ _id: -1 })
-  .skip(request.pageindex * 12)
-  .limit(12);
-  
-  let transactionsArr = [ ];
-  
-  for (let transaction of transactions) {
-    transactionsArr.push({
-      TransactionId: transaction.TransactionId,
-      ActorId: transaction.ActorId,
-      Amount: transaction.Amount,
-      Currency: transaction.Currency,
-      MobileNumber: transaction.MobileNumber,
-      trx_id: transaction.TransactionId,
-      Timestamp: formatDate(transaction.Timestamp),
-      StarCoinsBefore: transaction.StarCoinsBefore,
-      StarCoinsAfter: transaction.StarCoinsAfter,
-      result_code: transaction.result_code, // 0 => Paid, 1 => Not Paid
-      content_id: transaction.content_id,
-      CardNumber: transaction.CardNumber
-    })
-  }
-  
-  return buildXML("GetTransactions", {
-    totalRecords: await transactionModel.countDocuments({ ActorId: request.userId, CheckoutDone: 1 }),
-    pageindex: request.pageindex,
-    pagesize: 12,
-    items: {
-      Transaction: transactionsArr
-    }
-  });
+	if (request.userId != ActorId && !(await isModerator(ActorId, false, 1)))
+		return;
+
+	const transactions = await transactionModel
+		.find({ ActorId: request.userId, CheckoutDone: 1 })
+		.sort({ _id: -1 })
+		.skip(request.pageindex * 12)
+		.limit(12);
+
+	let transactionsArr = [];
+
+	for (let transaction of transactions) {
+		transactionsArr.push({
+			TransactionId: transaction.TransactionId,
+			ActorId: transaction.ActorId,
+			Amount: transaction.Amount,
+			Currency: transaction.Currency,
+			MobileNumber: transaction.MobileNumber,
+			trx_id: transaction.TransactionId,
+			Timestamp: formatDate(transaction.Timestamp),
+			StarCoinsBefore: transaction.StarCoinsBefore,
+			StarCoinsAfter: transaction.StarCoinsAfter,
+			result_code: transaction.result_code, // 0 => Paid, 1 => Not Paid
+			content_id: transaction.content_id,
+			CardNumber: transaction.CardNumber
+		});
+	}
+
+	return buildXML("GetTransactions", {
+		totalRecords: await transactionModel.countDocuments({
+			ActorId: request.userId,
+			CheckoutDone: 1
+		}),
+		pageindex: request.pageindex,
+		pagesize: 12,
+		items: {
+			Transaction: transactionsArr
+		}
+	});
 };
 
 /*

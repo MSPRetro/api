@@ -3,37 +3,37 @@ const { formatDate } = require("../Utils/Util.js");
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
-  SOAPAction: "GetLookById",
-  needTicket: true,
-  levelModerator: 0
+	SOAPAction: "GetLookById",
+	needTicket: true,
+	levelModerator: 0
 };
 
 exports.run = async (request, ActorId) => {
-  const look = await lookModel.findOne({ LookId: request.lookId, State: 0 });
-  if (!look) return;
-  
-  let LookActorLike = { };
-  
-  if (look.Likes.includes(ActorId)) LookActorLike = {
-    LookActorLike: {
-      EntityType: 2,
-      EntityId: look.ActorId,
-      ActorId: ActorId
-    }
-  };
-  
-  return buildXML("GetLookById", {
-    LookId: look.LookId,
-    ActorId: look.ActorId,
-    Created: formatDate(look.Created),
-    Headline: look.Headline,
-    LookData: look.LookData,
-    Likes: look.Likes.length,
-    Sells: look.Sells.length,
-    LookActorLikes: LookActorLike
-  });
-};
+	const look = await lookModel.findOne({ LookId: request.lookId, State: 0 });
+	if (!look) return;
 
+	let LookActorLike = {};
+
+	if (look.Likes.includes(ActorId))
+		LookActorLike = {
+			LookActorLike: {
+				EntityType: 2,
+				EntityId: look.ActorId,
+				ActorId: ActorId
+			}
+		};
+
+	return buildXML("GetLookById", {
+		LookId: look.LookId,
+		ActorId: look.ActorId,
+		Created: formatDate(look.Created),
+		Headline: look.Headline,
+		LookData: look.LookData,
+		Likes: look.Likes.length,
+		Sells: look.Sells.length,
+		LookActorLikes: LookActorLike
+	});
+};
 
 /*
    <s:element name="GetLookById">

@@ -4,114 +4,119 @@ const { getCurrencySymbol } = require("../Utils/Util.js");
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
-  SOAPAction: "GetBokuPricePoints",
-  needTicket: false,
-  levelModerator: 0
+	SOAPAction: "GetBokuPricePoints",
+	needTicket: false,
+	levelModerator: 0
 };
 
 exports.run = async (request, undefined, IP) => {
-  let IPasInt;
-  let currency = "EUR";
-  
-  // IPv4
-  if (IP.split(".").length == 4) {
-    IPasInt = IP.split(".")
-      .reduce(function(ipInt, octet) {
-        return (ipInt << 8) + parseInt(octet, 10)
-      }, 0) >>> 0;
-  } // IPv6
-  else if (IP.split(":").length == 8) {
-    IPasInt = IP.split(":")
-      .map(str => Number("0x" + str))
-      .reduce(function(int, value) {
-        return BigInt(int) * BigInt(65536) + BigInt(+value)
-      });
-  }
-  
-  try {
-    const IPData = await IPCountryModel.findOne({ ip_range_start: { $lte: parseInt(IPasInt) } })
-    .sort({ ip_range_start:  -1 });
-  
-    if (IPData.country_code) currency = getCurrencySymbol(getCurrency(IPData.country_code)).currency; // if the currency isn't implemented, we use the default currency (EUR)
-    
-  } catch {
-    // unable to detect the IP location, so we show the default currency as EUR
-  }
-  
-  let prices = await priceModel.aggregate([
-    { $match: { Currency: currency } },
-    {
-      $group: {
-        _id: "$Key",
-        Price: { $last: { $multiply: ["$Price", 100] } }
-      }
-    },
-    {
-      $group: {
-        _id: null,
-        keyPricePairs: {
-          $push: {
-            k: "$_id",
-            v: "$Price"
-          }
-        }
-      }
-    },
-    {
-      $replaceRoot: {
-        newRoot: { $arrayToObject: "$keyPricePairs" }
-      }
-    }
-  ]);
-  
-  prices = prices[0];
-  
-  return buildXML("GetBokuPricePoints", {
-    country: currency,
-    currency: currency,
-    currencySymbol: getCurrencySymbol(currency).symbol, //"€",
-    currencySymbolOrientation: getCurrencySymbol(currency).orientation, // R or L
-    keyPriceArray: {
-      // Price in cents
-      KeyPrice: [ /* {
+	let IPasInt;
+	let currency = "EUR";
+
+	// IPv4
+	if (IP.split(".").length == 4) {
+		IPasInt =
+			IP.split(".").reduce(function (ipInt, octet) {
+				return (ipInt << 8) + parseInt(octet, 10);
+			}, 0) >>> 0;
+	} // IPv6
+	else if (IP.split(":").length == 8) {
+		IPasInt = IP.split(":")
+			.map(str => Number("0x" + str))
+			.reduce(function (int, value) {
+				return BigInt(int) * BigInt(65536) + BigInt(+value);
+			});
+	}
+
+	try {
+		const IPData = await IPCountryModel.findOne({
+			ip_range_start: { $lte: parseInt(IPasInt) }
+		}).sort({ ip_range_start: -1 });
+
+		if (IPData.country_code)
+			currency = getCurrencySymbol(
+				getCurrency(IPData.country_code)
+			).currency; // if the currency isn't implemented, we use the default currency (EUR)
+	} catch {
+		// unable to detect the IP location, so we show the default currency as EUR
+	}
+
+	let prices = await priceModel.aggregate([
+		{ $match: { Currency: currency } },
+		{
+			$group: {
+				_id: "$Key",
+				Price: { $last: { $multiply: ["$Price", 100] } }
+			}
+		},
+		{
+			$group: {
+				_id: null,
+				keyPricePairs: {
+					$push: {
+						k: "$_id",
+						v: "$Price"
+					}
+				}
+			}
+		},
+		{
+			$replaceRoot: {
+				newRoot: { $arrayToObject: "$keyPricePairs" }
+			}
+		}
+	]);
+
+	prices = prices[0];
+
+	return buildXML("GetBokuPricePoints", {
+		country: currency,
+		currency: currency,
+		currencySymbol: getCurrencySymbol(currency).symbol, //"€",
+		currencySymbolOrientation: getCurrencySymbol(currency).orientation, // R or L
+		keyPriceArray: {
+			// Price in cents
+			KeyPrice: [
+				/* {
         key: "1000", // 1 week VIP
         price: 500
       }, */
-      {
-        key: "2000", // 1 week VIP
-        price: prices["2000"]
-      },
-      {
-        key: "3000", // 1 month VIP
-        price: prices["3000"]
-      },
-      {
-        key: "6000", // 1 year VIP
-        price: prices["6000"]
-      },
-      {
-        key: "14000", // 3 months VIP
-        price: prices["14000"]
-      },
-      {
-        key: "2001", // 10.000 StarCoins
-        price: prices["2001"]
-      },
-      {
-        key: "3001", // 50.000 StarCoins
-        price: prices["3001"]
-      },
-      {
-        key: "6001", // 400.000 StarCoins
-        price: prices["6001"]
-      },
-      {
-        key: "14001", // 1.000.000 StarCoins
-        price: prices["14001"]
-      }]
-    }
-  });
-}
+				{
+					key: "2000", // 1 week VIP
+					price: prices["2000"]
+				},
+				{
+					key: "3000", // 1 month VIP
+					price: prices["3000"]
+				},
+				{
+					key: "6000", // 1 year VIP
+					price: prices["6000"]
+				},
+				{
+					key: "14000", // 3 months VIP
+					price: prices["14000"]
+				},
+				{
+					key: "2001", // 10.000 StarCoins
+					price: prices["2001"]
+				},
+				{
+					key: "3001", // 50.000 StarCoins
+					price: prices["3001"]
+				},
+				{
+					key: "6001", // 400.000 StarCoins
+					price: prices["6001"]
+				},
+				{
+					key: "14001", // 1.000.000 StarCoins
+					price: prices["14001"]
+				}
+			]
+		}
+	});
+};
 
 /*
                 if (btn == btnPay1weekSpecialOffer)

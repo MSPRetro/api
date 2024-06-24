@@ -3,42 +3,45 @@ const { formatDate } = require("../Utils/Util.js");
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
-  SOAPAction: "GetMovieByGuid",
-  needTicket: false,
-  levelModerator: 0
+	SOAPAction: "GetMovieByGuid",
+	needTicket: false,
+	levelModerator: 0
 };
 
 exports.run = async request => {
-  // sm=15A0AAE62AAD43F8CDA0C5FB9F31F2213A9307132
-  
-  const movie = await movieModel.findOne({ Guid: request.movieGuid, State: 100 });
-  if (!movie) return;
-    
-  return buildXML("GetMovieByGuid", {
-    MovieId: movie.MovieId,
-    Name: movie.Name,
-    ActorId: movie.ActorId,
-    Guid: movie.Guid,
-    State: movie.State,
-    WatchedTotalCount: movie.ActorWatched.length,
-    WatchedActorCount: movie.ActorWatched.length,
-    RatedCount: movie.RatedCount,
-    RatedTotalScore: movie.RatedTotalScore,
-    CreatedDate: formatDate(movie.CreatedDate),
-    PublishedDate: formatDate(movie.PublishedDate),
-    AverageRating: movie.AverageRating,
-    StarCoinsEarned: movie.StarCoinsEarned,
-    MovieData: movie.MovieData,
-    Complexity: movie.Complexity,
-    CompetitionDate: formatDate(movie.CompetitionDate),
-    ActorClothesData: movie.ActorClothesData,
-    MovieActorRels: {
-      MovieActorRel: movie.MovieActorRels
-    },
-    Scenes: movie.Scenes
-  });
-  
-  /*
+	// sm=15A0AAE62AAD43F8CDA0C5FB9F31F2213A9307132
+
+	const movie = await movieModel.findOne({
+		Guid: request.movieGuid,
+		State: 100
+	});
+	if (!movie) return;
+
+	return buildXML("GetMovieByGuid", {
+		MovieId: movie.MovieId,
+		Name: movie.Name,
+		ActorId: movie.ActorId,
+		Guid: movie.Guid,
+		State: movie.State,
+		WatchedTotalCount: movie.ActorWatched.length,
+		WatchedActorCount: movie.ActorWatched.length,
+		RatedCount: movie.RatedCount,
+		RatedTotalScore: movie.RatedTotalScore,
+		CreatedDate: formatDate(movie.CreatedDate),
+		PublishedDate: formatDate(movie.PublishedDate),
+		AverageRating: movie.AverageRating,
+		StarCoinsEarned: movie.StarCoinsEarned,
+		MovieData: movie.MovieData,
+		Complexity: movie.Complexity,
+		CompetitionDate: formatDate(movie.CompetitionDate),
+		ActorClothesData: movie.ActorClothesData,
+		MovieActorRels: {
+			MovieActorRel: movie.MovieActorRels
+		},
+		Scenes: movie.Scenes
+	});
+
+	/*
       <s:complexType name="ArrayOfMovieActorRel">
         <s:sequence>
             <s:element maxOccurs="unbounded" minOccurs="0" name="MovieActorRel" nillable="true" type="tns:MovieActorRel"/>

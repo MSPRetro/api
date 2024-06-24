@@ -3,49 +3,53 @@ const { buildPage } = require("../Utils/Util.js");
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
-  SOAPAction: "getWishlist",
-  needTicket: true,
-  levelModerator: 0
+	SOAPAction: "getWishlist",
+	needTicket: true,
+	levelModerator: 0
 };
 
 exports.run = async (request, ActorId) => {
-  const user = await userModel.findOne({ ActorId: request.actorId });
-  if (!user) return;
-  
-  let wishsArray = [ ];
-  
-  for (let ClothesRellId of user.Wishlist) {
-    const relCloth = await idModel.findOne({ ClothesRellId: ClothesRellId });
-    const clothe = await clothModel.findOne({ ClothesId: relCloth.ClothId });
-    
-    wishsArray.push({
-      GiftId: ClothesRellId,
-      ActorId: user.ActorId,
-      actorName: user.Name,
-      ClothesId: clothe.ClothesId,
-      clothesName: clothe.clothesName,
-      Color: relCloth.Colors,
-      SWF: clothe.SWF,
-      Filename: clothe.Filename,
-      Vip: clothe.Vip,
-      Price: clothe.Price,
-      ClothesCategoryId: clothe.ClothesCategoryId,
-      Shopid: clothe.Shopid
-    });
-  };
-  
-  let totalRecords = wishsArray.length;
-  wishsArray = buildPage(request.pageindex, 6, wishsArray.reverse());
-  
-  return buildXML("getWishlist", {
-    totalRecords: totalRecords,
-    pageindex: request.pageindex,
-    pagesize: 6,
-    items: {
-      WishlistItem: wishsArray
-    }
-  })
-}
+	const user = await userModel.findOne({ ActorId: request.actorId });
+	if (!user) return;
+
+	let wishsArray = [];
+
+	for (let ClothesRellId of user.Wishlist) {
+		const relCloth = await idModel.findOne({
+			ClothesRellId: ClothesRellId
+		});
+		const clothe = await clothModel.findOne({
+			ClothesId: relCloth.ClothId
+		});
+
+		wishsArray.push({
+			GiftId: ClothesRellId,
+			ActorId: user.ActorId,
+			actorName: user.Name,
+			ClothesId: clothe.ClothesId,
+			clothesName: clothe.clothesName,
+			Color: relCloth.Colors,
+			SWF: clothe.SWF,
+			Filename: clothe.Filename,
+			Vip: clothe.Vip,
+			Price: clothe.Price,
+			ClothesCategoryId: clothe.ClothesCategoryId,
+			Shopid: clothe.Shopid
+		});
+	}
+
+	let totalRecords = wishsArray.length;
+	wishsArray = buildPage(request.pageindex, 6, wishsArray.reverse());
+
+	return buildXML("getWishlist", {
+		totalRecords: totalRecords,
+		pageindex: request.pageindex,
+		pagesize: 6,
+		items: {
+			WishlistItem: wishsArray
+		}
+	});
+};
 
 /*
     <s:element name="getWishlist">

@@ -1,11 +1,11 @@
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
-  SOAPAction: "CreateActivity",
-  needTicket: true,
-  levelModerator: 0
+	SOAPAction: "CreateActivity",
+	needTicket: true,
+	levelModerator: 0
 };
 
-exports.run = () => {  
-  return buildXML("CreateActivity");
+exports.run = () => {
+	return buildXML("CreateActivity");
 };

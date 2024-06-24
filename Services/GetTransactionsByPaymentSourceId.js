@@ -3,44 +3,57 @@ const { formatDate } = require("../Utils/Util.js");
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
-  SOAPAction: "GetTransactionsByPaymentSourceId",
-  needTicket: true,
-  levelModerator: 1
+	SOAPAction: "GetTransactionsByPaymentSourceId",
+	needTicket: true,
+	levelModerator: 1
 };
 
-exports.run = async (request, ActorId) => {  
-  const transactions = await transactionModel.find({ CheckoutDone: 1, $or: [ { MobileNumber: request.paymentSourceId }, { CardNumber: request.CardNumber } ] })
-  .sort({ _id: -1 })
-  .skip(request.pageindex * 12)
-  .limit(12);
-  
-  let transactionsArr = [ ];
-  
-  for (let transaction of transactions) {
-    transactionsArr.push({
-      TransactionId: transaction.TransactionId,
-      ActorId: transaction.ActorId,
-      Amount: transaction.Amount,
-      Currency: transaction.Currency,
-      MobileNumber: transaction.MobileNumber,
-      trx_id: transaction.TransactionId,
-      Timestamp: formatDate(transaction.Timestamp),
-      StarCoinsBefore: transaction.StarCoinsBefore,
-      StarCoinsAfter: transaction.StarCoinsAfter,
-      result_code: transaction.result_code,
-      content_id: transaction.content_id,
-      CardNumber: transaction.CardNumber
-    })
-  }
-  
-  return buildXML("GetTransactionsByPaymentSourceId", {
-    totalRecords: await transactionModel.countDocuments({ CheckoutDone: 1, $or: [ { MobileNumber: request.paymentSourceId }, { CardNumber: request.CardNumber } ] }),
-    pageindex: request.pageindex,
-    pagesize: 12,
-    items: {
-      Transaction: transactionsArr
-    }
-  });
+exports.run = async (request, ActorId) => {
+	const transactions = await transactionModel
+		.find({
+			CheckoutDone: 1,
+			$or: [
+				{ MobileNumber: request.paymentSourceId },
+				{ CardNumber: request.CardNumber }
+			]
+		})
+		.sort({ _id: -1 })
+		.skip(request.pageindex * 12)
+		.limit(12);
+
+	let transactionsArr = [];
+
+	for (let transaction of transactions) {
+		transactionsArr.push({
+			TransactionId: transaction.TransactionId,
+			ActorId: transaction.ActorId,
+			Amount: transaction.Amount,
+			Currency: transaction.Currency,
+			MobileNumber: transaction.MobileNumber,
+			trx_id: transaction.TransactionId,
+			Timestamp: formatDate(transaction.Timestamp),
+			StarCoinsBefore: transaction.StarCoinsBefore,
+			StarCoinsAfter: transaction.StarCoinsAfter,
+			result_code: transaction.result_code,
+			content_id: transaction.content_id,
+			CardNumber: transaction.CardNumber
+		});
+	}
+
+	return buildXML("GetTransactionsByPaymentSourceId", {
+		totalRecords: await transactionModel.countDocuments({
+			CheckoutDone: 1,
+			$or: [
+				{ MobileNumber: request.paymentSourceId },
+				{ CardNumber: request.CardNumber }
+			]
+		}),
+		pageindex: request.pageindex,
+		pagesize: 12,
+		items: {
+			Transaction: transactionsArr
+		}
+	});
 };
 
 /*

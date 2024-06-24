@@ -3,13 +3,13 @@ const { formatDate } = require("../Utils/Util.js");
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
-  SOAPAction: "GetActivitiesByType",
-  needTicket: true,
-  levelModerator: 0
+	SOAPAction: "GetActivitiesByType",
+	needTicket: true,
+	levelModerator: 0
 };
 
 exports.run = async (request, ActorId) => {
-  /*
+	/*
       public static const Activity_GUESTBOOK_ENTRY_ADDED:int = 6;
       
       private static var _watcherSetupUtil:IWatcherSetupUtil;
@@ -42,282 +42,289 @@ exports.run = async (request, ActorId) => {
         </s:complexType>
     </s:element>
   */
-  
-  const user = await userModel.findOne({ ActorId: ActorId });
-  
-  let pagesize = 3;
-  if (request.type == 5) pagesize = 4;
-  
-  const ActivitiesFriends = await friendModel.aggregate([
-    {
-      $match: {
-        $or: [
-          {
-            ReceiverId: ActorId,
-            Status: 1,
-          },
-          {
-            RequesterId: ActorId,
-            Status: 1,
-          }
-        ]
-      }
-    },
-    {
-      $set: {
-        fieldResult: {
-          $cond: {
-            if: {
-              $eq: [ "$ReceiverId", ActorId ]
-            },
-            then: "$RequesterId",
-            else: "$ReceiverId"
-          }
-        }
-      }
-    },
-    {
-      $lookup: {
-        from: "activities",
-        localField: "fieldResult",
-        foreignField: "ActorId",
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $eq: [ "$Type", request.type ]
-              }
-            }
-          }
-        ],
-        as: "activity"
-      }
-    },
-    {
-      $unwind: {
-        path: "$activity",
-        preserveNullAndEmptyArrays: true
-      }
-    },
-    {
-      $match: {
-        activity: { $exists: true }
-      }
-    },
-    {
-      $project: {
-        ActivityId: "$activity.ActivityId",
-        ActorId: "$activity.ActorId",
-        Type: "$activity.Type",
-        _Date: "$activity._Date",
-        MovieId: "$activity.MovieId",
-        FriendId: "$activity.FriendId",
-        ContestId: "$activity.ContestId",
-        LookId: "$activity.LookId",
-      }
-    },
-    { $sort: { "_Date": -1 } },
-    { $skip: request.pageindex * pagesize },
-    { $limit: pagesize }
-  ]);
-    
-  let totalRecords = await friendModel.aggregate([
-    {
-      $match: {
-        $or: [
-          {
-            ReceiverId: ActorId,
-            Status: 1,
-          },
-          {
-            RequesterId: ActorId,
-            Status: 1,
-          }
-        ]
-      }
-    },
-    {
-      $set: {
-        fieldResult: {
-          $cond: {
-            if: {
-              $eq: [ "$ReceiverId", ActorId ]
-            },
-            then: "$RequesterId",
-            else: "$ReceiverId"
-          }
-        }
-      }
-    },
-    {
-      $lookup: {
-        from: "activities",
-        localField: "fieldResult",
-        foreignField: "ActorId",
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $eq: [ "$Type", request.type ]
-              }
-            }
-          }
-        ],
-        as: "activity"
-      }
-    },
-    {
-      $unwind: {
-        path: "$activity",
-        preserveNullAndEmptyArrays: true
-      }
-    },
-    {
-      $match: {
-        activity: { $exists: true }
-      }
-    },
-    {
-      $project: {
-        ActivityId: "$activity.ActivityId",
-        ActorId: "$activity.ActorId",
-        Type: "$activity.Type",
-        _Date: "$activity._Date",
-        MovieId: "$activity.MovieId",
-        FriendId: "$activity.FriendId",
-        ContestId: "$activity.ContestId",
-        LookId: "$activity.LookId",
-      }
-    },
-    {
-      $group: {
-        _id: null,
-        count: {
-          $sum: 1
-        }
-      }
-    }
-  ]);
-  
-  try {
-    totalRecords = totalRecords[0].count;
-  } catch {
-    totalRecords = 0;
-  }
-  
-  let ActivitiesType = [ ];
-  
-  switch (request.type) {
-    case 1:
-      // movie published
-      break;
-    case 2:
-      // friend accepted
-      break;
-    case 3:
-      // new twit
-      break;
-    case 4:
-      // friend profile changed
-      break;
-    case 5:
-      // friend room changed
-      
-      for (let activity of ActivitiesFriends) {
-        const ActivityUser = await userModel.findOne({ ActorId: activity.ActorId });
 
-        ActivitiesType.push({
-          ActivityId: activity.ActivityId,
-          ActorId: activity.ActorId,
-          Type: 5,
-          _Date: formatDate(activity._Date),
-          MovieId: 0,
-          FriendId: 0,
-          ContestId: 0,
-          LookId: 0,
-          ActivityMovie: { },
-          Actor: {
-            ActorId: ActivityUser.ActorId,
-            Name: ActivityUser.Name,
-            RoomLikes: ActivityUser.Room.RoomActorLikes.length
-          },
-          ActivityActor: {
-            ActorId: user.ActorId,
-            Name: user.Name,
-            RoomLikes: user.Room.RoomActorLikes.length
-          },
-          ActivityContest: { },
-          ActivityMood: { },
-          ActivityLook: { }
-        });
-      };
-      
-      break;
-    case 6:
-      // new guestbook on the actor's profile
-      break;
-    case 7:
-      // new friend level
-      break;
-    case 8:
-      // ?
-      break;
-    case 9:
-      // new friend looks
-      
-      for (let activity of ActivitiesFriends) {
-        const look = await lookModel.findOne({ LookId: activity.LookId, State: 0 });
-        if (!look) continue;
+	const user = await userModel.findOne({ ActorId: ActorId });
 
-        const ActivityUser = await userModel.findOne({ ActorId: activity.ActorId });
+	let pagesize = 3;
+	if (request.type == 5) pagesize = 4;
 
-        ActivitiesType.push({
-          ActivityId: activity.ActivityId,
-          ActorId: activity.ActorId,
-          Type: 9,
-          _Date: formatDate(activity._Date),
-          MovieId: 0,
-          FriendId: 0,
-          ContestId: 0,
-          LookId: look.LookId,
-          ActivityMovie: { },
-          Actor: {
-            ActorId: ActivityUser.ActorId,
-            Name: ActivityUser.Name,
-            RoomLikes: ActivityUser.Room.RoomActorLikes.length
-          },
-          ActivityActor: {
-            ActorId: user.ActorId,
-            Name: user.Name,
-            RoomLikes: user.Room.RoomActorLikes.length
-          },
-          ActivityContest: { },
-          ActivityMood: { },
-          ActivityLook: {
-            LookId: look.LookId,
-            ActorId: look.ActorId,
-            Headline: look.Headline,
-            LookData: look.LookData,
-            Likes: look.Likes.length,
-            Sells: look.Sells.length
-          }
-        });
-      };
-      
-      break;
-    default:
-      return;
-  }
-    
-  return buildXML("GetActivitiesByType", {
-    totalRecords: totalRecords,
-    pageindex: request.pageindex,
-    pagesize: 4,
-    items: {
-      Activity: ActivitiesType
-    }
-  });
-}
+	const ActivitiesFriends = await friendModel.aggregate([
+		{
+			$match: {
+				$or: [
+					{
+						ReceiverId: ActorId,
+						Status: 1
+					},
+					{
+						RequesterId: ActorId,
+						Status: 1
+					}
+				]
+			}
+		},
+		{
+			$set: {
+				fieldResult: {
+					$cond: {
+						if: {
+							$eq: ["$ReceiverId", ActorId]
+						},
+						then: "$RequesterId",
+						else: "$ReceiverId"
+					}
+				}
+			}
+		},
+		{
+			$lookup: {
+				from: "activities",
+				localField: "fieldResult",
+				foreignField: "ActorId",
+				pipeline: [
+					{
+						$match: {
+							$expr: {
+								$eq: ["$Type", request.type]
+							}
+						}
+					}
+				],
+				as: "activity"
+			}
+		},
+		{
+			$unwind: {
+				path: "$activity",
+				preserveNullAndEmptyArrays: true
+			}
+		},
+		{
+			$match: {
+				activity: { $exists: true }
+			}
+		},
+		{
+			$project: {
+				ActivityId: "$activity.ActivityId",
+				ActorId: "$activity.ActorId",
+				Type: "$activity.Type",
+				_Date: "$activity._Date",
+				MovieId: "$activity.MovieId",
+				FriendId: "$activity.FriendId",
+				ContestId: "$activity.ContestId",
+				LookId: "$activity.LookId"
+			}
+		},
+		{ $sort: { _Date: -1 } },
+		{ $skip: request.pageindex * pagesize },
+		{ $limit: pagesize }
+	]);
+
+	let totalRecords = await friendModel.aggregate([
+		{
+			$match: {
+				$or: [
+					{
+						ReceiverId: ActorId,
+						Status: 1
+					},
+					{
+						RequesterId: ActorId,
+						Status: 1
+					}
+				]
+			}
+		},
+		{
+			$set: {
+				fieldResult: {
+					$cond: {
+						if: {
+							$eq: ["$ReceiverId", ActorId]
+						},
+						then: "$RequesterId",
+						else: "$ReceiverId"
+					}
+				}
+			}
+		},
+		{
+			$lookup: {
+				from: "activities",
+				localField: "fieldResult",
+				foreignField: "ActorId",
+				pipeline: [
+					{
+						$match: {
+							$expr: {
+								$eq: ["$Type", request.type]
+							}
+						}
+					}
+				],
+				as: "activity"
+			}
+		},
+		{
+			$unwind: {
+				path: "$activity",
+				preserveNullAndEmptyArrays: true
+			}
+		},
+		{
+			$match: {
+				activity: { $exists: true }
+			}
+		},
+		{
+			$project: {
+				ActivityId: "$activity.ActivityId",
+				ActorId: "$activity.ActorId",
+				Type: "$activity.Type",
+				_Date: "$activity._Date",
+				MovieId: "$activity.MovieId",
+				FriendId: "$activity.FriendId",
+				ContestId: "$activity.ContestId",
+				LookId: "$activity.LookId"
+			}
+		},
+		{
+			$group: {
+				_id: null,
+				count: {
+					$sum: 1
+				}
+			}
+		}
+	]);
+
+	try {
+		totalRecords = totalRecords[0].count;
+	} catch {
+		totalRecords = 0;
+	}
+
+	let ActivitiesType = [];
+
+	switch (request.type) {
+		case 1:
+			// movie published
+			break;
+		case 2:
+			// friend accepted
+			break;
+		case 3:
+			// new twit
+			break;
+		case 4:
+			// friend profile changed
+			break;
+		case 5:
+			// friend room changed
+
+			for (let activity of ActivitiesFriends) {
+				const ActivityUser = await userModel.findOne({
+					ActorId: activity.ActorId
+				});
+
+				ActivitiesType.push({
+					ActivityId: activity.ActivityId,
+					ActorId: activity.ActorId,
+					Type: 5,
+					_Date: formatDate(activity._Date),
+					MovieId: 0,
+					FriendId: 0,
+					ContestId: 0,
+					LookId: 0,
+					ActivityMovie: {},
+					Actor: {
+						ActorId: ActivityUser.ActorId,
+						Name: ActivityUser.Name,
+						RoomLikes: ActivityUser.Room.RoomActorLikes.length
+					},
+					ActivityActor: {
+						ActorId: user.ActorId,
+						Name: user.Name,
+						RoomLikes: user.Room.RoomActorLikes.length
+					},
+					ActivityContest: {},
+					ActivityMood: {},
+					ActivityLook: {}
+				});
+			}
+
+			break;
+		case 6:
+			// new guestbook on the actor's profile
+			break;
+		case 7:
+			// new friend level
+			break;
+		case 8:
+			// ?
+			break;
+		case 9:
+			// new friend looks
+
+			for (let activity of ActivitiesFriends) {
+				const look = await lookModel.findOne({
+					LookId: activity.LookId,
+					State: 0
+				});
+				if (!look) continue;
+
+				const ActivityUser = await userModel.findOne({
+					ActorId: activity.ActorId
+				});
+
+				ActivitiesType.push({
+					ActivityId: activity.ActivityId,
+					ActorId: activity.ActorId,
+					Type: 9,
+					_Date: formatDate(activity._Date),
+					MovieId: 0,
+					FriendId: 0,
+					ContestId: 0,
+					LookId: look.LookId,
+					ActivityMovie: {},
+					Actor: {
+						ActorId: ActivityUser.ActorId,
+						Name: ActivityUser.Name,
+						RoomLikes: ActivityUser.Room.RoomActorLikes.length
+					},
+					ActivityActor: {
+						ActorId: user.ActorId,
+						Name: user.Name,
+						RoomLikes: user.Room.RoomActorLikes.length
+					},
+					ActivityContest: {},
+					ActivityMood: {},
+					ActivityLook: {
+						LookId: look.LookId,
+						ActorId: look.ActorId,
+						Headline: look.Headline,
+						LookData: look.LookData,
+						Likes: look.Likes.length,
+						Sells: look.Sells.length
+					}
+				});
+			}
+
+			break;
+		default:
+			return;
+	}
+
+	return buildXML("GetActivitiesByType", {
+		totalRecords: totalRecords,
+		pageindex: request.pageindex,
+		pagesize: 4,
+		items: {
+			Activity: ActivitiesType
+		}
+	});
+};
 
 /*
     <s:complexType name="PagedActivityList">

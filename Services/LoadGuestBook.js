@@ -3,53 +3,59 @@ const { formatDate } = require("../Utils/Util.js");
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
-  SOAPAction: "LoadGuestBook",
-  needTicket: true,
-  levelModerator: 0
+	SOAPAction: "LoadGuestBook",
+	needTicket: true,
+	levelModerator: 0
 };
 
 exports.run = async (request, ActorId) => {
-  const user = await userModel.findOne({ ActorId: request.userId });
-  if (!user) return;
-  
-  const comments = await guestbookModel.find({ GuestbookActorId: request.userId, IsDeleted: 0 })
-  .sort({ _id: -1 })
-  .skip(request.pageindex * 3)
-  .limit(3);
-  
-  let guestbook = [ ];
-  
-  for(let comment of comments) {
-    const Actor = await userModel.findOne({ ActorId: comment.AuthorActorId });
-    
-    guestbook.push({
-      GuestbookEntryId: comment.GuestbookEntryId,
-      AuthorActorId: comment.AuthorActorId,
-      DateCreated: formatDate(comment.DateCreated),
-      GuestbookActorId: user.ActorId,
-      Subject: "",
-      Body: comment.Body,
-      Actor: {
-        ActorId: Actor.ActorId,
-        Name: Actor.Name        
-      },
-      GuestBookActor: {
-        ActorId: user.ActorId,
-        Name: user.Name
-      }
-    })
-  };
-  
-  return buildXML("LoadGuestBook", {
-    totalRecords: await guestbookModel.countDocuments({ GuestbookActorId: request.userId, IsDeleted: 0 }),
-    pageindex: request.pageindex,
-    pagesize: 3,
-    items: {
-      GuestbookEntry: guestbook
-    }
-  });
-    
-  /*
+	const user = await userModel.findOne({ ActorId: request.userId });
+	if (!user) return;
+
+	const comments = await guestbookModel
+		.find({ GuestbookActorId: request.userId, IsDeleted: 0 })
+		.sort({ _id: -1 })
+		.skip(request.pageindex * 3)
+		.limit(3);
+
+	let guestbook = [];
+
+	for (let comment of comments) {
+		const Actor = await userModel.findOne({
+			ActorId: comment.AuthorActorId
+		});
+
+		guestbook.push({
+			GuestbookEntryId: comment.GuestbookEntryId,
+			AuthorActorId: comment.AuthorActorId,
+			DateCreated: formatDate(comment.DateCreated),
+			GuestbookActorId: user.ActorId,
+			Subject: "",
+			Body: comment.Body,
+			Actor: {
+				ActorId: Actor.ActorId,
+				Name: Actor.Name
+			},
+			GuestBookActor: {
+				ActorId: user.ActorId,
+				Name: user.Name
+			}
+		});
+	}
+
+	return buildXML("LoadGuestBook", {
+		totalRecords: await guestbookModel.countDocuments({
+			GuestbookActorId: request.userId,
+			IsDeleted: 0
+		}),
+		pageindex: request.pageindex,
+		pagesize: 3,
+		items: {
+			GuestbookEntry: guestbook
+		}
+	});
+
+	/*
     <s:complexType name="PagedGuestBookEntryList">
         <s:sequence>
             <s:element name="totalRecords" type="s:int"/>

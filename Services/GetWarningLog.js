@@ -3,42 +3,43 @@ const { formatDate } = require("../Utils/Util.js");
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
-  SOAPAction: "GetWarningLog",
-  needTicket: true,
-  levelModerator: 2
+	SOAPAction: "GetWarningLog",
+	needTicket: true,
+	levelModerator: 2
 };
 
-exports.run = async request => {  
-  const behaviors = await behaviorModel.find({ })
-  .sort({ _id: -1 })
-  .skip(request.pageindex * 10)
-  .limit(10);
+exports.run = async request => {
+	const behaviors = await behaviorModel
+		.find({})
+		.sort({ _id: -1 })
+		.skip(request.pageindex * 10)
+		.limit(10);
 
-  let behaviorData = [ ];
+	let behaviorData = [];
 
-  for (let behavior of behaviors) {
-    const log = await logModel.findOne({ LogId: behavior.ChatlogId });
-    if (!log) continue;
+	for (let behavior of behaviors) {
+		const log = await logModel.findOne({ LogId: behavior.ChatlogId });
+		if (!log) continue;
 
-    behaviorData.push({
-      ChatLogId: log.LogId,
-      RoomId: log.RoomId,
-      ActorId: log.ActorId,
-      Message: log.Message,
-      _Date: formatDate(log.Date),
-      IpAsInt: log.IPId,
-      DaysLocked: behavior.LockedDays,
-      DateHandled: formatDate(behavior.HandledOn),
-      HandledByActorId: behavior.HandledByActorId
-    });
-  };
+		behaviorData.push({
+			ChatLogId: log.LogId,
+			RoomId: log.RoomId,
+			ActorId: log.ActorId,
+			Message: log.Message,
+			_Date: formatDate(log.Date),
+			IpAsInt: log.IPId,
+			DaysLocked: behavior.LockedDays,
+			DateHandled: formatDate(behavior.HandledOn),
+			HandledByActorId: behavior.HandledByActorId
+		});
+	}
 
-  return buildXML("GetWarningLog", {
-    totalRecords: await behaviorModel.countDocuments({ }),
-    pageindex: request.pageindex,
-    pagesize: 10,
-    items: {
-     ChatLog: behaviorData 
-    }
-  });
+	return buildXML("GetWarningLog", {
+		totalRecords: await behaviorModel.countDocuments({}),
+		pageindex: request.pageindex,
+		pagesize: 10,
+		items: {
+			ChatLog: behaviorData
+		}
+	});
 };

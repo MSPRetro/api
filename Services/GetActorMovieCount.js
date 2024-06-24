@@ -1,11 +1,11 @@
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
-  SOAPAction: "GetActorMovieCount",
-  needTicket: false,
-  levelModerator: 0
+	SOAPAction: "GetActorMovieCount",
+	needTicket: false,
+	levelModerator: 0
 };
 
 exports.run = () => {
-  return buildXML("GetActorMovieCount", 5);
+	return buildXML("GetActorMovieCount", 5);
 };

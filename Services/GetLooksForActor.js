@@ -3,68 +3,75 @@ const { formatDate } = require("../Utils/Util.js");
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
-  SOAPAction: "GetLooksForActor",
-  needTicket: true,
-  levelModerator: 0
+	SOAPAction: "GetLooksForActor",
+	needTicket: true,
+	levelModerator: 0
 };
 
 exports.run = async (request, ActorId) => {
-  let looks;
-    
-  if (request.orderBy === "likes") looks = await lookModel.aggregate([
-    { $match: { ActorId: request.actorId, State: 0 } },
-    { $addFields: { len: { $size: "$Likes" }}},
-    { $sort: { len: -1 }},
-    { $skip: request.pageindex * 3 },
-    { $limit: 3 }
-    ]);
-  else if (request.orderBy === "sells") looks = await lookModel.aggregate([
-    { $match: { ActorId: request.actorId, State: 0 } },
-    { $addFields: { len: { $size: "$Sells" }}},
-    { $sort: { len: -1 }},
-    { $skip: request.pageindex * 3 },
-    { $limit: 3 }
-  ]);
-  else looks = await lookModel.find({ ActorId: request.actorId, State: 0 })
-  .sort({ _id: -1 })
-  .skip(request.pageindex * 3)
-  .limit(3);
-  
-  let looksArray = [ ];
-  
-  for (let look of looks) {
-    let LookActorLike = { };
+	let looks;
 
-    if (look.Likes.includes(ActorId)) LookActorLike = {
-      LookActorLike: {
-        EntityType: 2,
-        EntityId: look.ActorId,
-        ActorId: ActorId
-      }
-    };
+	if (request.orderBy === "likes")
+		looks = await lookModel.aggregate([
+			{ $match: { ActorId: request.actorId, State: 0 } },
+			{ $addFields: { len: { $size: "$Likes" } } },
+			{ $sort: { len: -1 } },
+			{ $skip: request.pageindex * 3 },
+			{ $limit: 3 }
+		]);
+	else if (request.orderBy === "sells")
+		looks = await lookModel.aggregate([
+			{ $match: { ActorId: request.actorId, State: 0 } },
+			{ $addFields: { len: { $size: "$Sells" } } },
+			{ $sort: { len: -1 } },
+			{ $skip: request.pageindex * 3 },
+			{ $limit: 3 }
+		]);
+	else
+		looks = await lookModel
+			.find({ ActorId: request.actorId, State: 0 })
+			.sort({ _id: -1 })
+			.skip(request.pageindex * 3)
+			.limit(3);
 
-    looksArray.push({
-        LookId: look.LookId,
-        ActorId: look.ActorId,
-        Created: formatDate(look.Created),
-        Headline: look.Headline,
-        LookData: look.LookData,
-        Likes: look.Likes.length,
-        Sells: look.Sells.length,
-        LookActorLikes: LookActorLike
-    });
-  };
-  
-  return buildXML("GetLooksForActor", {
-    totalRecords: await lookModel.countDocuments({ ActorId: request.actorId, State: 0 }),
-    pageindex: request.pageindex,
-    pagesize: 3,
-    items: {
-      Look: looksArray
-    }
-  });
+	let looksArray = [];
+
+	for (let look of looks) {
+		let LookActorLike = {};
+
+		if (look.Likes.includes(ActorId))
+			LookActorLike = {
+				LookActorLike: {
+					EntityType: 2,
+					EntityId: look.ActorId,
+					ActorId: ActorId
+				}
+			};
+
+		looksArray.push({
+			LookId: look.LookId,
+			ActorId: look.ActorId,
+			Created: formatDate(look.Created),
+			Headline: look.Headline,
+			LookData: look.LookData,
+			Likes: look.Likes.length,
+			Sells: look.Sells.length,
+			LookActorLikes: LookActorLike
+		});
+	}
+
+	return buildXML("GetLooksForActor", {
+		totalRecords: await lookModel.countDocuments({
+			ActorId: request.actorId,
+			State: 0
+		}),
+		pageindex: request.pageindex,
+		pagesize: 3,
+		items: {
+			Look: looksArray
+		}
+	});
 };
-
 
 /*
     <s:element name="GetLooksForActorResponse">

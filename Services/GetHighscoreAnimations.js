@@ -2,43 +2,51 @@ const { animationModel } = require("../Utils/Schemas.js");
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
-  SOAPAction: "GetHighscoreAnimations",
-  needTicket: true,
-  levelModerator: 0
+	SOAPAction: "GetHighscoreAnimations",
+	needTicket: true,
+	levelModerator: 0
 };
 
-exports.run = async request => {  
-  const animations = await animationModel.aggregate([
-    { $match: { IsHidden: 0, BuyBy: { $exists: true, $not: { $size: 0 }}}},
-    { $addFields: { len: { $size: "$BuyBy" }}},
-    { $sort: { len: -1 }},
-    { $skip: request.pageindex * 5 },
-    { $limit: 5 }
-  ]);
-  
-  let animationsArray = [ ];
-  
-  for (let animation of animations) {
-    animationsArray.push({
-      count: animation.BuyBy.length,
-      animationName: animation.Name,
-      categoryName: animation.CategoryName,
-      SWF: animation.SWF,
-      Vip: animation.Vip,
-      Price: animation.Price,
-      AnimationCategoryId: animation.CategoryId,
-      animationId: animation.AnimationId
-    });
-  };
-  
-  return buildXML("GetHighscoreAnimations", {
-    totalRecords: await animationModel.countDocuments({ IsHidden: 0, BuyBy: { $exists: true, $not: { $size: 0 } }}),
-    pageindex: request.pageindex,
-    pagesize: 5,
-    items: {
-      HighscoreAnimation: animationsArray
-    }
-  });
+exports.run = async request => {
+	const animations = await animationModel.aggregate([
+		{
+			$match: {
+				IsHidden: 0,
+				BuyBy: { $exists: true, $not: { $size: 0 } }
+			}
+		},
+		{ $addFields: { len: { $size: "$BuyBy" } } },
+		{ $sort: { len: -1 } },
+		{ $skip: request.pageindex * 5 },
+		{ $limit: 5 }
+	]);
+
+	let animationsArray = [];
+
+	for (let animation of animations) {
+		animationsArray.push({
+			count: animation.BuyBy.length,
+			animationName: animation.Name,
+			categoryName: animation.CategoryName,
+			SWF: animation.SWF,
+			Vip: animation.Vip,
+			Price: animation.Price,
+			AnimationCategoryId: animation.CategoryId,
+			animationId: animation.AnimationId
+		});
+	}
+
+	return buildXML("GetHighscoreAnimations", {
+		totalRecords: await animationModel.countDocuments({
+			IsHidden: 0,
+			BuyBy: { $exists: true, $not: { $size: 0 } }
+		}),
+		pageindex: request.pageindex,
+		pagesize: 5,
+		items: {
+			HighscoreAnimation: animationsArray
+		}
+	});
 };
 
 /*

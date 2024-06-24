@@ -1,57 +1,68 @@
-const { userModel, giftModel, idModel, clothModel } = require("../Utils/Schemas.js");
+const {
+	userModel,
+	giftModel,
+	idModel,
+	clothModel
+} = require("../Utils/Schemas.js");
 const { formatDate } = require("../Utils/Util.js");
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
-  SOAPAction: "getGiftsGiven",
-  needTicket: true,
-  levelModerator: 0
+	SOAPAction: "getGiftsGiven",
+	needTicket: true,
+	levelModerator: 0
 };
 
 exports.run = async (request, ActorId) => {
-  const gifts = await giftModel.find({ SenderActorId: ActorId })
-  .sort({ _id: -1 })
-  .skip(request.pageindex * 6)
-  .limit(6);
-    
-  const user = await userModel.findOne({ ActorId: ActorId });
-  
-  let giftsArr = [ ];
-  
-  for (let gift of gifts) {
-    const userGiver = await userModel.findOne({ ActorId: gift.SenderActorId });
-    const relCloth = await idModel.findOne({ ClothesRellId: gift.ClothesRellId });
-    const cloth = await clothModel.findOne({ ClothesId: relCloth.ClothId });
-    
-    giftsArr.push({
-      GiftLogId: gift.GiftId,
-      ActorId: ActorId,
-      actorName: user.Name,
-      GiverId: gift.SenderActorId,
-      giverName: userGiver.Name,
-      ClothesId: cloth.ClothesId,
-      clothesName: cloth.Name,
-      Color: relCloth.Colors,
-      SWF: cloth.SWF,
-      Filename: cloth.Filename,
-      Vip: cloth.Vip,
-      Price: cloth.Price,
-      ClothesCategoryId: cloth.ClothesCategoryId,
-      Shopid: 1,
-      dateStr: formatDate(new Date()),
-    });
-  }
-  
-  return buildXML("getGiftsGiven", {
-    totalRecords: await giftModel.countDocuments({ SenderActorId: ActorId }),
-    pageindex: request.pageindex,
-    pagesize: 6,
-    items: {
-      GiftLogItem: giftsArr
-    }
-  });
-};
+	const gifts = await giftModel
+		.find({ SenderActorId: ActorId })
+		.sort({ _id: -1 })
+		.skip(request.pageindex * 6)
+		.limit(6);
 
+	const user = await userModel.findOne({ ActorId: ActorId });
+
+	let giftsArr = [];
+
+	for (let gift of gifts) {
+		const userGiver = await userModel.findOne({
+			ActorId: gift.SenderActorId
+		});
+		const relCloth = await idModel.findOne({
+			ClothesRellId: gift.ClothesRellId
+		});
+		const cloth = await clothModel.findOne({ ClothesId: relCloth.ClothId });
+
+		giftsArr.push({
+			GiftLogId: gift.GiftId,
+			ActorId: ActorId,
+			actorName: user.Name,
+			GiverId: gift.SenderActorId,
+			giverName: userGiver.Name,
+			ClothesId: cloth.ClothesId,
+			clothesName: cloth.Name,
+			Color: relCloth.Colors,
+			SWF: cloth.SWF,
+			Filename: cloth.Filename,
+			Vip: cloth.Vip,
+			Price: cloth.Price,
+			ClothesCategoryId: cloth.ClothesCategoryId,
+			Shopid: 1,
+			dateStr: formatDate(new Date())
+		});
+	}
+
+	return buildXML("getGiftsGiven", {
+		totalRecords: await giftModel.countDocuments({
+			SenderActorId: ActorId
+		}),
+		pageindex: request.pageindex,
+		pagesize: 6,
+		items: {
+			GiftLogItem: giftsArr
+		}
+	});
+};
 
 /*
     <s:complexType name="PagedGiftLogList">
