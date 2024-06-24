@@ -1,6 +1,5 @@
 const { IPModel } = require("./Schemas.js");
 const { getValue, setValue } = require("./Globals.js");
-const { setError } = require("./ErrorManager.js");
 const { getNewId } = require("./Util.js");
 
 const regexIP =
@@ -45,7 +44,7 @@ exports.ipInt = value => {
 	};
 };
 
-const getIPData = (exports.getIPData = async IP => {
+exports.getIPData = async IP => {
 	let IPData = getValue(`${IP}-IP`);
 
 	if (!IPData) {
@@ -74,4 +73,4 @@ const getIPData = (exports.getIPData = async IP => {
 	}
 
 	return IPData;
-});
+};

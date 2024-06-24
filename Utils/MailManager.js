@@ -1,13 +1,6 @@
 const { emailClient } = require("../mspretro.js");
 
-exports.sendMail = async (
-	from,
-	toEmail,
-	toName,
-	subject,
-	content,
-	cci = ""
-) => {
+exports.sendMail = async (from, toEmail, toName, subject, content) => {
 	if (!mailIsValid(toEmail)) return false;
 
 	let bcc = [];

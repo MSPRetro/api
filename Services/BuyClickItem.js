@@ -5,7 +5,6 @@ const {
 } = require("../Utils/Schemas.js");
 const {
 	getActorDetails,
-	formatDate,
 	isVip,
 	addOrRemoveMoney,
 	addFame,

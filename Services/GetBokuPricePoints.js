@@ -9,7 +9,7 @@ exports.data = {
 	levelModerator: 0
 };
 
-exports.run = async (request, undefined, IP) => {
+exports.run = async (_, __, IP) => {
 	let IPasInt;
 	let currency = "EUR";
 

@@ -1,4 +1,3 @@
-const { generate } = require("generate-password");
 const { pbkdf2Sync } = require("crypto");
 const { uploadDefaultImg } = require("../Utils/BlobManager.js");
 const {
@@ -7,7 +6,6 @@ const {
 	clothModel,
 	eyeModel,
 	noseModel,
-	mouthModel,
 	ticketModel
 } = require("../Utils/Schemas.js");
 const { getIPData } = require("../Utils/IPUtils.js");
@@ -26,7 +24,7 @@ exports.data = {
 	levelModerator: 0
 };
 
-exports.run = async (request, undefined, IP) => {
+exports.run = async (request, _, IP) => {
 	if (cooldown.has(IP)) {
 		await setError(
 			"You have already created an account within the hour. Please wait before creating a new one."
@@ -127,10 +125,7 @@ exports.run = async (request, undefined, IP) => {
 		for (let clothe of request.clothes.ActorClothesRel2) {
 			await makeClothesRellId(clothe, ActorId);
 		}
-	} else if (typeof request.clothes === "number") {
-	} else if (
-		request.clothes.ActorClothesRel2.ActorClothesRelId !== undefined
-	) {
+	} else {
 		await makeClothesRellId(request.clothes.ActorClothesRel2, ActorId);
 	}
 

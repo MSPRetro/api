@@ -1,4 +1,4 @@
-const { userModel, behaviorModel, logModel } = require("../Utils/Schemas.js");
+const { behaviorModel } = require("../Utils/Schemas.js");
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
@@ -7,7 +7,7 @@ exports.data = {
 	levelModerator: 1
 };
 
-exports.run = async (request, ActorId) => {
+exports.run = async request => {
 	const behavior = await behaviorModel
 		.findOne({ ActorId: request.actorId, BehaviourStatus: 1 })
 		.sort({ _id: -1 });

@@ -1,5 +1,4 @@
-const { idModel, clothModel } = require("../Utils/Schemas.js");
-const { addDays } = require("../Utils/Util.js");
+const { idModel } = require("../Utils/Schemas.js");
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {

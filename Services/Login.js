@@ -1,11 +1,10 @@
-const { generate } = require("generate-password");
 const { pbkdf2Sync } = require("crypto");
 const { userModel, ticketModel } = require("../Utils/Schemas.js");
 const { getIPData } = require("../Utils/IPUtils.js");
 const { getActorDetails, formatDate, buildLevel } = require("../Utils/Util.js");
 const { buildXML } = require("../Utils/XML.js");
 const { generateTicket } = require("../Utils/Ticket.js");
-const { getValue, deleteValue, setValue } = require("../Utils/Globals.js");
+const { setValue } = require("../Utils/Globals.js");
 const { run } = require("./LogChat.js");
 
 exports.data = {
@@ -14,7 +13,7 @@ exports.data = {
 	levelModerator: 0
 };
 
-exports.run = async (request, undefined, IP) => {
+exports.run = async (request, _, IP) => {
 	let hash = pbkdf2Sync(
 		`MSPRETRO,${request.password}`,
 		process.env.CUSTOMCONNSTR_SaltDB,

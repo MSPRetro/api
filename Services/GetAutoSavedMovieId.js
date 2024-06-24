@@ -1,4 +1,3 @@
-const globals = require("../Utils/Globals.js");
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
@@ -7,10 +6,6 @@ exports.data = {
 	levelModerator: 0
 };
 
-exports.run = async (request, ActorId) => {
-	// if (!globals.getValue(`${ActorId}-TICKETCHANGE`)) {
-	//   globals.setValue(`${ActorId}-TICKETCHANGE`, true);
-	// };
-
+exports.run = () => {
 	return buildXML("GetAutoSavedMovieId", 0);
 };

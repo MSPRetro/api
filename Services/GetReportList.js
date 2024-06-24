@@ -8,7 +8,7 @@ exports.data = {
 	levelModerator: 1
 };
 
-exports.run = async (request, ActorId) => {
+exports.run = async request => {
 	let State;
 	if (request.onlyGetNotHandled) State = 0;
 	else State = 1;

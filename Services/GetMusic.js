@@ -7,7 +7,7 @@ exports.data = {
 	levelModerator: 0
 };
 
-exports.run = async request => {
+exports.run = async () => {
 	const musics = await musicModel.find({ IsHidden: 0 }).sort({ _id: -1 });
 
 	let musicsArr = [];

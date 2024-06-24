@@ -12,7 +12,7 @@ exports.data = {
 	levelModerator: 0
 };
 
-exports.run = async request => {
+exports.run = async () => {
 	// State: 0 => Open (and date verification, if it's passed it's finished)
 	// State : 1 => Finished
 

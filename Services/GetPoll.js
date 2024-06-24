@@ -7,7 +7,7 @@ exports.data = {
 	levelModerator: 0
 };
 
-exports.run = async request => {
+exports.run = async () => {
 	let config = await confModel.find({});
 	config = config[0];
 

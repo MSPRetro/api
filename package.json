@@ -8,7 +8,7 @@
 		"beautify": "prettier --write ."
 	},
 	"devDependencies": {
-		"prettier": "3.3.2"
+		"prettier": "^3.3.2"
 	},
 	"dependencies": {
 		"@azure/communication-email": "^1.0.0",

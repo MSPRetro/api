@@ -195,8 +195,8 @@ exports.run = async request => {
 		Prize2VIP: competition.Prize2VIP,
 		Prize3VIP: competition.Prize3VIP,
 		NewsId: competition.NewsId,
-		Movie1: null,
-		Movie2: null,
-		Movie3: null
+		Movie1: Movie1,
+		Movie2: Movie2,
+		Movie3: Movie3
 	});
 };

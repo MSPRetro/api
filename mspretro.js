@@ -99,7 +99,7 @@ if (cluster.isMaster) {
 		return await data.run(req, res);
 	});
 
-	app.listen(process.env.PORT, async _ => {
+	app.listen(process.env.PORT, async () => {
 		console.log("The server is starting... - Worker: " + process.pid);
 		readdir("./Services/", (error, f) => {
 			if (error) return console.error(error);

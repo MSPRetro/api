@@ -1,4 +1,4 @@
-const { competitionModel, movieModel } = require("../Utils/Schemas.js");
+const { movieModel } = require("../Utils/Schemas.js");
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {

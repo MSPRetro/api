@@ -8,7 +8,7 @@ exports.data = {
 	levelModerator: 0
 };
 
-exports.run = async (request, ActorId) => {
+exports.run = async request => {
 	const reviews = await commentMovieModel
 		.find({ MovieId: request.movieId, Comment: { $ne: "" } })
 		.sort({ _id: -1 })

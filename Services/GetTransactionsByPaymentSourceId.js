@@ -8,7 +8,7 @@ exports.data = {
 	levelModerator: 1
 };
 
-exports.run = async (request, ActorId) => {
+exports.run = async request => {
 	const transactions = await transactionModel
 		.find({
 			CheckoutDone: 1,

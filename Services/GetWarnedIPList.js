@@ -7,7 +7,7 @@ exports.data = {
 	levelModerator: 2
 };
 
-exports.run = async (request, ActorId) => {
+exports.run = async request => {
 	const warns = await IPModel.find({ Locked: request.showBlocked })
 		.sort({ Warns: -1 })
 		.skip(request.pageindex * 10)

@@ -5,7 +5,6 @@ const {
 	todoModel,
 	userModel
 } = require("../Utils/Schemas.js");
-const { addFame } = require("../Utils/Util.js");
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
@@ -56,8 +55,6 @@ exports.run = async (request, ActorId) => {
 			}
 		}
 	);
-
-	// await addFame(ActorId, false, cloth.Price / 10);
 
 	return buildXML("OpenGift", {
 		ActorClothesRelId: gift.ClothesRellId,

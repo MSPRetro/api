@@ -1,5 +1,5 @@
 const { userModel, boyfriendModel } = require("../Utils/Schemas.js");
-const { createTodo, formatDate } = require("../Utils/Util.js");
+const { createTodo } = require("../Utils/Util.js");
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {

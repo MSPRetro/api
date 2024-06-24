@@ -3,7 +3,7 @@ const {
 	movieModel,
 	userModel
 } = require("../Utils/Schemas.js");
-const { formatDate, addDays } = require("../Utils/Util.js");
+const { formatDate } = require("../Utils/Util.js");
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
@@ -54,9 +54,6 @@ exports.run = async request => {
 		{ $sort: { len: -1 } },
 		{ $limit: 3 }
 	]);
-
-	let Status = 0;
-	if (Date.now() > addDays(competition.EndTime, 3).getTime()) Status = 1;
 
 	let i = 0;
 

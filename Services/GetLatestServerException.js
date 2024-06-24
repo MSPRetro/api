@@ -1,6 +1,4 @@
 const { buildXML } = require("../Utils/XML.js");
-const { errorModel } = require("../Utils/Schemas.js");
-const { randomBytes } = require("crypto");
 const { getError, clearError } = require("../Utils/ErrorManager.js");
 
 exports.data = {
@@ -13,7 +11,6 @@ exports.run = () => {
 	const error = getError();
 	clearError();
 
-	// console.log(error);
 	let message =
 		error.errorId === null
 			? error.error

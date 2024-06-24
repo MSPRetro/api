@@ -61,7 +61,6 @@ exports.run = async (req, res) => {
 			let parsed = sanitizeJSON(parseRawXml(req.body));
 			if (parsed === "ERROR") return res.sendStatus(500);
 
-			let user;
 			let ticket;
 			let ActorId = false;
 

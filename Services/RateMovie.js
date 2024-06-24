@@ -3,12 +3,7 @@ const {
 	userModel,
 	commentMovieModel
 } = require("../Utils/Schemas.js");
-const {
-	formatDate,
-	addOrRemoveMoney,
-	addFame,
-	getNewId
-} = require("../Utils/Util.js");
+const { addOrRemoveMoney, addFame, getNewId } = require("../Utils/Util.js");
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {

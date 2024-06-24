@@ -1,4 +1,3 @@
-const { userModel } = require("../Utils/Schemas.js");
 const {
 	addOrRemoveMoney,
 	addFame,
@@ -12,7 +11,8 @@ exports.data = {
 	levelModerator: 0
 };
 
-exports.run = async (request, ActorId, IP, Password) => {
+exports.run = async (request, ActorId, _, Password) => {
+	// We don't check the balance, because this event is just for spending money
 	if (Math.sign(request.starcoins) != 1) return;
 
 	await addOrRemoveMoney(ActorId, -request.starcoins);

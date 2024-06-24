@@ -1,7 +1,7 @@
 const { generate } = require("generate-password");
 const { pbkdf2Sync } = require("crypto");
 const { setValue } = require("../Utils/Globals.js");
-const { sendMail, mailIsValid } = require("../Utils/MailManager.js");
+const { sendMail } = require("../Utils/MailManager.js");
 const { userModel, ticketModel } = require("../Utils/Schemas.js");
 const { buildXML } = require("../Utils/XML.js");
 

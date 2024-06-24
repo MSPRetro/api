@@ -7,7 +7,7 @@ exports.data = {
 	levelModerator: 0
 };
 
-exports.run = async (request, ActorId) => {
+exports.run = async request => {
 	const username = request.searchString.toString().trim();
 
 	const users = await userModel

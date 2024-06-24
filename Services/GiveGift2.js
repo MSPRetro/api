@@ -4,12 +4,7 @@ const {
 	idModel,
 	clothModel
 } = require("../Utils/Schemas.js");
-const {
-	buildLevel,
-	addMinutes,
-	createTodo,
-	getNewId
-} = require("../Utils/Util.js");
+const { buildLevel, createTodo, getNewId } = require("../Utils/Util.js");
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {

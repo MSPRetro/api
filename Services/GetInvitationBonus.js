@@ -1,4 +1,4 @@
-const { todoModel, userModel } = require("../Utils/Schemas.js");
+const { todoModel } = require("../Utils/Schemas.js");
 const { addOrRemoveMoney } = require("../Utils/Util.js");
 const { buildXML } = require("../Utils/XML.js");
 

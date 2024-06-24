@@ -6,7 +6,7 @@ exports.data = {
 	levelModerator: 0
 };
 
-exports.run = async (request, ActorId) => {
+exports.run = async () => {
 	// console.log(`[ClientLog]: \nType: ${request.logType}\nMessage: ${request.msg}`);
 
 	return buildXML("ClientLog");

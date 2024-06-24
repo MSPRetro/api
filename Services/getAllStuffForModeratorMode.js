@@ -1,4 +1,4 @@
-const { itemModel, clothModel } = require("../Utils/Schemas.js");
+const { clothModel } = require("../Utils/Schemas.js");
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {

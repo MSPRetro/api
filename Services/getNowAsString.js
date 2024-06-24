@@ -7,7 +7,7 @@ exports.data = {
 	levelModerator: 0
 };
 
-exports.run = request => {
+exports.run = () => {
 	//return buildXML("getNowAsString", "2021-12-29T14:39:08");
 	return buildXML("getNowAsString", formatDate(new Date(), true));
 };

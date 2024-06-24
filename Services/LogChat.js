@@ -1,10 +1,8 @@
 const { logModel, userModel } = require("../Utils/Schemas.js");
-const { formatDate, isModerator, getNewId } = require("../Utils/Util.js");
+const { isModerator, getNewId } = require("../Utils/Util.js");
 const { buildXML } = require("../Utils/XML.js");
 const { getIPData } = require("../Utils/IPUtils.js");
 const { getValue, setValue } = require("../Utils/Globals.js");
-const { ChatLogWebhook } = require("../config.json");
-const fetch = require("node-fetch");
 
 exports.data = {
 	SOAPAction: "LogChat",
@@ -44,7 +42,7 @@ exports.run = async (request, ActorId, IP) => {
 };
 
 const createFMSNotification = (exports.createFMSNotification = command => {
-	const obj = getValue("fmsUpdates");
+	let obj = getValue("fmsUpdates");
 
 	if (!obj) {
 		setValue("fmsUpdates", {});
@@ -59,9 +57,8 @@ const createFMSNotification = (exports.createFMSNotification = command => {
 	console.log(getValue("fmsUpdates"));
 });
 
-async function processModeratorMessage(moderatorId, msg, roomId) {
+async function processModeratorMessage(moderatorId, msg) {
 	const prefix = "$";
-	const isChatroom = [0, 1, 2, 3, 4, 5].includes(roomId);
 	const isCommand = msg.startsWith(prefix);
 
 	if (isCommand) {
@@ -174,47 +171,5 @@ async function processModeratorMessage(moderatorId, msg, roomId) {
 
 				break;
 		}
-	}
-}
-
-async function getRoomName(RoomId) {
-	switch (RoomId) {
-		case -1:
-			return "Login";
-		case 0:
-			return "Beach";
-		case 1:
-			return "Park";
-		case 2:
-			return "Cafe";
-		case 3:
-			return "Skate";
-		case 4:
-			return "Meet new";
-		case 5:
-			return "Club";
-		case 7:
-			return "Forum";
-		case 8:
-			return "Mail";
-		case 9:
-			return "Profile";
-		case 10:
-			return "Guestbook";
-		case 11:
-			return "Twitter";
-		case 12:
-			return "Movie";
-		case 13:
-			return "Comment";
-		case 14:
-			return "LookComment";
-		case 15:
-			return "CompComment";
-		default:
-			const user = await userModel.findOne({ ActorId: RoomId });
-			if (!user) return "Unknown";
-
-			return `${user.Name} (${user.ActorId})`;
 	}
 }

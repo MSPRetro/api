@@ -44,7 +44,6 @@ exports.run = async (request, ActorId, IP, Password) => {
 	for (let clothes of request.items.ActorClothesRel2) {
 		itemsArray.push(await BuyClothes(clothes, ActorId));
 	}
-	const user = await userModel.findOne({ ActorId: ActorId });
 
 	return buildXML("BuyClothes", {
 		items: {

@@ -1,6 +1,6 @@
 const { uploadDefaultImg } = require("../Utils/BlobManager.js");
 const { movieModel, userModel } = require("../Utils/Schemas.js");
-const { formatDate, createTodo, getNewId } = require("../Utils/Util.js");
+const { createTodo, getNewId } = require("../Utils/Util.js");
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {

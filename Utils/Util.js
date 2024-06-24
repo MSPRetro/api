@@ -83,11 +83,6 @@ exports.addMinutes = (dateObj, numMinutes) => {
 	return dateObj;
 };
 
-exports.parseDate = datetime => {
-	let parse = datetime.split("-");
-	parse = parse[2].split(":");
-};
-
 exports.buildPage = (pageIndex, pageSize, array) => {
 	pageIndex++;
 	return array.slice((pageIndex - 1) * pageSize, pageIndex * pageSize);

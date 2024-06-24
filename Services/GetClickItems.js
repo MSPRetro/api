@@ -7,7 +7,7 @@ exports.data = {
 	levelModerator: 0
 };
 
-exports.run = async request => {
+exports.run = async () => {
 	const items = await clickitemModel.find({}).sort({ ClickItemId: 1 });
 
 	let itemArray = [];

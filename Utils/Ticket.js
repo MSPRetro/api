@@ -39,7 +39,7 @@ exports.validateTicket = ticket => {
 		const decoded = verify(ticket, process.env.CUSTOMCONNSTR_TicketSalt);
 
 		return { isValid: true, data: decoded };
-	} catch (err) {
+	} catch {
 		// Token is invalid
 		return { isValid: false, data: null };
 	}

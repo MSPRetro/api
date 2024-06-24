@@ -8,7 +8,7 @@ exports.data = {
 	levelModerator: 0
 };
 
-exports.run = async (request, ActorId) => {
+exports.run = async request => {
 	const user = await userModel.findOne({ ActorId: request.actorId });
 	if (!user) return;
 

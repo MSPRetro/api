@@ -6,6 +6,6 @@ exports.data = {
 	levelModerator: 0
 };
 
-exports.run = request => {
+exports.run = () => {
 	return buildXML("SetMarketingStep");
 };

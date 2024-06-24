@@ -1,5 +1,5 @@
 const { todoModel, userModel, movieModel } = require("../Utils/Schemas.js");
-const { formatDate, addDays } = require("../Utils/Util.js");
+const { formatDate } = require("../Utils/Util.js");
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
@@ -15,8 +15,6 @@ exports.run = async (request, ActorId) => {
 		.sort({ _id: -1 })
 		.skip(request.pageindex * 2)
 		.limit(2);
-
-	// formatDate(addDays(new Date(), -1))
 
 	let todosArr = [];
 

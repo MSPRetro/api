@@ -8,7 +8,7 @@ exports.data = {
 	levelModerator: 0
 };
 
-exports.run = async request => {
+exports.run = async () => {
 	const forums = await forumModel.find({});
 	let forumsArr = [];
 

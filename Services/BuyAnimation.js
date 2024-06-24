@@ -61,7 +61,7 @@ exports.run = async (request, ActorId, IP, Password) => {
 		AnimationRellId: RellId,
 		AnimationId: animation.AnimationId
 	});
-	var resp = await item.save();
+	await item.save();
 
 	return buildXML(
 		"BuyAnimation",

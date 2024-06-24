@@ -1,4 +1,4 @@
-const { pollModel, confModel, userModel } = require("../Utils/Schemas.js");
+const { pollModel, confModel } = require("../Utils/Schemas.js");
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {

@@ -1,5 +1,5 @@
 const { userModel } = require("../Utils/Schemas.js");
-const { addOrRemoveMoney, formatDate } = require("../Utils/Util.js");
+const { addOrRemoveMoney } = require("../Utils/Util.js");
 const { buildXML } = require("../Utils/XML.js");
 
 exports.data = {
@@ -9,8 +9,6 @@ exports.data = {
 };
 
 exports.run = async (request, ActorId) => {
-	const user = await userModel.findOne({ ActorId: ActorId });
-
 	if ([5, 10, 20, 40].includes(request.starCoins)) {
 		// whell no vip
 

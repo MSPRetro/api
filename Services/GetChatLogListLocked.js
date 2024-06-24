@@ -1,4 +1,4 @@
-const { logModel, userModel, behaviorModel } = require("../Utils/Schemas.js");
+const { logModel, behaviorModel } = require("../Utils/Schemas.js");
 const { formatDate } = require("../Utils/Util.js");
 const { buildXML } = require("../Utils/XML.js");
 
@@ -12,8 +12,6 @@ exports.run = async request => {
 	const behaviors = await behaviorModel
 		.find({ ActorId: request.actorId })
 		.sort({ _id: -1 });
-
-	const user = await userModel.findOne({ ActorId: request.actorId });
 
 	let behaviorData = [];
 

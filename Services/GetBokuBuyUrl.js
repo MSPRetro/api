@@ -6,7 +6,7 @@ exports.data = {
 	levelModerator: 0
 };
 
-exports.run = async (request, ActorId) => {
+exports.run = async () => {
 	// await setError(`MSPRetro is a free game, meaning you aren’t able to buy any additional StarCoins nor VIP Membership.\nPlease join our discord server to see how to gain VIP membership. ${discord}`);
 
 	await setError(

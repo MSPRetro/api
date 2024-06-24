@@ -1,8 +1,4 @@
-const {
-	commentEntityModel,
-	userModel,
-	lookModel
-} = require("../Utils/Schemas.js");
+const { commentEntityModel, lookModel } = require("../Utils/Schemas.js");
 const { isModerator } = require("../Utils/Util.js");
 const { buildXML } = require("../Utils/XML.js");
 
