@@ -125,7 +125,11 @@ exports.run = async (request, _, IP) => {
 		for (let clothe of request.clothes.ActorClothesRel2) {
 			await makeClothesRellId(clothe, ActorId);
 		}
-	} else {
+	} else if (typeof request.clothes === "number") {
+		// Allow user to have no clothes
+	} else if (
+		request.clothes.ActorClothesRel2.ActorClothesRelId !== undefined
+	) {
 		await makeClothesRellId(request.clothes.ActorClothesRel2, ActorId);
 	}
 
