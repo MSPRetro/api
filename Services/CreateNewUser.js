@@ -6,7 +6,8 @@ const {
 	clothModel,
 	eyeModel,
 	noseModel,
-	ticketModel
+	ticketModel,
+	mouthModel
 } = require("../Utils/Schemas.js");
 const { getIPData } = require("../Utils/IPUtils.js");
 const { buildLevel, formatDate, getNewId } = require("../Utils/Util.js");
@@ -140,7 +141,7 @@ exports.run = async (request, _, IP) => {
 	if (
 		!(await noseModel.findOne({
 			NoseId: request.actor.NoseId,
-			IsDeleted: 0,
+			IsHidden: 0,
 			SkinId: { $in: [0, SkinId] }
 		}))
 	)
@@ -148,15 +149,15 @@ exports.run = async (request, _, IP) => {
 	if (
 		!(await eyeModel.findOne({
 			EyeId: request.actor.EyeId,
-			IsDeleted: 0,
+			IsHidden: 0,
 			SkinId: { $in: [0, SkinId] }
 		}))
 	)
 		return;
 	if (
-		!(await noseModel.findOne({
+		!(await mouthModel.findOne({
 			MouthId: request.actor.MouthId,
-			IsDeleted: 0,
+			IsHidden: 0,
 			SkinId: { $in: [0, SkinId] }
 		}))
 	)

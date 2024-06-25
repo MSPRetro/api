@@ -5,13 +5,18 @@ const { containerClient } = require("../mspretro.js");
 exports.uploadDefaultImg = async (inputPath, outputPath) => {
 	const stream = createReadStream(join(__dirname, inputPath));
 
-	const file = containerClient.getBlockBlobClient(outputPath);
-	return await file.uploadStream(stream);
-};
+	try {
+		const file = containerClient.getBlockBlobClient(outputPath);
+		await file.uploadStream(stream);
+	} catch { }
+}
+
 
 exports.uploadBase64 = async (data, path) => {
 	const buffer = Buffer.from(data, "base64");
 
-	const file = containerClient.getBlockBlobClient(path);
-	return await file.upload(buffer, buffer.length);
+	try {
+		const file = containerClient.getBlockBlobClient(path);
+		await file.upload(buffer, buffer.length);
+	} catch { }
 };
