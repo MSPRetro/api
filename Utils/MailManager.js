@@ -31,13 +31,17 @@ exports.sendMail = async (from, toEmail, toName, subject, content) => {
 		}
 	};
 
-	const poller = await emailClient.beginSend(email);
-	if (!poller.getOperationState().isStarted) return false;
+	try {
+		const poller = await emailClient.beginSend(email);
+		if (!poller.getOperationState().isStarted) return false;
 
-	const response = await poller.pollUntilDone();
-	if (!response || response.Status !== "Succeeded") return false;
+		const response = await poller.pollUntilDone();
+		if (!response || response.Status !== "Succeeded") return false;
 
-	return true;
+		return true;
+	} catch {
+		return false;
+	}
 };
 
 const mailIsValid = (exports.mailIsValid = mail => {
