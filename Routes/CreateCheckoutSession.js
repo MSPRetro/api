@@ -25,19 +25,26 @@ exports.run = async (req, res) => {
 
 	const params = `?actorId=${user.ActorId}&username=${Buffer.from(user.Name).toString("base64")}&key=${req.body.Key}`;
 
-	const session = await stripe.checkout.sessions.create({
-		payment_method_types: currencyData.paymentMethods,
-		mode: "payment",
-		allow_promotion_codes: true,
-		line_items: [
-			{
-				price: product.PriceId,
-				quantity: 1
-			}
-		],
-		success_url: `${process.env.PaymentGatewayLink}/Success${params}`,
-		cancel_url: `${process.env.PaymentGatewayLink}/Cancel${params}`
-	});
+	let session;
+	try {
+		session = await stripe.checkout.sessions.create({
+			payment_method_types: currencyData.paymentMethods,
+			mode: "payment",
+			allow_promotion_codes: true,
+			line_items: [
+				{
+					price: product.PriceId,
+					quantity: 1
+				}
+			],
+			success_url: `${process.env.PaymentGatewayLink}/Success${params}`,
+			cancel_url: `${process.env.PaymentGatewayLink}/Cancel${params}`
+		});
+	} catch (err) {
+		console.error(err);
+
+		return res.sendStatus(500);
+	}
 
 	let TransactionId = (await getNewId("transaction_id")) + 1;
 
@@ -53,12 +60,10 @@ exports.run = async (req, res) => {
 		StarCoinsBefore: 0,
 		StarCoinsAfter: 0,
 		result_code: 1,
-		content_id: req.body.Key, // `MANUAL - ${numStr(request.amount, ".")} StarCoins`,
+		content_id: req.body.Key,
 		CardNumber: 0
 	});
 	await transaction.save();
-
-	// console.log(JSON.stringify(session, null, 2));
 
 	return res.json({ url: session.url });
 };
