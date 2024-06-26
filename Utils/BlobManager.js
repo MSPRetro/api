@@ -8,9 +8,8 @@ exports.uploadDefaultImg = async (inputPath, outputPath) => {
 	try {
 		const file = containerClient.getBlockBlobClient(outputPath);
 		await file.uploadStream(stream);
-	} catch { }
-}
-
+	} catch {}
+};
 
 exports.uploadBase64 = async (data, path) => {
 	const buffer = Buffer.from(data, "base64");
@@ -18,5 +17,5 @@ exports.uploadBase64 = async (data, path) => {
 	try {
 		const file = containerClient.getBlockBlobClient(path);
 		await file.upload(buffer, buffer.length);
-	} catch { }
+	} catch {}
 };
