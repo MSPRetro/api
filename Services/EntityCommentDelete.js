@@ -14,23 +14,19 @@ exports.run = async (request, ActorId) => {
 	});
 	if (!comment) return;
 
-	switch (comment.EntityType) {
-		case 1:
-			const look = await lookModel.findOne({ LookId: comment.EntityId });
-			if (
-				comment.ActorId != ActorId ||
-				(look.ActorId != ActorId &&
-					!(await isModerator(ActorId, false, 1)))
-			)
-				return;
+	if (comment.EntityType == 1) {
+		const look = await lookModel.findOne({ LookId: comment.EntityId });
+		if (!look) return;
 
-			break;
-		case 5:
-			if (
-				comment.ActorId != ActorId &&
-				!(await isModerator(ActorId, false, 1))
-			)
-				return;
+		if (
+			comment.ActorId !== ActorId &&
+			look.ActorId !== ActorId &&
+			!(await isModerator(ActorId, false, 1))
+		)
+			return;
+	} else if (comment.EntityType == 5) {
+		if (comment.ActorId != ActorId && !(await isModerator(ActorId, false, 1)))
+			return;
 	}
 
 	await commentEntityModel.updateOne(
