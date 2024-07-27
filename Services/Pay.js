@@ -1,3 +1,4 @@
+const { userModel } = require("../Utils/Schemas.js");
 const {
 	addOrRemoveMoney,
 	addFame,
@@ -12,8 +13,12 @@ exports.data = {
 };
 
 exports.run = async (request, ActorId, _, Password) => {
-	// We don't check the balance, because this event is just for spending money
-	if (Math.sign(request.starcoins) != 1) return;
+	const user = await userModel.findOne({ ActorId: ActorId });
+	if (
+		request.starcoins > user.Progression.Money ||
+		Math.sign(request.starcoins) != 1
+	)
+		return;
 
 	await addOrRemoveMoney(ActorId, -request.starcoins);
 	await addFame(ActorId, false, request.starcoins / 10);
