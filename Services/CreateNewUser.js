@@ -373,7 +373,7 @@ exports.run = async (request, _, IP) => {
 };
 
 async function makeClothesRellId(clothe, ActorId) {
-	if (!(await clothModel.findOne({ ClothesId: clothe.ClothesId }))) return;
+	if (!(await clothModel.findOne({ ClothesId: clothe.ClothesId, RegNewUser: 1 }))) return;
 
 	let rellId = (await getNewId("rell_clothes_id")) + 1;
 
