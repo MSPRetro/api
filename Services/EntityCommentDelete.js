@@ -25,7 +25,10 @@ exports.run = async (request, ActorId) => {
 		)
 			return;
 	} else if (comment.EntityType == 5) {
-		if (comment.ActorId != ActorId && !(await isModerator(ActorId, false, 1)))
+		if (
+			comment.ActorId != ActorId &&
+			!(await isModerator(ActorId, false, 1))
+		)
 			return;
 	}
 
