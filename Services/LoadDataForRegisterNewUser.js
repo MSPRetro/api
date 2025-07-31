@@ -17,7 +17,22 @@ exports.run = async () => {
 	// SkinId 1 > Girl
 	// SkinId 2 > Boy
 
-	const eyes = await eyeModel.find({ IsHidden: 0 });
+	const eyes = await eyeModel.aggregate([
+		{
+			$facet: {
+				eyesGirl: [{ $match: { SkinId: 1 } }, { $sample: { size: 3 } }],
+				eyesBoy: [{ $match: { SkinId: 2 } }, { $sample: { size: 3 } }]
+			}
+		},
+		{
+			$project: {
+				combined: { $concatArrays: ["$eyesGirl", "$eyesBoy"] }
+			}
+		},
+		{ $unwind: "$combined" },
+		{ $replaceRoot: { newRoot: "$combined" } }
+	]);
+
 	let eyesArr = [];
 
 	for (let eye of eyes) {
@@ -29,7 +44,24 @@ exports.run = async () => {
 		});
 	}
 
-	const noses = await noseModel.find({ IsHidden: 0 });
+	const noses = await noseModel.aggregate([
+		{
+			$facet: {
+				nosesGirl: [
+					{ $match: { SkinId: 1 } },
+					{ $sample: { size: 3 } }
+				],
+				nosesBoy: [{ $match: { SkinId: 2 } }, { $sample: { size: 3 } }]
+			}
+		},
+		{
+			$project: {
+				combined: { $concatArrays: ["$nosesGirl", "$nosesBoy"] }
+			}
+		},
+		{ $unwind: "$combined" },
+		{ $replaceRoot: { newRoot: "$combined" } }
+	]);
 
 	let nosesArr = [];
 
@@ -42,7 +74,24 @@ exports.run = async () => {
 		});
 	}
 
-	const mouths = await mouthModel.find({ IsHidden: 0 });
+	const mouths = await mouthModel.aggregate([
+		{
+			$facet: {
+				mouthsGirl: [
+					{ $match: { SkinId: 1 } },
+					{ $sample: { size: 3 } }
+				],
+				mouthsBoy: [{ $match: { SkinId: 2 } }, { $sample: { size: 3 } }]
+			}
+		},
+		{
+			$project: {
+				combined: { $concatArrays: ["$mouthsGirl", "$mouthsBoy"] }
+			}
+		},
+		{ $unwind: "$combined" },
+		{ $replaceRoot: { newRoot: "$combined" } }
+	]);
 
 	let mouthsArr = [];
 

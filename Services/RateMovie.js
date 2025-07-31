@@ -26,10 +26,12 @@ exports.run = async (request, ActorId) => {
 		MovieId: request.rateMovie.MovieId,
 		State: 100
 	});
+
 	if (
 		!movie ||
 		movie.ActorId == ActorId ||
-		(request.rateMovie.Score <= 1 && request.rateMovie.Score >= 5) ||
+		request.rateMovie.Score < 1 ||
+		request.rateMovie.Score > 5 ||
 		(await commentMovieModel.findOne({
 			MovieId: movie.MovieId,
 			ActorId: ActorId,

@@ -1,8 +1,10 @@
+const { hostname } = require("node:os");
+
 exports.data = {
 	Name: "",
 	Method: "GET"
 };
 
-exports.run = (req, res) => {
-	res.send("Hello World!");
+exports.run = (_, res) => {
+	res.send(`Server: ${hostname()} - Worker: ${process.pid}`);
 };
