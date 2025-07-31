@@ -3,7 +3,8 @@ const {
 	addDays,
 	addOrRemoveMoney,
 	getCurrencySymbol,
-	numStr
+	numStr,
+	getProductByKey
 } = require("../Utils/Util.js");
 const { sendMail } = require("../Utils/MailManager.js");
 const stripe = require("stripe");
@@ -94,67 +95,6 @@ exports.run = async (req, res) => {
 
 	res.sendStatus(200);
 };
-
-function getProductByKey(key) {
-	switch (key) {
-		case "1000":
-		case "2000": // 1 week VIP
-			return {
-				amountVIPDays: 8,
-				amountStarCoins: 1000,
-				description: "1 week VIP + 1.000 StarCoins"
-			};
-
-		case "3000": // 1 month VIP
-			return {
-				amountVIPDays: 31,
-				amountStarCoins: 5000,
-				description: "1 month VIP + 5.000 StarCoins"
-			};
-
-		case "6000": // 1 year VIP
-			return {
-				amountVIPDays: 366,
-				amountStarCoins: 100000,
-				description: "1 year VIP + 100.000 StarCoins"
-			};
-
-		case "14000": // 3 months VIP
-			return {
-				amountVIPDays: 91,
-				amountStarCoins: 20000,
-				description: "3 months VIP + 20.000 StarCoins"
-			};
-
-		case "2001": // $10.000 StarCoins
-			return {
-				amountVIPDays: 0,
-				amountStarCoins: 10000,
-				description: "10.000 StarCoins"
-			};
-
-		case "3001": // $50.000 StarCoins
-			return {
-				amountVIPDays: 0,
-				amountStarCoins: 50000,
-				description: "50.000 StarCoins"
-			};
-
-		case "6001": // $400.000 StarCoins
-			return {
-				amountVIPDays: 0,
-				amountStarCoins: 400000,
-				description: "400.000 StarCoins"
-			};
-
-		case "14001": // $1.000.000 StarCoins
-			return {
-				amountVIPDays: 0,
-				amountStarCoins: 1000000,
-				description: "1.000.000 StarCoins"
-			};
-	}
-}
 
 function currencyLeftOrRight(currencyData, price) {
 	if (currencyData.orientation === "L") return currencyData.symbol + price;

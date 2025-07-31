@@ -348,7 +348,7 @@ exports.getActorDetails = async (ActorId, RellActorId, Password) => {
 			);
 		}
 
-		email = user.Email.EmailValidated == 2 ? user.Email.Email : "";
+		//email = user.Email.EmailValidated == 2 ? user.Email.Email : "0.0";
 		password = Password;
 	}
 
@@ -434,7 +434,7 @@ exports.getActorDetails = async (ActorId, RellActorId, Password) => {
 		ProfileText: user.Profile.ProfileText,
 		Created: formatDate(user.Profile.Created),
 		LastLogin: formatDate(user.Profile.LastLogin),
-		Email: email,
+		Email: "0.0", // usually its the email variable instead of 0.0
 		Moderator: moderator,
 		ProfileDisplays: user.Profile.ProfileDisplays.length,
 		FavoriteMovie: user.Favorites.FavoriteMovie,
@@ -475,7 +475,7 @@ exports.getActorDetails = async (ActorId, RellActorId, Password) => {
 		LockedText: LockedText,
 		BadWordCount: user.Extra.BadWordCount,
 		PurchaseTimeoutDate: formatDate(new Date()),
-		EmailValidated: user.Email.EmailValidated,
+		EmailValidated: 2,
 		RetentionStatus: user.Extra.RetentionStatus,
 		GiftStatus: 2, // user.Gifts.GiftStatus, If is set to 1, user can see the present given but the devs (Call action UpdateGift)
 		MarketingNextStepLogins: user.Extra.MarketingNextStepLogins,
@@ -491,6 +491,67 @@ exports.getActorDetails = async (ActorId, RellActorId, Password) => {
 		BoyFriend: BoyFriend,
 		RoomActorLikes: RoomActorLike
 	};
+};
+
+exports.getProductByKey = key => {
+	switch (key) {
+		case "1000":
+		case "2000": // 1 week VIP
+			return {
+				amountVIPDays: 8,
+				amountStarCoins: 1000,
+				description: "1 week VIP + 1.000 StarCoins"
+			};
+
+		case "3000": // 1 month VIP
+			return {
+				amountVIPDays: 31,
+				amountStarCoins: 5000,
+				description: "1 month VIP + 5.000 StarCoins"
+			};
+
+		case "6000": // 1 year VIP
+			return {
+				amountVIPDays: 366,
+				amountStarCoins: 100000,
+				description: "1 year VIP + 100.000 StarCoins"
+			};
+
+		case "14000": // 3 months VIP
+			return {
+				amountVIPDays: 91,
+				amountStarCoins: 20000,
+				description: "3 months VIP + 20.000 StarCoins"
+			};
+
+		case "2001": // $10.000 StarCoins
+			return {
+				amountVIPDays: 0,
+				amountStarCoins: 10000,
+				description: "10.000 StarCoins"
+			};
+
+		case "3001": // $50.000 StarCoins
+			return {
+				amountVIPDays: 0,
+				amountStarCoins: 50000,
+				description: "50.000 StarCoins"
+			};
+
+		case "6001": // $400.000 StarCoins
+			return {
+				amountVIPDays: 0,
+				amountStarCoins: 400000,
+				description: "400.000 StarCoins"
+			};
+
+		case "14001": // $1.000.000 StarCoins
+			return {
+				amountVIPDays: 0,
+				amountStarCoins: 1000000,
+				description: "1.000.000 StarCoins"
+			};
+	}
 };
 
 exports.getCurrencySymbol = currency => {

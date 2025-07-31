@@ -23,12 +23,13 @@ exports.run = async (request, ActorId) => {
 
 	if (
 		!receiverActorId ||
-		new Date(
-			addMinutes(
-				new Date(user.Autographs.TimeOfLastAutographGiven),
-				timeBeforeNewAuto
-			)
-		).getTime() > Date.now()
+		(ActorId !== 2 &&
+			new Date(
+				addMinutes(
+					new Date(user.Autographs.TimeOfLastAutographGiven),
+					timeBeforeNewAuto
+				)
+			).getTime() > Date.now())
 	)
 		return;
 

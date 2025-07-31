@@ -11,7 +11,7 @@ const cors = require("cors");
 
 const { connect } = require("mongoose");
 const { BlobServiceClient } = require("@azure/storage-blob");
-const { EmailClient } = require("@azure/communication-email");
+// const { EmailClient } = require("@azure/communication-email");
 
 const { sanitizeJSON } = require("./Utils/Util.js");
 const { deleteValue, setValue } = require("./Utils/Globals.js");
@@ -67,9 +67,13 @@ if (cluster.isMaster) {
 	app.use(bodyParser.xml());
 	app.use(
 		cors({
-			origin: ["https://mspretro.com", "https://cdn.mspretro.com"],
-			methods: "POST",
-			allowedHeaders: ["Content-Type", "SOAPAction"],
+			origin: [
+				"https://mspretro.com",
+				"https://cdn.mspretro.com",
+				"https://beta.mspretro.com"
+			],
+			methods: ["POST", "OPTIONS"],
+			allowedHeaders: ["Content-Type", "SOAPAction", "checksum-client"],
 			maxAge: 86400 // 24h for Firefox, 2h for Chromium version >= 76, 10 minutes for Chromium version < 76
 		})
 	);
@@ -135,14 +139,15 @@ if (cluster.isMaster) {
 				console.log(`Loaded ${Object.keys(API).length} routes!`);
 		});
 
-		const blobServiceClient = BlobServiceClient.fromConnectionString(
-			process.env.CUSTOMCONNSTR_AzureBlobStorage
-		);
-		exports.containerClient = blobServiceClient.getContainerClient("$web");
+		// const blobServiceClient = BlobServiceClient.fromConnectionString(
+		// 	process.env.CUSTOMCONNSTR_AzureBlobStorage
+		// );
 
-		exports.emailClient = new EmailClient(
-			process.env.CUSTOMCONNSTR_AzureCommunicationService
-		);
+		// exports.containerClient = blobServiceClient.getContainerClient("$web");
+
+		// exports.emailClient = new EmailClient(
+		// 	process.env.CUSTOMCONNSTR_AzureCommunicationService
+		// );
 
 		await connect(process.env.CUSTOMCONNSTR_URIMongoDB)
 			.then(() =>

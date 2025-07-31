@@ -21,7 +21,7 @@ exports.run = async (req, res) => {
 	)
 		maintenance = true;
 
-	const { IPId, Locked } = await getIPData(IP);
+	const { IPId, _Locked } = await getIPData(IP);
 
 	res.json({
 		version: config.AppVersion,
@@ -29,7 +29,7 @@ exports.run = async (req, res) => {
 			status: maintenance,
 			message: config.maintenance.message
 		},
-		IPStatus: Locked ? "blocked" : "authorized",
+		IPStatus: "authorized", // Locked ? "blocked" : "authorized",
 		IP: IPId,
 		disclamer: config.disclamer
 	});
